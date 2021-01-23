@@ -265,7 +265,7 @@ void UpdatePlayer(){
 
         if(btnup_B){
             //add npc in front
-            AddNPC(plx+FIX32(16) , ply);
+            AddNPC(plx , ply);
         }
                 
         if(btn_Left) plAccX  = -FIX32(0.05);    

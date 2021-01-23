@@ -39,7 +39,9 @@ struct NPC{
     fix32 dy;
     Sprite* sprite;
     NPCUpdateCallback Update; //assigned depending on type
-    //void (*callback) (struct NPCtag* p);  
+    bool lookingRight;
+    u16 suspiciousness;
+    int lastKnownLocX;
 
     AIState myAIState;
     AICommands myAICommands;
