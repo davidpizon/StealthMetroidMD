@@ -1,16 +1,24 @@
 #include "../inc/PlayerLogic.h"
 
 fix32 deltax = 0;
+fix32 passingAnimTimer = 0;
+
+#define WalkLowSpeed FIX32(0.1)
+#define WalkHighSpeed FIX32(0.5)
 
 typedef enum
 {
+    Idle,
+    Turning,
+    StartWalk,
+    EndWalk,
     Walk,
     Run,
     Run2Walk,
     Walk2Run
 } AnimState;
 
-AnimState animState = Walk;
+AnimState animState = Idle;
 
 //movement state and vars
 typedef enum{
@@ -77,6 +85,7 @@ void UpdatePlayer(){
     switch (movState)
     {
     case normal:
+        playerVisibility = 1;
         //zero out accels
         plAccX = plAccY = 0;
     
@@ -260,6 +269,7 @@ void UpdatePlayer(){
 
         break;
     case debug:
+        playerVisibility = 0;
         //zero out accels
         plAccX = plAccY = 0;
 
@@ -314,47 +324,112 @@ void UpdatePlayer(){
     }
     
 
-    
+    //=====================ANIMATION STATE======================
     //here we start the animation state machine crap
-    
-    if(plSpX > 0){
-        SPR_setHFlip(playerSprite, FALSE);
-    }else if(plSpX < 0){
-        SPR_setHFlip(playerSprite, TRUE);
-    }
-    
-    if(animState == Walk2Run && playerSprite->frameInd == 4){
-        animState = Run;
-        SPR_setAnim(playerSprite,8);
-    }
-    if(animState == Run2Walk && playerSprite->frameInd == 4){
-        animState = Walk;
-        SPR_setAnim(playerSprite,5);
+    switch (animState)
+    {
+    case Idle:
+        if(abs(plSpX) < FIX32(0.1)){
+            if((plSpX > 0 && lookingRight)||(plSpX < 0 && !lookingRight)){
+                animState = StartWalk;
+                SPR_setAnim(playerSprite,PlAnim_startwalk);
+                passingAnimTimer = 0;
+                break;
+            }else if((plSpX > 0 && !lookingRight)||(plSpX < 0 && lookingRight)){
+                animState = Turning;
+                passingAnimTimer = 0;
+                SPR_setAnim(playerSprite,PlAnim_turn);
+                break;
+            }
+        }
+        break;
+    case Turning:
+        passingAnimTimer += FIX32(0.1); //better way?
+        if(passingAnimTimer > FIX32(0.5)){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd == 1){
+                SPR_setAnim(playerSprite,PlAnim_idle);
+                lookingRight = !lookingRight;
+                SPR_setHFlip(playerSprite, !lookingRight);
+                animState = Idle;
+                break;
+            }else{
+                SPR_nextFrame(playerSprite);
+            }
+        }
+            
+        break;
+    case StartWalk:
+        passingAnimTimer += FIX32(0.1); //better way?
+        if(passingAnimTimer > FIX32(0.5)){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd == 3){
+                SPR_setAnim(playerSprite,PlAnim_walk);
+                animState = Walk;
+                break;
+            }else{
+                SPR_nextFrame(playerSprite);
+            }
+        }
+        break;
+    case Walk:
+        deltax += plSpX;
+        if(deltax > FIX32(5)){
+            SPR_nextFrame(playerSprite);
+        }
+        if(plSpX < WalkLowSpeed){
+            //go back to idle by means of walktoidle anim
+        }
+        if(plSpX > WalkHighSpeed){
+            //call walktorun
+        }
+        break;
+    default:
+        break;
     }
 
-    if(plSpX>0){
-        deltax += plSpX;
-        if(plSpX>FIX32(0.5)){
-            if(animState == Walk){
-                animState = Walk2Run;
-                SPR_setAnim(playerSprite,15);
-            }
+
+
+    // if(plSpX > 0){
+    //     SPR_setHFlip(playerSprite, FALSE);
+    //     plLookingRight = TRUE;
+    // }else if(plSpX < 0){
+    //     SPR_setHFlip(playerSprite, TRUE);
+    //     plLookingRight = FALSE;
+    // }
+    
+    // if(animState == Walk2Run && playerSprite->frameInd == PlAnim_walk2run_lastframe){
+    //     animState = Run;
+    //     SPR_setAnim(playerSprite,PlAnim_run);
+    // }
+    // if(animState == Run2Walk && playerSprite->frameInd == PlAnim_run2walk_lastframe){
+    //     animState = Walk;
+    //     SPR_setAnim(playerSprite,PlAnim_walk);
+    // }
+
+    // if(plSpX!=0){
+    //     deltax += plSpX;
+    //     if(abs(plSpX)>( FIX32(0.5))){
+    //         if(animState == Walk){
+    //             animState = Walk2Run;
+    //             SPR_setAnim(playerSprite,PlAnim_walk2run);
+    //         }
                 
-            if(deltax >= FIX32(5)){
-                SPR_nextFrame(playerSprite);
-                deltax = 0;
-            }
-        }else{
-            if(animState == Run){
-                animState = Run2Walk;
-                SPR_setAnim(playerSprite,14);
-            }
-            if(deltax >= FIX32(2)){
-                SPR_nextFrame(playerSprite);
-                deltax = 0;
-            }
-        }               
-    }
+    //         if(abs(deltax) >= ( FIX32(5))){
+    //             SPR_nextFrame(playerSprite);
+    //             deltax = 0;
+    //         }
+    //     }else{
+    //         if(animState == Run){
+    //             animState = Run2Walk;
+    //             SPR_setAnim(playerSprite,PlAnim_run2walk);
+    //         }
+    //         if(abs(deltax) >= (FIX32(2))){
+    //             SPR_nextFrame(playerSprite);
+    //             deltax = 0;
+    //         }
+    //     }               
+    // }
 
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
 

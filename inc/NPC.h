@@ -20,6 +20,7 @@ typedef enum {
 } AIState;
 
 typedef enum{
+    Wait,
     Right,
     Left,
     Up,
@@ -42,6 +43,7 @@ struct NPC{
     bool lookingRight;
     u16 suspiciousness;
     int lastKnownLocX;
+    bool blockedByWall;
 
     AIState myAIState;
     AICommands myAICommands;
