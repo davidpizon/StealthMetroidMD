@@ -1,21 +1,19 @@
 #include "../inc/PlayerLogic.h"
 
 fix32 deltax = 0;
-fix32 passingAnimTimer = 0;
+u16 passingAnimTimer = 0;
 
 #define WalkLowSpeed FIX32(0.1)
 #define WalkHighSpeed FIX32(0.5)
 
 typedef enum
 {
-    Idle,
-    Turning,
-    StartWalk,
-    EndWalk,
-    Walk,
+    Idle,    
+    StartRun,
+    EndRun,
     Run,
-    Run2Walk,
-    Walk2Run
+    StopRun,
+    BrakeReverse
 } AnimState;
 
 AnimState animState = Idle;
@@ -97,15 +95,15 @@ void UpdatePlayer(){
 
         if(grounded){
                 
-            if(btn_Left) plAccX  = -FIX32(0.05);    
-            else if(btn_Right) plAccX =  FIX32(0.05);
+            if(btn_Left) plAccX  = -FIX32(0.06);    
+            else if(btn_Right) plAccX =  FIX32(0.06);
             else{
                 //brakes
                 if(plSpX > 0){
-                    plSpX -= FIX32(0.025);
+                    plSpX -= FIX32(0.05);
                     if(plSpX < 0) plSpX=0;
                 }else if(plSpX < 0){
-                    plSpX += FIX32(0.025);
+                    plSpX += FIX32(0.05);
                     if(plSpX > 0) plSpX=0;
                 }
             }
@@ -136,7 +134,7 @@ void UpdatePlayer(){
         plSpY += plAccY;
 
         fix32 maxSpeed = FIX32(2);
-        if(btn_A) maxSpeed = FIX32(0.5);
+        if(btn_A) maxSpeed = FIX32(0.2);
         if(plSpX > maxSpeed) plSpX = maxSpeed;
         else if(plSpX < -maxSpeed) plSpX = -maxSpeed;
 
@@ -329,61 +327,128 @@ void UpdatePlayer(){
     switch (animState)
     {
     case Idle:
-        if(abs(plSpX) < FIX32(0.1)){
-            if((plSpX > 0 && lookingRight)||(plSpX < 0 && !lookingRight)){
-                animState = StartWalk;
-                SPR_setAnim(playerSprite,PlAnim_startwalk);
+        VDP_drawText("Idle      ", 0, DEBUGLINE);
+        if(abs(plSpX) > FIX32(0.1)){
+            if((plAccX > 0 && lookingRight)||(plAccX < 0 && !lookingRight)){
+                animState = StartRun;
+                SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
-                break;
-            }else if((plSpX > 0 && !lookingRight)||(plSpX < 0 && lookingRight)){
-                animState = Turning;
-                passingAnimTimer = 0;
-                SPR_setAnim(playerSprite,PlAnim_turn);
+                // KDebug_Halt();
                 break;
             }
-        }
-        break;
-    case Turning:
-        passingAnimTimer += FIX32(0.1); //better way?
-        if(passingAnimTimer > FIX32(0.5)){
-            passingAnimTimer = 0;
-            if(playerSprite->frameInd == 1){
-                SPR_setAnim(playerSprite,PlAnim_idle);
-                lookingRight = !lookingRight;
-                SPR_setHFlip(playerSprite, !lookingRight);
-                animState = Idle;
-                break;
-            }else{
-                SPR_nextFrame(playerSprite);
-            }
-        }
             
-        break;
-    case StartWalk:
-        passingAnimTimer += FIX32(0.1); //better way?
-        if(passingAnimTimer > FIX32(0.5)){
+        }
+        if((plSpX > 0 && !lookingRight)||(plSpX < 0 && lookingRight)){
+                //i need animation for turning before start running
+                animState = StartRun;
+                SPR_setAnim(playerSprite,PlAnim_startrun);
+                passingAnimTimer = 0;
+                SPR_setHFlip(playerSprite, lookingRight);
+                lookingRight = !lookingRight;
+                // KDebug_Halt();
+                break;
+            }
+        break;    
+    case StartRun:
+        VDP_drawText("StartRun         ", 0, DEBUGLINE);
+        //before the normal checks, this one gest priority:
+        if((lookingRight && plAccX < 0)||(!lookingRight && plAccX > 0)){
+            //start run the other direction
+            //just flip H and reset this animation 
+            SPR_setHFlip(playerSprite,lookingRight);
+            lookingRight = !lookingRight;
+            SPR_setFrame(playerSprite, 0);
             passingAnimTimer = 0;
-            if(playerSprite->frameInd == 3){
-                SPR_setAnim(playerSprite,PlAnim_walk);
-                animState = Walk;
+            // KDebug_Halt();
+            break;
+        }
+        if(plAccX == 0){
+            //we want to stop right away, call stop run
+            SPR_setAnim(playerSprite,PlAnim_stopRun);
+            animState = StopRun;
+            passingAnimTimer = 0;
+            animState = StopRun; 
+            // KDebug_Halt();           
+            break;
+        }
+        
+        //now we check for end of animation to move on to Run
+        passingAnimTimer ++; //better way?
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd == 2){
+                SPR_setAnim(playerSprite, PlAnim_run);
+                animState = Run;
+                // KDebug_Halt();
                 break;
             }else{
                 SPR_nextFrame(playerSprite);
             }
         }
         break;
-    case Walk:
+    case Run:
+        VDP_drawText("Run          ", 0, DEBUGLINE);
         deltax += plSpX;
-        if(deltax > FIX32(5)){
+        if(abs(deltax) > FIX32(5)){
             SPR_nextFrame(playerSprite);
+            deltax = 0;
         }
-        if(plSpX < WalkLowSpeed){
-            //go back to idle by means of walktoidle anim
+        if(plAccX == 0){
+            //means we are stopping 
+            SPR_setAnim(playerSprite,PlAnim_stopRun);
+            animState = StopRun;
+            passingAnimTimer = 0;
+            animState = StopRun;
+            // KDebug_Halt();
+            break;
         }
-        if(plSpX > WalkHighSpeed){
-            //call walktorun
+        if((plAccX > 0 && !lookingRight)||(plAccX < 0 && lookingRight)){
+            //means we are reversing direction
+            SPR_setHFlip(playerSprite, lookingRight);
+            lookingRight = !lookingRight;
+            SPR_setAnim(playerSprite,PlAnim_startrun);
+            animState = StartRun;
+            // KDebug_Halt();
+            break;
         }
         break;
+    case StopRun:
+
+        VDP_drawText("StopRun           ", 0, DEBUGLINE);
+        //before the normal checks, this one gest priority:
+        if((lookingRight && plAccX < 0)||(!lookingRight && plAccX > 0)){
+            //start run the other direction
+            //just flip H and reset this animation 
+            SPR_setHFlip(playerSprite,lookingRight);
+            lookingRight = !lookingRight;
+            SPR_setAnim(playerSprite,PlAnim_startrun);
+            animState = StartRun;
+            // KDebug_Halt();
+            break;
+        }
+        if(plAccX != 0){
+            //means we started running again
+            animState = StartRun;
+            SPR_setAnim(playerSprite,PlAnim_startrun);
+            //KDebug_Halt();
+            break;
+        }
+
+
+        passingAnimTimer ++; //better way?
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd == 7){
+                SPR_setAnim(playerSprite,PlAnim_idle);
+                animState = Idle;
+                //KDebug_Halt();
+                break;
+            }else{
+                SPR_nextFrame(playerSprite);
+            }
+        }
+        break;
+    
     default:
         break;
     }

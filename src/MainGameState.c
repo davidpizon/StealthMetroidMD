@@ -47,6 +47,11 @@ void MainGameStart(){
     // blocks[2].sprite = SPR_addSprite(&simpleBlock, blocks[2].x-camPosX, blocks[2].y-camPosY, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
     // SPR_setVisibility(blocks[2].sprite, 2);
 
+    VDP_setWindowHPos(TRUE, 20);
+    VDP_setWindowVPos(TRUE, DEBUGLINE);
+    VDP_setTextPlane(WINDOW);
+    VDP_setTextPriority(TRUE);
+     //   VDP_setPlaneSize(5, 5, TRUE);
 
 
     camTargetX = 0;
@@ -114,7 +119,6 @@ void MainGameUpdate(){
     // blockCycleInd++;
     // if(blockCycleInd==10) blockCycleInd = 0;
 
-    
 
 }
 

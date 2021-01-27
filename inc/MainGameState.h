@@ -11,6 +11,8 @@
 #include "PlayerLogic.h"
 #include "NPC.h"
 
+#define DEBUGLINE 23
+
 Map* colMap;
 
 int camPosX;

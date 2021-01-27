@@ -38,7 +38,7 @@ bool CanSeePlayer(NPC* npc){
         return FALSE;
     if(abs( fix32ToInt( npc->y - ply)) > 50 )
         return FALSE;
-    if(abs( fix32ToInt( npc->x - plx)) > 100 )
+    if(abs( fix32ToInt( npc->x - plx)) > 60 )
         return FALSE;
     
     //if we got this far we have to do a path trace thing
@@ -103,7 +103,8 @@ void BasicNPCUpdate(NPC *n){
         if(!CanSeePlayer(n)){
             //n->myAIState = Calm;
             //break;
-            n->suspiciousness --;
+            if(n->suspiciousness != 0)
+                n->suspiciousness --;
             
 
         }else{
@@ -163,5 +164,26 @@ void BasicNPCUpdate(NPC *n){
     MoveY(fix32ToRoundedInt(n->x), &n->y, 16, 40, &n->dy);
     n->y += n->dy;
 
+    
+    switch (n->myAIState)
+    {
+    case Calm:
+        VDP_drawText("Calm", 0, DEBUGLINE);
+        break;
+    case Confused:
+        VDP_drawText("Confused", 0, DEBUGLINE);
+        break;
+    case Alerted:
+        VDP_drawText("Alerted", 0, DEBUGLINE);
+        break;
+    default:
+        break;
+    }
+    
+    VDP_drawText("suspiciousness: ", 0, DEBUGLINE + 1);
+    char debmsg[5];
+    VDP_drawText( itoa2(n->suspiciousness, debmsg) , 20, DEBUGLINE + 1);
 
+    
+    
 }

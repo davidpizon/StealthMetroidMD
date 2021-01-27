@@ -17,16 +17,16 @@
 //anim lengths
 #define PlAnim_walk2run_lastframe 5
 #define PlAnim_run2walk_lastframe 6
+#define PlAnim_endwalk_lastFrame 1
 
 //anim indices
 #define PlAnim_idle 0
-#define PlAnim_turn 1
-#define PlAnim_startwalk 5
-#define PlAnim_walk 6
-#define PlAnim_endwalk 7
-#define PlAnim_run 9
-#define PlAnim_walk2run 18
-#define PlAnim_run2walk 17
+#define PlAnim_startrun 4
+#define PlAnim_run 6
+#define PlAnim_stopRun 8
+
+
+
 
 Sprite *playerSprite;
 fix32 plx;
