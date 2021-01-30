@@ -23,7 +23,9 @@
 #define PlAnim_idle 0
 #define PlAnim_startrun 4
 #define PlAnim_run 6
-#define PlAnim_stopRun 8
+#define PlAnim_horjump 7
+#define PlAnim_wallrun 8
+#define PlAnim_stopRun 9
 
 
 

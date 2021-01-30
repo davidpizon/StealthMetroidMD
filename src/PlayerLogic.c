@@ -9,11 +9,11 @@ u16 passingAnimTimer = 0;
 typedef enum
 {
     Idle,    
-    StartRun,
-    EndRun,
+    StartRun,    
     Run,
     StopRun,
-    BrakeReverse
+    WallRunning,
+    HorizontalJump
 } AnimState;
 
 AnimState animState = Idle;
@@ -116,6 +116,10 @@ void UpdatePlayer(){
             jumph = fix32Div(jumph, maxv);
             if(btndown_C && grounded){
                 plSpY = jumph;
+                if(plSpX != 0){
+                    animState = HorizontalJump;
+                    SPR_setAnim(playerSprite, PlAnim_horjump);
+                }
             } 
             
         }else
@@ -324,6 +328,12 @@ void UpdatePlayer(){
 
     //=====================ANIMATION STATE======================
     //here we start the animation state machine crap
+    if(movState == wallRunning && animState != WallRunning){
+        animState = WallRunning;
+        deltax = 0;
+        SPR_setAnim(playerSprite, PlAnim_wallrun);
+    }
+    
     switch (animState)
     {
     case Idle:
@@ -448,7 +458,56 @@ void UpdatePlayer(){
             }
         }
         break;
+    case WallRunning: //this one's set by the movement state machine
+        if(plSpY < 0 && playerSprite->frameInd != 8){
+            deltax += plSpY;
+            if(abs(deltax) > FIX32(4)){
+                deltax=0;
+                SPR_nextFrame(playerSprite);
+            }
+        }else{
+            //use last frame of animation
+            SPR_setFrame(playerSprite, 8);
+            if(grounded){
+                //insert additional state for falling
+                //for now just go to idle
+                animState = Idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+                break;
+            }
+        }
+        //insert wall jump
+        //insert ledge grab
+
+        break;
     
+    case HorizontalJump:
+        VDP_drawText("HorizontalJump           ", 0, DEBUGLINE);        
+        passingAnimTimer ++; //better way?
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd != 3){ //frame 3 is the falling down animation
+                SPR_nextFrame(playerSprite);
+            }
+        }
+        if(grounded){
+            //play remaining animation before switching to running
+            if(playerSprite->frameInd < 3){
+                SPR_setFrame(playerSprite, 3);
+            }else{
+                if(playerSprite->frameInd != 5){
+                    SPR_nextFrame(playerSprite);
+                }else{
+                    //switch to running
+                    SPR_setAnim(playerSprite, PlAnim_run);
+                    deltax = 0;
+                    animState = Run;
+                    break;
+                }
+                
+            }
+        }
+        break;
     default:
         break;
     }
