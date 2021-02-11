@@ -52,3 +52,8 @@ s16 Clamp(s16 value, s16 min, s16 max){
     if(value > max) return max;
     return value;
 }
+s16 Clamp32(fix32 value, fix32 min, fix32 max){
+    if(value < min) return min;
+    if(value > max) return max;
+    return value;
+}

@@ -1,4 +1,5 @@
 #include "../inc/PlayerLogic.h"
+#define LASTFRAME playerSprite->data
 
 fix32 deltax = 0;
 u16 passingAnimTimer = 0;
@@ -8,31 +9,37 @@ u16 passingAnimTimer = 0;
 
 typedef enum
 {
-    Idle,    
-    StartRun,    
-    Run,
-    StopRun,
-    WallRunning,
-    HorizontalJump
+    as_idle,    
+    as_startRun,    
+    as_run,
+    as_stopRun,
+    as_wallRunning,
+    as_horizontalJump,
+    as_attack
 } AnimState;
 
-AnimState animState = Idle;
+AnimState animState = as_idle;
 
 //movement state and vars
 typedef enum{
-    debug,
-    normal,
-    hanging,
-    wallRunning
+    ms_debug,
+    ms_normal,
+    ms_hanging,
+    ms_wallRunning,
+    ms_attacking,
+    ms_defending,
+    ms_counter
 } MovementState;
 
-MovementState movState = normal;
+MovementState movState = ms_normal;
+
 
 bool grounded = FALSE;
 bool lookingRight = TRUE;
 int grabbingBlockY;
 int grabbingBlockType;
 bool wallRunningRight;
+
 
 void StartPlayer(){
     PAL_setPalette(PAL1, playerSprites.palette->data);
@@ -54,7 +61,7 @@ bool LedgeGrabber(){
             if(TILEINDEX(curt)==TILE_LEDGELEFT||TILEINDEX(curt)==TILE_LEDGERIGHT){
                 //*outx = tx;
                 grabbingBlockY = ty*8;
-                movState = hanging;                    
+                movState = ms_hanging;                    
                 grabbingBlockType = TILEINDEX(curt);
                 return TRUE;
             }
@@ -67,10 +74,10 @@ bool LedgeGrabber(){
 void UpdatePlayer(){
     //this puts us in the flying debug mode
     if(btn_A && btn_C){
-        if(movState == debug){
-            movState = normal;
+        if(movState == ms_debug){
+            movState = ms_normal;
         }else{
-            movState = debug;
+            movState = ms_debug;
         }
     }
       
@@ -82,7 +89,7 @@ void UpdatePlayer(){
     
     switch (movState)
     {
-    case normal:
+    case ms_normal:
         playerVisibility = 1;
         //zero out accels
         plAccX = plAccY = 0;
@@ -117,10 +124,18 @@ void UpdatePlayer(){
             if(btndown_C && grounded){
                 plSpY = jumph;
                 if(plSpX != 0){
-                    animState = HorizontalJump;
+                    animState = as_horizontalJump;
                     SPR_setAnim(playerSprite, PlAnim_horjump);
                 }
             } 
+            
+            //attack
+            if(btndown_B){
+                animState = as_attack;
+                SPR_setAnim(playerSprite, PlAnim_attack);
+                //damage check will be called during the right frame from in the animation state
+            }
+            
             
         }else
         {
@@ -156,7 +171,7 @@ void UpdatePlayer(){
                 plSpY += -abs(prevVel); //adding previous value creates interesting physics
                 //now if you are falling when reaching the wall you can't really go up but it does slow down fall
                 //but if you jump right before it gives you a giant boost. Maybe too much!
-                movState = wallRunning;
+                movState = ms_wallRunning;
                 if(prevVel > 0){
                     wallRunningRight = TRUE;
                 }else{
@@ -174,10 +189,10 @@ void UpdatePlayer(){
         ply += plSpY;
 
         break;
-    case wallRunning:
+    case ms_wallRunning:
 
         if(grounded && plSpY >=0){
-            movState = normal;
+            movState = ms_normal;
             break;
         }
         plSpY += FIX32(0.05);
@@ -186,7 +201,7 @@ void UpdatePlayer(){
 
         //if(btn_Up ){
             LedgeGrabber();
-            if(movState!=wallRunning)
+            if(movState!=ms_wallRunning)
                 break;
         //}
 
@@ -197,7 +212,7 @@ void UpdatePlayer(){
             }else{
                 plSpX = FIX32(2);
             }
-            movState = normal;
+            movState = ms_normal;
             break;
         }
 
@@ -212,7 +227,7 @@ void UpdatePlayer(){
         
 
         break;
-    case hanging:
+    case ms_hanging:
 
         //this bit is to move the player close to the wall hes climbing.
         if(grabbingBlockType == TILE_LEDGELEFT){
@@ -231,7 +246,7 @@ void UpdatePlayer(){
             //hmmm this could be the point where we crouch, if we ever use crouch
             ply -= FIX32(1.0);
             if(plyint + PlayerHeight < grabbingBlockY){
-                movState = normal;
+                movState = ms_normal;
                 ply = FIX32(grabbingBlockY - PlayerHeight-4);
                 plSpY = plSpX = 0;
                 //KDebug_Halt();
@@ -240,7 +255,7 @@ void UpdatePlayer(){
             ply -= FIX32(1.0);
             //check if already reached top
             if(plyint + PlayerHeight < grabbingBlockY){
-                movState = normal;
+                movState = ms_normal;
                 ply = FIX32(grabbingBlockY - PlayerHeight-4);
                 plSpY = plSpX = 0;
                 //KDebug_Halt();
@@ -258,7 +273,7 @@ void UpdatePlayer(){
             //     ply += plSpY;
             // }
             if(btn_Down){
-                movState = normal;
+                movState = ms_normal;
                 plSpY = plSpX = 0;
             }
             if(plyint < grabbingBlockY){
@@ -270,7 +285,7 @@ void UpdatePlayer(){
         }
 
         break;
-    case debug:
+    case ms_debug:
         playerVisibility = 0;
         //zero out accels
         plAccX = plAccY = 0;
@@ -319,6 +334,9 @@ void UpdatePlayer(){
         MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
         ply += plSpY;
         break;
+    case ms_attacking:
+        
+        break;
     default:
         //nada
         //how did i get here
@@ -328,19 +346,19 @@ void UpdatePlayer(){
 
     //=====================ANIMATION STATE======================
     //here we start the animation state machine crap
-    if(movState == wallRunning && animState != WallRunning){
-        animState = WallRunning;
+    if(movState == ms_wallRunning && animState != as_wallRunning){
+        animState = as_wallRunning;
         deltax = 0;
         SPR_setAnim(playerSprite, PlAnim_wallrun);
     }
     
     switch (animState)
     {
-    case Idle:
+    case as_idle:
         VDP_drawText("Idle      ", 0, DEBUGLINE);
         if(abs(plSpX) > FIX32(0.1)){
             if((plAccX > 0 && lookingRight)||(plAccX < 0 && !lookingRight)){
-                animState = StartRun;
+                animState = as_startRun;
                 SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
                 // KDebug_Halt();
@@ -350,7 +368,7 @@ void UpdatePlayer(){
         }
         if((plSpX > 0 && !lookingRight)||(plSpX < 0 && lookingRight)){
                 //i need animation for turning before start running
-                animState = StartRun;
+                animState = as_startRun;
                 SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
                 SPR_setHFlip(playerSprite, lookingRight);
@@ -359,7 +377,7 @@ void UpdatePlayer(){
                 break;
             }
         break;    
-    case StartRun:
+    case as_startRun:
         VDP_drawText("StartRun         ", 0, DEBUGLINE);
         //before the normal checks, this one gest priority:
         if((lookingRight && plAccX < 0)||(!lookingRight && plAccX > 0)){
@@ -375,9 +393,9 @@ void UpdatePlayer(){
         if(plAccX == 0){
             //we want to stop right away, call stop run
             SPR_setAnim(playerSprite,PlAnim_stopRun);
-            animState = StopRun;
+            animState = as_stopRun;
             passingAnimTimer = 0;
-            animState = StopRun; 
+            animState = as_stopRun; 
             // KDebug_Halt();           
             break;
         }
@@ -388,7 +406,7 @@ void UpdatePlayer(){
             passingAnimTimer = 0;
             if(playerSprite->frameInd == 2){
                 SPR_setAnim(playerSprite, PlAnim_run);
-                animState = Run;
+                animState = as_run;
                 // KDebug_Halt();
                 break;
             }else{
@@ -396,7 +414,7 @@ void UpdatePlayer(){
             }
         }
         break;
-    case Run:
+    case as_run:
         VDP_drawText("Run          ", 0, DEBUGLINE);
         deltax += plSpX;
         if(abs(deltax) > FIX32(5)){
@@ -406,9 +424,9 @@ void UpdatePlayer(){
         if(plAccX == 0){
             //means we are stopping 
             SPR_setAnim(playerSprite,PlAnim_stopRun);
-            animState = StopRun;
+            animState = as_stopRun;
             passingAnimTimer = 0;
-            animState = StopRun;
+            animState = as_stopRun;
             // KDebug_Halt();
             break;
         }
@@ -417,12 +435,12 @@ void UpdatePlayer(){
             SPR_setHFlip(playerSprite, lookingRight);
             lookingRight = !lookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
-            animState = StartRun;
+            animState = as_startRun;
             // KDebug_Halt();
             break;
         }
         break;
-    case StopRun:
+    case as_stopRun:
 
         VDP_drawText("StopRun           ", 0, DEBUGLINE);
         //before the normal checks, this one gest priority:
@@ -432,13 +450,13 @@ void UpdatePlayer(){
             SPR_setHFlip(playerSprite,lookingRight);
             lookingRight = !lookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
-            animState = StartRun;
+            animState = as_startRun;
             // KDebug_Halt();
             break;
         }
         if(plAccX != 0){
             //means we started running again
-            animState = StartRun;
+            animState = as_startRun;
             SPR_setAnim(playerSprite,PlAnim_startrun);
             //KDebug_Halt();
             break;
@@ -450,7 +468,7 @@ void UpdatePlayer(){
             passingAnimTimer = 0;
             if(playerSprite->frameInd == 7){
                 SPR_setAnim(playerSprite,PlAnim_idle);
-                animState = Idle;
+                animState = as_idle;
                 //KDebug_Halt();
                 break;
             }else{
@@ -458,7 +476,7 @@ void UpdatePlayer(){
             }
         }
         break;
-    case WallRunning: //this one's set by the movement state machine
+    case as_wallRunning: //this one's set by the movement state machine
         if(plSpY < 0 && playerSprite->frameInd != 8){
             deltax += plSpY;
             if(abs(deltax) > FIX32(4)){
@@ -471,7 +489,7 @@ void UpdatePlayer(){
             if(grounded){
                 //insert additional state for falling
                 //for now just go to idle
-                animState = Idle;
+                animState = as_idle;
                 SPR_setAnim(playerSprite, PlAnim_idle);
                 break;
             }
@@ -481,7 +499,7 @@ void UpdatePlayer(){
 
         break;
     
-    case HorizontalJump:
+    case as_horizontalJump:
         VDP_drawText("HorizontalJump           ", 0, DEBUGLINE);        
         passingAnimTimer ++; //better way?
         if(passingAnimTimer > 5){
@@ -490,7 +508,7 @@ void UpdatePlayer(){
                 SPR_nextFrame(playerSprite);
             }
         }
-        if(grounded){
+        if(grounded && plSpY>=0){
             //play remaining animation before switching to running
             if(playerSprite->frameInd < 3){
                 SPR_setFrame(playerSprite, 3);
@@ -501,12 +519,36 @@ void UpdatePlayer(){
                     //switch to running
                     SPR_setAnim(playerSprite, PlAnim_run);
                     deltax = 0;
-                    animState = Run;
+                    animState = as_run;
                     break;
                 }
                 
             }
         }
+        break;
+        case as_attack:
+        VDP_drawText("attack              ", 0, DEBUGLINE);        
+        passingAnimTimer ++; //better way?
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+                        
+            if(LASTFRAME == TRUE){
+                //return to idle
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+                LASTFRAME = FALSE;
+                break;
+            }else{
+                SPR_nextFrame(playerSprite);
+                if(playerSprite->frameInd == 1){ //frame 1 deals damage
+                    //damage
+                }
+                if(playerSprite->frameInd == 3){ //last frame
+                    LASTFRAME = TRUE;
+                }                
+            }
+        }
+        
         break;
     default:
         break;
@@ -557,7 +599,6 @@ void UpdatePlayer(){
 
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
 
-    
     char blah[10];        
     fix32ToStr(plx, blah, 5 ); //last two bytes are tile index
     VDP_drawText( blah, 0,0 );

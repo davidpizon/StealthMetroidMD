@@ -44,10 +44,6 @@ bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
     int ti = xi >> 3;
     int tf = xf >> 3;
 
-    //this check would have been useful if it worked
-   
-    
-
     if( *dx > 0){
         int ty = y >> 3;
         bool collided = FALSE;

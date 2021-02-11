@@ -21,11 +21,12 @@
 
 //anim indices
 #define PlAnim_idle 0
-#define PlAnim_startrun 4
-#define PlAnim_run 6
-#define PlAnim_horjump 7
-#define PlAnim_wallrun 8
-#define PlAnim_stopRun 9
+#define PlAnim_startrun 8
+#define PlAnim_run 9
+#define PlAnim_horjump 20
+#define PlAnim_wallrun 10
+#define PlAnim_stopRun 11
+#define PlAnim_attack 21
 
 
 

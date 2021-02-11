@@ -10,5 +10,6 @@ bool LastFrame(Sprite* sp);
 bool AnimEnd(Sprite* sp);
 char* itoa2(int i, char b[]);
 s16 Clamp(s16 value, s16 min, s16 max);
+s16 Clamp32(fix32 value, fix32 min, fix32 max);
 
 #endif
