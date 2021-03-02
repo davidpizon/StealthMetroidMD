@@ -15,6 +15,11 @@
 
 Map* colMap;
 
+int debvar1;
+int debvar2;
+fix32 debvar3;
+fix32 debvar4;
+
 int camPosX;
 int camPosY;
 

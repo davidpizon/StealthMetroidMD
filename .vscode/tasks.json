@@ -32,7 +32,7 @@
             "echoCommand": true,
             "taskName": "makeAndRun",
             "args": [
-                "aftercompile.bat"
+                "debugrun.bat"
             ]
         }
     ]

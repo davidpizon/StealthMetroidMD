@@ -14,6 +14,10 @@ NPC AddNPC(fix32 x, fix32 y){
     newnpc.x = x;
     newnpc.dx = FIX32(3.0);
     newnpc.y = y;
+    newnpc.w = 16;
+    newnpc.h = 40;
+    newnpc.hitPoints = 1;
+    newnpc.dead = FALSE;
     newnpc.lookingRight = TRUE;
     newnpc.Update = &BasicNPCUpdate;
     newnpc.sprite = SPR_addSprite(&playerSprites, x, y, TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
@@ -186,4 +190,27 @@ void BasicNPCUpdate(NPC *n){
 
     
     
+}
+
+void DamagePoint(fix32 x, fix32 y, int dmg){
+    
+    //cycle through all NPCs to see if any contain x,y, then deal damage
+    for(u8 n = 0; n<numNPCs; n++){
+        
+        
+        if(x >= NPCs[n].x && x <= NPCs[n].x+intToFix32(NPCs[n].w)&&
+            NPCs[n].y<=y && NPCs[n].y+FIX32(NPCs[n].h) >= y){
+            
+        }
+    }
+}
+
+void TakeHit(NPC *n, int dmg){
+    //this function decides if the npc manages to defend, dodge, or take damage
+    //for now it just takes damage
+    n->hitPoints -= dmg;
+    if(n->hitPoints<=0){
+        //play dead animation and set its dead flag
+        n->dead = TRUE;
+    }
 }

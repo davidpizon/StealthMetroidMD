@@ -36,6 +36,10 @@ struct NPC{
     AITypes type;
     fix32 x;
     fix32 y;
+    int w;
+    int h;
+    int hitPoints;
+    bool dead;
     fix32 dx;
     fix32 dy;
     Sprite* sprite;
@@ -49,7 +53,6 @@ struct NPC{
     AICommands myAICommands;
     
 };
-//typedef void (*NPCUpdateCallback)( NPC* p);
 
 
 
@@ -59,7 +62,7 @@ u16 numNPCs;
 NPC AddNPC(fix32 x, fix32 y);
 
 void BasicNPCUpdate(NPC *n);
-
+void DamagePoint(fix32 x, fix32 y, int dmg);
 
 
 #endif

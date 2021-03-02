@@ -9,6 +9,7 @@
         "padhelper.h": "c",
         "playerlogic.h": "c",
         "genesis.h": "c",
-        "mycustomstate.h": "c"
+        "mycustomstate.h": "c",
+        "kdebug.h": "c"
     }
 }

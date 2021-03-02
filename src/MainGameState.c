@@ -21,7 +21,6 @@ void setCameraPosition(s16 x, s16 y);
 
 void MainGameStart(){
     
-
     //create test blocks here
     // PAL_setPalette(PAL2, simpleBlock.palette->data);
 
@@ -83,6 +82,7 @@ void MainGameStart(){
 }
 //int blockCycleInd=0;
 void MainGameUpdate(){
+    
 
 
     UpdatePlayer();
@@ -95,14 +95,15 @@ void MainGameUpdate(){
     
 
     for(int n = 0; n < numNPCs; n++ ){
-        
-        NPCs[n].Update(&NPCs[n]);
+        if(!NPCs[n].dead)
+            NPCs[n].Update(&NPCs[n]);
+        //render even if dead, the body should be ppermanet
         SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - PlayerSpriteOffsetX, 
                                   fix32ToInt(NPCs[n].y)-camPosY - PlayerSpriteOffsetY);
 
         
     }
-
+    
     // SPR_setPosition(debCornerNW, fix32ToRoundedInt( plx)-camPosX, fix32ToRoundedInt( ply)-camPosY);
     // SPR_setPosition(debCornerNE, fix32ToRoundedInt( plx)-camPosX+8, fix32ToRoundedInt( ply)-camPosY);
     // SPR_setPosition(debCornerSW, fix32ToRoundedInt( plx)-camPosX, fix32ToRoundedInt( ply)-camPosY+8);

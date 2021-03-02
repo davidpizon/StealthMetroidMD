@@ -15,7 +15,8 @@ typedef enum
     as_stopRun,
     as_wallRunning,
     as_horizontalJump,
-    as_attack
+    as_attack,
+    as_wallDrag
 } AnimState;
 
 AnimState animState = as_idle;
@@ -45,6 +46,7 @@ void StartPlayer(){
     PAL_setPalette(PAL1, playerSprites.palette->data);
     plx = FIX32(13*8);
     ply= FIX32(50);
+    KDebug_AlertNumber(&plx);
     playerSprite = SPR_addSprite(&playerSprites, fix32ToInt( plx), fix32ToInt( ply), TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
     SPR_setAnim(playerSprite, 9);
     SPR_setVisibility(playerSprite, 2);    
@@ -73,7 +75,7 @@ bool LedgeGrabber(){
 
 void UpdatePlayer(){
     //this puts us in the flying debug mode
-    if(btn_A && btn_C){
+    if(btndown_Start){
         if(movState == ms_debug){
             movState = ms_normal;
         }else{
@@ -159,7 +161,7 @@ void UpdatePlayer(){
 
         //checking for wall slam
         fix32 prevVel = plSpX;
-        if(!MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX)){
+        if(!MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX) && !grounded ){
             
             //if we are here it means we hit a wall while running or falling or jumping
             //here we make additional checks to enter wall running state
@@ -167,15 +169,17 @@ void UpdatePlayer(){
                 //should we subtract from plspy or something?
                 //for now let's just cancel y speed and climb wall normally.
                 //setting up plspx back to its previous value so it can be handled in the wallrun state
-
-                plSpY += -abs(prevVel); //adding previous value creates interesting physics
-                //now if you are falling when reaching the wall you can't really go up but it does slow down fall
-                //but if you jump right before it gives you a giant boost. Maybe too much!
-                movState = ms_wallRunning;
                 if(prevVel > 0){
                     wallRunningRight = TRUE;
                 }else{
                     wallRunningRight = FALSE;
+                }
+                movState = ms_wallRunning;
+                if(playerSprite->frameInd==1){
+                    plSpY += -abs(prevVel)>>1; //adding previous value creates interesting physics                    
+                }else{ //this is kind of a mess..
+                    animState = as_wallDrag;
+                    SPR_setAnim(playerSprite, PlAnim_walldrag);
                 }
                 
                 //no need to process y movement anymore.
@@ -346,7 +350,7 @@ void UpdatePlayer(){
 
     //=====================ANIMATION STATE======================
     //here we start the animation state machine crap
-    if(movState == ms_wallRunning && animState != as_wallRunning){
+    if(movState == ms_wallRunning && !(animState == as_wallRunning||animState == as_wallDrag)){ //NOR
         animState = as_wallRunning;
         deltax = 0;
         SPR_setAnim(playerSprite, PlAnim_wallrun);
@@ -392,7 +396,7 @@ void UpdatePlayer(){
         }
         if(plAccX == 0){
             //we want to stop right away, call stop run
-            SPR_setAnim(playerSprite,PlAnim_stopRun);
+            SPR_setAnim(playerSprite,PlAnim_endrun);
             animState = as_stopRun;
             passingAnimTimer = 0;
             animState = as_stopRun; 
@@ -423,7 +427,7 @@ void UpdatePlayer(){
         }
         if(plAccX == 0){
             //means we are stopping 
-            SPR_setAnim(playerSprite,PlAnim_stopRun);
+            SPR_setAnim(playerSprite,PlAnim_endrun);
             animState = as_stopRun;
             passingAnimTimer = 0;
             animState = as_stopRun;
@@ -464,7 +468,7 @@ void UpdatePlayer(){
 
 
         passingAnimTimer ++; //better way?
-        if(passingAnimTimer > 5){
+        if(passingAnimTimer > 2){
             passingAnimTimer = 0;
             if(playerSprite->frameInd == 7){
                 SPR_setAnim(playerSprite,PlAnim_idle);
@@ -477,15 +481,45 @@ void UpdatePlayer(){
         }
         break;
     case as_wallRunning: //this one's set by the movement state machine
-        if(plSpY < 0 && playerSprite->frameInd != 8){
-            deltax += plSpY;
-            if(abs(deltax) > FIX32(4)){
-                deltax=0;
-                SPR_nextFrame(playerSprite);
+    //PAREI AQUI: the idea was to activate wall run only at a specific jump frame to match animation
+    //maybe it serves to require a little skill to execute the wall run
+        VDP_drawText("Wall run           ", 0, DEBUGLINE); 
+        if(plSpY < 0){
+            if(playerSprite->frameInd == 7){
+                break;
             }
-        }else{
-            //use last frame of animation
-            SPR_setFrame(playerSprite, 8);
+            //based on displacement:
+            // deltax += plSpY;
+            // if(abs(deltax) > FIX32(10)){
+            //     deltax=0;
+            //     SPR_nextFrame(playerSprite);
+            // }
+            //based on timer:
+            passingAnimTimer ++; //better way?
+            if(passingAnimTimer > 4){
+                passingAnimTimer = 0;
+                SPR_nextFrame(playerSprite);                
+            }   
+        }else{//CHANGE TO ANIMATION STATE WALL DRAGGING!!!!!!!!1111---------------------------
+            if(playerSprite->frameInd < 7){
+                SPR_setFrame(playerSprite, 7);
+                break;
+            }
+            
+            passingAnimTimer ++; //better way?
+            if(passingAnimTimer > 5){
+                passingAnimTimer = 0;
+                SPR_nextFrame(playerSprite);
+                if(playerSprite->frameInd == 0){
+                    animState = as_wallDrag;
+                    SPR_setAnim(playerSprite, PlAnim_walldrag);
+                    break;
+                }
+            }            
+            
+            
+
+            //if grounded go back to idle
             if(grounded){
                 //insert additional state for falling
                 //for now just go to idle
@@ -498,23 +532,42 @@ void UpdatePlayer(){
         //insert ledge grab
 
         break;
-    
-    case as_horizontalJump:
-        VDP_drawText("HorizontalJump           ", 0, DEBUGLINE);        
+    case as_wallDrag:
+        VDP_drawText("Wall Drag           ", 0, DEBUGLINE);        
         passingAnimTimer ++; //better way?
         if(passingAnimTimer > 5){
             passingAnimTimer = 0;
-            if(playerSprite->frameInd != 3){ //frame 3 is the falling down animation
+            SPR_nextFrame(playerSprite);
+        }
+        //if grounded go back to idle
+        if(grounded){
+            //insert additional state for falling
+            //for now just go to idle
+            animState = as_idle;
+            SPR_setAnim(playerSprite, PlAnim_idle);
+            break;
+        }
+        break;
+    case as_horizontalJump:
+        VDP_drawText("HorizontalJump           ", 0, DEBUGLINE);        
+        passingAnimTimer ++; //better way?
+        if(passingAnimTimer > 4){
+            passingAnimTimer = 0;
+            if(playerSprite->frameInd != 5){ //frame 3 is the falling down animation
                 SPR_nextFrame(playerSprite);
             }
         }
         if(grounded && plSpY>=0){
             //play remaining animation before switching to running
-            if(playerSprite->frameInd < 3){
-                SPR_setFrame(playerSprite, 3);
+            if(playerSprite->frameInd < 5 && playerSprite->frameInd != 0){ //zero means it looped
+                SPR_setFrame(playerSprite, 5);
             }else{
-                if(playerSprite->frameInd != 5){
-                    SPR_nextFrame(playerSprite);
+                if(playerSprite->frameInd != 0){
+                    passingAnimTimer ++;
+                    if(passingAnimTimer > 4){
+                        SPR_nextFrame(playerSprite);
+                        passingAnimTimer = 0;
+                    }
                 }else{
                     //switch to running
                     SPR_setAnim(playerSprite, PlAnim_run);
@@ -542,6 +595,9 @@ void UpdatePlayer(){
                 SPR_nextFrame(playerSprite);
                 if(playerSprite->frameInd == 1){ //frame 1 deals damage
                     //damage
+                    //DamagePoint(plx + lookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
+                    fix32 disp = lookingRight? FIX32(16) : -FIX32(8);
+                    DamagePoint(plx+disp, ply, 1);
                 }
                 if(playerSprite->frameInd == 3){ //last frame
                     LASTFRAME = TRUE;
@@ -606,5 +662,6 @@ void UpdatePlayer(){
     camTargetX = fix32ToRoundedInt( plx)-150;
     camTargetY =fix32ToRoundedInt( ply)-50;
 
+    debvar1 = playerSprite->frameInd;
 
 }
