@@ -35,8 +35,8 @@
 #define PlAnim_walldrag   12
 #define PlAnim_endrun   13
 #define PlAnim_jumpup   14
-#define PlAnim_hanging   15
-#define PlAnim_climbup   16
+#define PlAnim_climbup   15
+#define PlAnim_ledgegrab   16
 #define PlAnim_climbdown   17
 #define PlAnim_jumpupfall   18
 #define PlAnim_runtowalk   19
@@ -45,9 +45,6 @@
 #define PlAnim_horjump   22
 #define PlAnim_attack   23
 #define PlAnim_silent_knife   24
-
-
-
 
 
 
@@ -63,6 +60,7 @@ int plSpXint;
 int plSpYint;
 fix32 plAccX;
 fix32 plAccY;
+fix32 climbingY;
 u8 playerVisibility;
 bool plLookingRight;
 

@@ -14,6 +14,7 @@
 #define GRAVITY FIX32(0.15)
 
 #define TILEINDEX(t) (t & 0xFF)
+#define ALIGNWITHTILE(t) ((t>>3)<<3)
 
 typedef struct 
 {
@@ -29,11 +30,14 @@ int numBlocks;
 Block blocks[24];
 
 //moveX will return FALSE if collision happened
+int AlignWithTile(int x);
 bool MoveX(fix32* x, int y, int w, int h, fix32* dx);
 void MoveY(int x, fix32* y, int w, int h, fix32* dy);
 bool SquareIntersectTile(int x, int y, int w, int h, int tile, int* outx, int* outy);
 bool PointInWalkableTile(int x, int y);
 bool PointInTile(int x, int y, int tile);
+bool PointFromToInTileX(int x1, int x2, int y, int tile,  int* tilex);
+bool PointInTileOut(int x, int y, int tile, u16* outtile);
 bool PointInside(int x, int y, int* blockind);
 bool SquareIntersection(int x0, int y0, int w, int h, int* blockind);
 

@@ -13,8 +13,8 @@
 #define PlAnim_walldrag   12
 #define PlAnim_endrun   13
 #define PlAnim_jumpup   14
-#define PlAnim_hanging   15
-#define PlAnim_climbup   16
+#define PlAnim_climbup   15
+#define PlAnim_ledgegrab   16
 #define PlAnim_climbdown   17
 #define PlAnim_jumpupfall   18
 #define PlAnim_runtowalk   19

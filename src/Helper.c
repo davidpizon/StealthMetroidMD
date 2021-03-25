@@ -4,7 +4,7 @@
 
 bool LastFrame(Sprite* sp){
     
-    if(sp->frameInd == sp->animation->length - 1){
+    if(sp->frameInd == sp->animation->numFrame - 1){
         return TRUE;
     }
     return FALSE;
@@ -12,14 +12,8 @@ bool LastFrame(Sprite* sp){
 
 bool AnimEnd(Sprite* sp){
     
-    if(sp->frameInd == sp->animation->length - 1 && sp->timer==1){    
-        // animEndsCounter++;
-        // if(animEndsCounter>1){
-        //     sp->timer=2;
-        //     animEndsCounter--;
-        //     return FALSE;
-        // } else
-            return TRUE;
+    if(sp->frameInd == sp->animation->numFrame - 1 && sp->timer==1){            
+        return TRUE;
     }
         
     return FALSE;

@@ -77,6 +77,8 @@ void MainGameStart(){
 
     StartPlayer();
 
+    
+
     updateCameraPosition();
     SYS_doVBlankProcess();
 }
@@ -138,10 +140,10 @@ void updateCameraPosition()
     int tx = Clamp(camTargetX, 0, MAP_WIDTH - 320);
     int ty = Clamp(camTargetY, 0, MAP_HEIGHT - 224);
     
-    // int cx = ((tx - camPosX)>>3)+camPosX;
-    // int cy = ((ty - camPosY)>>3)+camPosY;
-    int cx = tx;
-    int cy = ty;
+    int cx = ((tx - camPosX)>>3)+camPosX;
+    int cy = ((ty - camPosY)>>3)+camPosY;
+    // int cx = tx;
+    // int cy = ty;
 
 
     // set new camera position
@@ -156,12 +158,9 @@ void setCameraPosition(s16 x, s16 y)
         camPosY = y;
 
         // scroll maps
-        if( !btn_A){
-            MAP_scrollTo(colMap, x, y);    
-        }else{
-            MAP_scrollTo(bga, x, y);
-        }
         
+        //MAP_scrollTo(colMap, x, y);        
+        MAP_scrollTo(bga, x, y);
         // scrolling is slower on BGB        
         MAP_scrollTo(bgb, x >> 3, y >> 5);
 

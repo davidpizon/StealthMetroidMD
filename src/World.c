@@ -35,7 +35,11 @@ bool WithinInterval(int x, int a, int b){
     return FALSE;
 }
 
-
+int AlignWithTile(int x){
+    int xx = x >> 3;
+    xx = xx << 3;
+    return xx;
+}
 
 bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
     
@@ -178,6 +182,30 @@ bool PointInWalkableTile(int x, int y){
         return TRUE;
     }
     return FALSE;
+    
+}
+
+
+
+bool PointInTileOut(int x, int y, int tile, u16* outtile){
+    x = x >> 3;
+    y = y >> 3;
+    *outtile = (MAP_getTile(colMap, x, y)) ;
+    if(((*outtile) & 0xFF) == tile){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+bool PointFromToInTileX(int x1, int x2, int y, int tile, int* tilex){
+    for(int x = x1; x <= x2; x+=8){
+        if(PointInTile(x, y, tile)){
+            *tilex = AlignWithTile(x);
+            return TRUE;
+        }
+            
+    }
+    return FALSE;
 }
 
 bool PointInTile(int x, int y, int tile){
@@ -188,6 +216,7 @@ bool PointInTile(int x, int y, int tile){
     }
     return FALSE;
 }
+
 
 void MoveXBlock(fix32* x, fix32 y, int w, int h, fix32* dx){
     //check for collision with this increment before committing them to plx and ply

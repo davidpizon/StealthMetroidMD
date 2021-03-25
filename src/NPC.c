@@ -13,6 +13,7 @@ NPC AddNPC(fix32 x, fix32 y){
     NPC newnpc;
     newnpc.x = x;
     newnpc.dx = FIX32(3.0);
+    newnpc.myAICommands = Right;
     newnpc.y = y;
     newnpc.w = 16;
     newnpc.h = 40;
@@ -36,11 +37,12 @@ NPC AddNPC(fix32 x, fix32 y){
 
 
 bool CanSeePlayer(NPC* npc){    
+    SPR_setPosition(debCornerNE, fix32ToRoundedInt( npc->x) + 60 - camPosX, fix32ToRoundedInt(npc->y) -20 - camPosY);
     //first checks x and y distances
     //add check with lookingright once this var is defined
     if((npc->lookingRight && npc->x > plx)||(!npc->lookingRight && npc->x < plx))
         return FALSE;
-    if(abs( fix32ToInt( npc->y - ply)) > 50 )
+    if(abs( fix32ToInt( npc->y - ply)) > 20 )
         return FALSE;
     if(abs( fix32ToInt( npc->x - plx)) > 60 )
         return FALSE;
@@ -187,7 +189,11 @@ void BasicNPCUpdate(NPC *n){
     VDP_drawText("suspiciousness: ", 0, DEBUGLINE + 1);
     char debmsg[5];
     VDP_drawText( itoa2(n->suspiciousness, debmsg) , 20, DEBUGLINE + 1);
-
+    if(n->lookingRight ){
+        VDP_drawText( "right" , 30, DEBUGLINE + 1);
+    }else{
+        VDP_drawText( "left" , 30, DEBUGLINE + 1);
+    }
     
     
 }

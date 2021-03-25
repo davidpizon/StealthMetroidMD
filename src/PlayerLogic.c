@@ -16,15 +16,23 @@ typedef enum
     as_wallRunning,
     as_horizontalJump,
     as_attack,
-    as_wallDrag
+    as_wallDrag,
+    as_climb,
+    as_climbDown,
+    as_ledgeSwing,
+    as_squatDown,
+    as_squatUp,
+    as_crouch
 } AnimState;
 
 AnimState animState = as_idle;
 
 //movement state and vars
 typedef enum{
+    ms_frozen,
     ms_debug,
     ms_normal,
+    ms_crouch,
     ms_hanging,
     ms_wallRunning,
     ms_attacking,
@@ -42,6 +50,7 @@ int grabbingBlockType;
 bool wallRunningRight;
 
 
+
 void StartPlayer(){
     PAL_setPalette(PAL1, playerSprites.palette->data);
     plx = FIX32(13*8);
@@ -50,9 +59,13 @@ void StartPlayer(){
     playerSprite = SPR_addSprite(&playerSprites, fix32ToInt( plx), fix32ToInt( ply), TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
     SPR_setAnim(playerSprite, 9);
     SPR_setVisibility(playerSprite, 2);    
+
+    //deb
+    debCornerNE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
 }
 
 bool LedgeGrabber(){
+    
     int tx0 = plxint >> 3;
     int tx1 = tx0 + ((PlayerWidth -1)>> 3);
     int ty0 = plyint >> 3;
@@ -63,7 +76,24 @@ bool LedgeGrabber(){
             if(TILEINDEX(curt)==TILE_LEDGELEFT||TILEINDEX(curt)==TILE_LEDGERIGHT){
                 //*outx = tx;
                 grabbingBlockY = ty*8;
-                movState = ms_hanging;                    
+                //PAREI AQUI. CHANGES THAT NEED TO BE MADE: INSTEAD OF GOING TO CLIMB STATE GO TO LEDGE GRAB ANIMATION FIRST
+                
+                //this is used to set the frame, so we estimate the best we can here
+                climbingY = intToFix32( abs( plyint - grabbingBlockY));
+                //the same means 0, lowest possible. the max value is playerheight, which needs to be the last frame
+                climbingY = fix32Div(climbingY, FIX32(PlayerHeight)); //this normalizes it
+                climbingY = fix32Mul(climbingY, FIX32(10)); //max frame
+                if(climbingY < FIX32(1) && abs(plSpXint) > 1){
+                    //go to swing animation
+                    movState = ms_frozen;
+                    animState = as_ledgeSwing;
+                    SPR_setAnim(playerSprite, PlAnim_ledgegrab);
+                }else{
+                    movState = ms_hanging;
+                    SPR_setAnim(playerSprite, PlAnim_climbup);    
+                    animState = as_climb;   
+                }
+                              
                 grabbingBlockType = TILEINDEX(curt);
                 return TRUE;
             }
@@ -82,6 +112,7 @@ void UpdatePlayer(){
             movState = ms_debug;
         }
     }
+    
       
 
     plxint = fix32ToRoundedInt(plx);
@@ -91,6 +122,9 @@ void UpdatePlayer(){
     
     switch (movState)
     {
+    case ms_frozen:
+        //do nothing. this state is here to stop the player from inputting commands
+        break;
     case ms_normal:
         playerVisibility = 1;
         //zero out accels
@@ -98,7 +132,7 @@ void UpdatePlayer(){
     
         //check for ledge grab first
         //check if trying to grab anything
-        if(btn_Up){                        
+        if(  (btn_Up || !grounded) && !btn_Down ){                        
             if(LedgeGrabber()) break;
         }
 
@@ -129,6 +163,14 @@ void UpdatePlayer(){
                     animState = as_horizontalJump;
                     SPR_setAnim(playerSprite, PlAnim_horjump);
                 }
+            }
+
+            //crouch
+            if(btn_Down){
+                movState = ms_frozen;
+                animState = as_squatDown;
+                SPR_setAnim(playerSprite, PlAnim_squatdown);
+                break;
             } 
             
             //attack
@@ -178,6 +220,7 @@ void UpdatePlayer(){
                 if(playerSprite->frameInd==1){
                     plSpY += -abs(prevVel)>>1; //adding previous value creates interesting physics                    
                 }else{ //this is kind of a mess..
+                    
                     animState = as_wallDrag;
                     SPR_setAnim(playerSprite, PlAnim_walldrag);
                 }
@@ -192,6 +235,51 @@ void UpdatePlayer(){
         MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
         ply += plSpY;
 
+        break;
+    case ms_crouch:
+        //check for up key to uncrouch and down to climb down
+        if(btn_Up){
+            movState = ms_frozen;
+            //change animstate which will unfreeze the player
+            animState = as_squatUp;
+            SPR_setAnim(playerSprite, PlAnim_squatup);
+            break;
+        }
+        if(btn_Down){
+            //check for ledge
+            int tx;
+            if(PointFromToInTileX(plxint, plxint+ PlayerWidth, plyint+PlayerHeight+1, TILE_LEDGELEFT, &tx)){
+                
+                if(!lookingRight){
+                    //flip
+                    SPR_setHFlip(playerSprite, lookingRight);
+                    lookingRight = !lookingRight;
+                }         
+                //climb down
+                movState = ms_frozen;
+                animState = as_climbDown;
+                SPR_setAnim(playerSprite, PlAnim_climbdown);
+                ply += FIX32( PlayerHeight);
+                plx = FIX32(tx-8);  
+                grabbingBlockType = TILE_LEDGELEFT;
+                grabbingBlockY = (plyint+PlayerHeight);
+
+            }else if(PointFromToInTileX(plxint, plxint+ PlayerWidth, plyint+PlayerHeight+1, TILE_LEDGERIGHT, &tx)){
+                if(lookingRight){
+                    SPR_setHFlip(playerSprite, lookingRight);
+                    lookingRight = !lookingRight;
+                }         
+                //climb down
+                movState = ms_frozen;
+                animState = as_climbDown;
+                ply += FIX32( PlayerHeight);                
+                plx = FIX32(tx);                
+                SPR_setAnim(playerSprite, PlAnim_climbdown);
+                grabbingBlockType = TILE_LEDGERIGHT;
+                grabbingBlockY = (plyint + PlayerHeight);
+            }
+            
+        }
         break;
     case ms_wallRunning:
 
@@ -233,6 +321,10 @@ void UpdatePlayer(){
         break;
     case ms_hanging:
 
+        //static position:
+        ply = intToFix32( grabbingBlockY);
+        //climgingy needs to be reset before entering this state
+
         //this bit is to move the player close to the wall hes climbing.
         if(grabbingBlockType == TILE_LEDGELEFT){
             plSpX = FIX32(1.0);
@@ -243,51 +335,40 @@ void UpdatePlayer(){
             MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
             plx += plSpX;
         }
+
+
+
+
         //two states: going up or falling
         //going up has two states: below playerclimbdist manual and above auto
-        if(plyint < grabbingBlockY - PlayerClimbDist){
+        if(climbingY > FIX32(5.0)){
             //goes up the rest of the way automatically
-            //hmmm this could be the point where we crouch, if we ever use crouch
-            ply -= FIX32(1.0);
-            if(plyint + PlayerHeight < grabbingBlockY){
-                movState = ms_normal;
-                ply = FIX32(grabbingBlockY - PlayerHeight-4);
+            climbingY += FIX32(0.2);
+            if(climbingY > FIX32(10.0)){ //the animation has 9 frames
+                movState = ms_crouch; 
+                animState = as_crouch;
+                SPR_setAnim(playerSprite, PlAnim_crouch); 
+                ply = FIX32(grabbingBlockY - PlayerHeight );
                 plSpY = plSpX = 0;
                 //KDebug_Halt();
             }
         }else if(btn_Up){
-            ply -= FIX32(1.0);
-            //check if already reached top
-            if(plyint + PlayerHeight < grabbingBlockY){
-                movState = ms_normal;
-                ply = FIX32(grabbingBlockY - PlayerHeight-4);
-                plSpY = plSpX = 0;
-                //KDebug_Halt();
-            }
+            climbingY += FIX32(0.2);
         }else{
-            
-            // if(plyint >= grabbingBlockY){                
-            //     if(btn_Down){
-            //         movState = normal;
-            //         plSpY = plSpX = 0;
-            //     }                
-            // }else{
-            //     plSpY = Fix32(1.5);
-            //     MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
-            //     ply += plSpY;
-            // }
             if(btn_Down){
-                movState = ms_normal;
+                movState = ms_normal; //should be falling or something..
                 plSpY = plSpX = 0;
             }
-            if(plyint < grabbingBlockY){
-                plSpY = FIX32(1.5);
-                MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
-                ply += plSpY;
+            if(climbingY > 0){                
+                climbingY -= FIX32(0.2);
+                if(climbingY < 0) climbingY = 0;
             }
             
         }
-
+        //change frame depending on climbingy
+        SPR_setFrame(playerSprite, fix32ToInt(climbingY));
+        debvar1 = fix32ToInt(climbingY);
+        debvar2 = playerSprite->frameInd;
         break;
     case ms_debug:
         playerVisibility = 0;
@@ -381,6 +462,9 @@ void UpdatePlayer(){
                 break;
             }
         break;    
+    case as_climb:
+        //handled in the movement state
+        break;
     case as_startRun:
         VDP_drawText("StartRun         ", 0, DEBUGLINE);
         //before the normal checks, this one gest priority:
@@ -444,6 +528,61 @@ void UpdatePlayer(){
             break;
         }
         break;
+    case as_ledgeSwing:
+        VDP_drawText("Ledge Swing           ", 0, DEBUGLINE);
+        passingAnimTimer++;
+        if(passingAnimTimer > 5){            
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){
+                //looped back
+                movState = ms_hanging;
+                animState = as_climb;
+                SPR_setAnim(playerSprite, PlAnim_climbup);
+                break;
+            }
+        }
+        break;
+    case as_squatDown:
+        passingAnimTimer++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0 ){
+                movState = ms_crouch;
+                animState = as_crouch;
+                SPR_setAnim(playerSprite, PlAnim_crouch);
+            }
+        }
+        break;
+    case as_climbDown:
+        passingAnimTimer++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0 ){
+                movState = ms_hanging;
+                animState = as_climb;
+                SPR_setAnim(playerSprite, PlAnim_climbup);
+                climbingY = FIX32(0);
+            }
+        }
+        break;
+    case as_crouch:
+        //do nothing :P
+        break;
+    case as_squatUp:
+        passingAnimTimer++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0 ){
+                movState = ms_normal;
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+            }
+        }
+        break;
     case as_stopRun:
 
         VDP_drawText("StopRun           ", 0, DEBUGLINE);
@@ -481,11 +620,9 @@ void UpdatePlayer(){
         }
         break;
     case as_wallRunning: //this one's set by the movement state machine
-    //PAREI AQUI: the idea was to activate wall run only at a specific jump frame to match animation
-    //maybe it serves to require a little skill to execute the wall run
         VDP_drawText("Wall run           ", 0, DEBUGLINE); 
         if(plSpY < 0){
-            if(playerSprite->frameInd == 7){
+            if(playerSprite->frameInd == 8){
                 break;
             }
             //based on displacement:
@@ -501,8 +638,8 @@ void UpdatePlayer(){
                 SPR_nextFrame(playerSprite);                
             }   
         }else{//CHANGE TO ANIMATION STATE WALL DRAGGING!!!!!!!!1111---------------------------
-            if(playerSprite->frameInd < 7){
-                SPR_setFrame(playerSprite, 7);
+            if(playerSprite->frameInd < 9){
+                SPR_setFrame(playerSprite, 9);
                 break;
             }
             
@@ -612,47 +749,6 @@ void UpdatePlayer(){
 
 
 
-    // if(plSpX > 0){
-    //     SPR_setHFlip(playerSprite, FALSE);
-    //     plLookingRight = TRUE;
-    // }else if(plSpX < 0){
-    //     SPR_setHFlip(playerSprite, TRUE);
-    //     plLookingRight = FALSE;
-    // }
-    
-    // if(animState == Walk2Run && playerSprite->frameInd == PlAnim_walk2run_lastframe){
-    //     animState = Run;
-    //     SPR_setAnim(playerSprite,PlAnim_run);
-    // }
-    // if(animState == Run2Walk && playerSprite->frameInd == PlAnim_run2walk_lastframe){
-    //     animState = Walk;
-    //     SPR_setAnim(playerSprite,PlAnim_walk);
-    // }
-
-    // if(plSpX!=0){
-    //     deltax += plSpX;
-    //     if(abs(plSpX)>( FIX32(0.5))){
-    //         if(animState == Walk){
-    //             animState = Walk2Run;
-    //             SPR_setAnim(playerSprite,PlAnim_walk2run);
-    //         }
-                
-    //         if(abs(deltax) >= ( FIX32(5))){
-    //             SPR_nextFrame(playerSprite);
-    //             deltax = 0;
-    //         }
-    //     }else{
-    //         if(animState == Run){
-    //             animState = Run2Walk;
-    //             SPR_setAnim(playerSprite,PlAnim_run2walk);
-    //         }
-    //         if(abs(deltax) >= (FIX32(2))){
-    //             SPR_nextFrame(playerSprite);
-    //             deltax = 0;
-    //         }
-    //     }               
-    // }
-
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
 
     char blah[10];        
@@ -660,8 +756,9 @@ void UpdatePlayer(){
     VDP_drawText( blah, 0,0 );
     
     camTargetX = fix32ToRoundedInt( plx)-150;
-    camTargetY =fix32ToRoundedInt( ply)-50;
+    // if(grounded) //interesting idea but needs additional check for y displacement...
+        camTargetY =fix32ToRoundedInt( ply)-50;
 
-    debvar1 = playerSprite->frameInd;
-
+    
+    
 }
