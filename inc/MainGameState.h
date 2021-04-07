@@ -11,7 +11,7 @@
 #include "PlayerLogic.h"
 #include "NPC.h"
 
-#define DEBUGLINE 26
+#define DEBUGLINE 24
 
 Map* colMap;
 

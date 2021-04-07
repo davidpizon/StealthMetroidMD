@@ -1,8 +1,9 @@
 //my stuff
 SPRITE playerToken "gfx/playericon.png" 2 5 BEST
-SPRITE playerSprites "sprite/RoguePlatformer_v3.png" 10 13 BEST 
+SPRITE playerSprites "sprite/RoguePlatformer_v3.png" 10 13 NONE 
 SPRITE simpleBlock "gfx/simpleBlock.png" 2 2 BEST
 
+SPRITE blankGuard "sprite/blankGuard.png" 10 11 NONE 
 SPRITE maskedGuard "sprite/maskedguard_sheet.png" 10 11 NONE 7
 SPRITE appleSprite "sprite/basicapple.png" 4 5 NONE 4
 

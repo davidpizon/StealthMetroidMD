@@ -4,6 +4,7 @@
 extern const SpriteDefinition playerToken;
 extern const SpriteDefinition playerSprites;
 extern const SpriteDefinition simpleBlock;
+extern const SpriteDefinition blankGuard;
 extern const SpriteDefinition maskedGuard;
 extern const SpriteDefinition appleSprite;
 extern const SpriteDefinition AIIcons;

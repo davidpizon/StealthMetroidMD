@@ -11,5 +11,6 @@
         "genesis.h": "c",
         "mycustomstate.h": "c",
         "kdebug.h": "c"
-    }
+    },
+    "python.pythonPath": "C:\\Users\\owner\\Anaconda2\\python.exe"
 }

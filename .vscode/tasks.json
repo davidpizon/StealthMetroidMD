@@ -32,6 +32,15 @@
             "echoCommand": true,
             "taskName": "makeAndRun",
             "args": [
+                "aftercompile.bat"
+            ]
+        },
+        {
+            "isBuildCommand": false,
+            "suppressTaskName": true,
+            "echoCommand": true,
+            "taskName": "debug",
+            "args": [
                 "debugrun.bat"
             ]
         },

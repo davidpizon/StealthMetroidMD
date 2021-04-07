@@ -1,6 +1,7 @@
 #include "../inc/NPC.h"
 
 
+
 NPC NPCs[10];
 u16 numNPCs = 0;
 
@@ -12,22 +13,25 @@ NPC AddNPC(fix32 x, fix32 y){
     if(numNPCs==10) return nonnpc;
     NPC newnpc;
     newnpc.x = x;
-    newnpc.dx = FIX32(3.0);
-    newnpc.myAICommands = Right;
+    newnpc.dx = 0;
+    newnpc.myAICommands = aic_right;
     newnpc.y = y;
     newnpc.w = 16;
     newnpc.h = 40;
+    newnpc.xoffset = blankganim_xoffset;
+    newnpc.yoffset = blankganim_yoffset;
     newnpc.hitPoints = 1;
     newnpc.dead = FALSE;
     newnpc.lookingRight = TRUE;
     newnpc.Update = &BasicNPCUpdate;
-    newnpc.sprite = SPR_addSprite(&playerSprites, x, y, TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
+    newnpc.sprite = SPR_addSprite(&blankGuard, x, y, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
     SPR_setVisibility(newnpc.sprite, 2 );
     SPR_setPosition(newnpc.sprite, fix32ToRoundedInt( x)-camPosX - PlayerSpriteOffsetX, 
                                   fix32ToRoundedInt( y)-camPosY - PlayerSpriteOffsetY);
 
     newnpc.myAIState = Calm;
-
+    newnpc.myAICommands = aic_wait;
+    newnpc.myAnimState = as_idle;
     NPCs[numNPCs] = newnpc;
 
     numNPCs++;                                  
@@ -86,27 +90,82 @@ void BasicNPCUpdate(NPC *n){
         //patrolling: move until edge, stop a few seconds, move the other way, repeat
         if(CanSeePlayer(n)){
             n->myAIState = Confused;
-            n->myAICommands = Wait;
-            //n->suspiciousness = 0;
+            n->myAICommands = aic_wait;
+            n->timer = 500;
+            n->timerWait = 50;
             break;
         }
-        
-        
-        if( !PointInWalkableTile (xint + (n->dx>0 ? 2:-2 ), yint + 43)){            
-            n->myAICommands = n->myAICommands==Right? Left : Right;
-            n->lookingRight = n->lookingRight ? FALSE:TRUE;
-        }
 
-        if(n->blockedByWall){
-            n->myAICommands = n->myAICommands==Right? Left : Right;
-            n->lookingRight = n->lookingRight ? FALSE:TRUE;
+        if(n->myAICommands == aic_right || n->myAICommands == aic_left ){
+            if( !PointInWalkableTile (xint + (n->lookingRight ? 2:-2 ), yint + 43)){            
+                // n->myAICommands = n->myAICommands==Right? Left : Right;
+                // n->lookingRight = n->lookingRight ? FALSE:TRUE;
+                n->timer = 100;
+                n->myAICommands = aic_wait;
+            }
+
+            if(n->blockedByWall){
+                // n->myAICommands = n->myAICommands==Right? Left : Right;
+                // n->lookingRight = n->lookingRight ? FALSE:TRUE;
+                n->timer = 100;
+                n->myAICommands = aic_wait;
+            }
+        }else if(n->myAICommands == aic_wait){
+            if(n->timer > 0) n->timer --;
+            
+            if(n->timer == 0){
+                n->myAICommands = aic_turn;                
+            }
         }
+        
+        
                 
 
         break;
+
     case Confused:
+
+        if(n->suspiciousness == 3){
+            n->myAIState = Alerted;
+            //animation for unsheating etc
+            break;
+        }
+
+        
+
+        if(CanSeePlayer(n)){
+            n->timer ++;
+            if(n->timer > 1000){
+                n->suspiciousness = 3;
+                n->myAIState = Alerted;
+                //animation for unsheating etc
+                break;
+            }else{
+                //wait a little
+                n->timerWait = fix32ToInt( abs( n->x - plx)); //could probably use a normalization factor
+                break;
+            }
+        }else{
+            if(n->timerWait != 0){
+                //waiting 
+                n->timerWait --;
+                break;
+            }
+
+            if(n->timer != 0){
+                n->timer --;
+            }else{
+                //leave confused state back to calm npatrol
+                n->myAIState = Calm;
+                n->suspiciousness ++;
+                //ai command? walk? dont know
+            }
+        }
+
+        break; //isolating old code but keeping it as reference for now
         //leave if cant see the player
         if(!CanSeePlayer(n)){
+
             //n->myAIState = Calm;
             //break;
             if(n->suspiciousness != 0)
@@ -120,7 +179,7 @@ void BasicNPCUpdate(NPC *n){
         if(n->suspiciousness ==0){
             n->suspiciousness  = 0;
             n->myAIState = Calm;
-            n->myAICommands = Right; //replace with last known command or something?
+            n->myAICommands = aic_right; //replace with last known command or something?
             break;
         }
         if(n->suspiciousness > 500){            
@@ -128,19 +187,19 @@ void BasicNPCUpdate(NPC *n){
             break;
         }
         
-        if(n->suspiciousness > 250){    
+        if(n->suspiciousness > 25){    
             //command npc to move in direction stored in lastknownlocX
             //for now he will jump off cliffs if he wants to...
             if( fix32ToInt( n->x) != n->lastKnownLocX ){
                 if(fix32ToInt( n->x) < n->lastKnownLocX){
                     if( !PointInWalkableTile (xint + 2, yint + 43))
-                        n->myAICommands = Right;
+                        n->myAICommands = aic_right;
                 }else{
                     if( !PointInWalkableTile (xint - 2, yint + 43))
-                        n->myAICommands = Left;
+                        n->myAICommands = aic_left;
                 }
             }else{
-                n->myAICommands = Wait;
+                n->myAICommands = aic_wait;
             }
         }
 
@@ -154,46 +213,182 @@ void BasicNPCUpdate(NPC *n){
         break;
     }
 
-    //execute ai commands
+    //---------------------------
+    //      EXECUTE AI COMMANDS
+    //---------------------------
     
-    if(n->myAICommands == Right){
-        n->dx = FIX32(1.0);
-    }else if(n->myAICommands == Left){
-        n->dx = - FIX32(1.0);
-    }else{
+    switch (n->myAICommands)
+    {
+    case aic_wait:
+        if(n->myAnimState == as_walk){
+            //eventually set endwalk state. For now just set idle pose
+
+            SPR_setAnim(n->sprite, blankganim_endwalk);
+            n->myAnimState = as_endwalk;
+        }
         n->dx = 0;
-    }    
+        break;    
+    case aic_right:
+        if(n->myAnimState == as_idle){
+            n->myAnimState = as_startwalk;
+            SPR_setAnim(n->sprite, blankganim_startwalk);
+        }
+        n->dx = n->myAICommands == aic_right? FIX32(1.0) : -FIX32(1.0);
+        break;
+    case aic_left:
+        if(n->myAnimState == as_idle){
+            n->myAnimState = as_startwalk;
+            SPR_setAnim(n->sprite, blankganim_startwalk);
+        }
+        n->dx = n->myAICommands == aic_right? FIX32(1.0) : -FIX32(1.0);
+        break;
+    case aic_turn:
+        if(n->myAnimState != as_turn){
+            SPR_setAnim(n->sprite, blankganim_turnleft);
+            n->myAnimState = as_turn;
+        }
+        
+        break;
+    default:
+        n->dx = 0;
+        break;
+    }
+
     
     n->blockedByWall = !MoveX(&n->x, fix32ToRoundedInt( n->y), 16, 40, &n->dx);
     n->x += n->dx;
     n->dy += GRAVITY;
     MoveY(fix32ToRoundedInt(n->x), &n->y, 16, 40, &n->dy);
     n->y += n->dy;
+    
+    
 
+    //---------------------------------------
+    //  ANIMATION FINITE STATE MACHINE CRAP
+    //---------------------------------------
+
+    switch (n->myAnimState)
+    {
+    case as_idle:
+        //nothing..
+        
+        break;
+    case as_startwalk:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            if(n->sprite->frameInd == 0){ //looped back                
+                n->myAnimState = as_walk;
+                SPR_setAnim(n->sprite, blankganim_walk);
+            }
+        }
+        break;
+    case as_endwalk:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            if(n->sprite->frameInd == 0){ //looped back                
+                n->myAnimState = as_idle;
+                SPR_setAnim(n->sprite, blankganim_idle);
+            }
+        }
+        break;
+    case as_walk:
+        n->deltax += abs(n->dx);
+        if(n->deltax > blankganim_walkdelta){
+            SPR_nextFrame(n->sprite);
+            n->deltax = 0;
+        }
+        break;
+    case as_turn:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            if(n->sprite->frameInd == 0){ //looped back
+                SPR_setHFlip(n->sprite, n->lookingRight);
+                n->lookingRight = !n->lookingRight;
+                debvar1 = n->lookingRight;
+                n->myAICommands = n->lookingRight ? aic_right : aic_left;
+                n->myAnimState = as_startwalk;
+                SPR_setAnim(n->sprite, blankganim_startwalk);
+            }
+        }
+    default:
+        break;
+    }
+
+
+    //-------------------------
+    //      DEBUG CRAP
+    //-------------------------
     
     switch (n->myAIState)
     {
     case Calm:
-        VDP_drawText("Calm", 0, DEBUGLINE);
+        VDP_drawText("Calm              ", 0, DEBUGLINE);
         break;
     case Confused:
-        VDP_drawText("Confused", 0, DEBUGLINE);
+        VDP_drawText("Confused          ", 0, DEBUGLINE);
         break;
     case Alerted:
-        VDP_drawText("Alerted", 0, DEBUGLINE);
+        VDP_drawText("Alerted           ", 0, DEBUGLINE);
         break;
     default:
+        VDP_drawText("no ai state set", 0, DEBUGLINE);
         break;
     }
+
+    switch (n->myAICommands)
+    {
+    case aic_wait:
+        VDP_drawText("wait                          ", 0, DEBUGLINE+2);
+        break;
+    case aic_right:
+        VDP_drawText("aic right                    ", 0, DEBUGLINE+2);
+        break;
+    case aic_left:
+        VDP_drawText("aic left                ", 0, DEBUGLINE+2);
+        break;
+    case aic_turn:
+        VDP_drawText("turn                        ", 0, DEBUGLINE+2);
+        break;
     
-    VDP_drawText("suspiciousness: ", 0, DEBUGLINE + 1);
-    char debmsg[5];
-    VDP_drawText( itoa2(n->suspiciousness, debmsg) , 20, DEBUGLINE + 1);
-    if(n->lookingRight ){
-        VDP_drawText( "right" , 30, DEBUGLINE + 1);
-    }else{
-        VDP_drawText( "left" , 30, DEBUGLINE + 1);
+    default:
+        VDP_drawText("no AI command state set", 0, DEBUGLINE+2);
+        break;
     }
+
+    switch (n->myAnimState)
+    {
+    case as_idle:
+        VDP_drawText("idle                          ", 0, DEBUGLINE+1);
+        break;
+    case as_startwalk:
+        VDP_drawText("start walk                    ", 0, DEBUGLINE+1);
+        break;
+    case as_walk:
+        VDP_drawText("walk                    ", 0, DEBUGLINE+1);
+        break;
+    case as_turn:
+        VDP_drawText("turn                     ", 0, DEBUGLINE+1);
+        break;
+    
+    default:
+        VDP_drawText("no anim state set", 0, DEBUGLINE+2);
+        break;
+    }
+
+
+    VDP_drawText("suspiciousness: ", 10, DEBUGLINE );
+    VDP_drawText("sus timer:      ", 10, DEBUGLINE+1 );
+    VDP_drawText("wait timer:      ", 10, DEBUGLINE+2 );
+    char debmsg[5];
+    VDP_drawText( itoa2(n->suspiciousness, debmsg) , 30, DEBUGLINE );
+    VDP_drawText( itoa2(n->timer, debmsg) , 30, DEBUGLINE+1 );
+    VDP_drawText( itoa2(n->timerWait, debmsg) , 30, DEBUGLINE+2 );
     
     
 }

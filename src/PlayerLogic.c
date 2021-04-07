@@ -7,23 +7,7 @@ u16 passingAnimTimer = 0;
 #define WalkLowSpeed FIX32(0.1)
 #define WalkHighSpeed FIX32(0.5)
 
-typedef enum
-{
-    as_idle,    
-    as_startRun,    
-    as_run,
-    as_stopRun,
-    as_wallRunning,
-    as_horizontalJump,
-    as_attack,
-    as_wallDrag,
-    as_climb,
-    as_climbDown,
-    as_ledgeSwing,
-    as_squatDown,
-    as_squatUp,
-    as_crouch
-} AnimState;
+
 
 AnimState animState = as_idle;
 
@@ -350,6 +334,7 @@ void UpdatePlayer(){
                 SPR_setAnim(playerSprite, PlAnim_crouch); 
                 ply = FIX32(grabbingBlockY - PlayerHeight );
                 plSpY = plSpX = 0;
+                break;
                 //KDebug_Halt();
             }
         }else if(btn_Up){

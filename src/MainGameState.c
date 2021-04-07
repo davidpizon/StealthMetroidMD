@@ -63,16 +63,19 @@ void MainGameStart(){
     bgBaseTileIndex[0] = ind;
     VDP_loadTileSet(&bga_tileset, ind, DMA);
     PAL_setPalette(PAL0, bga_map.palette->data);
+    PAL_setPalette(PAL3, bgb_map.palette->data);
     ind += bga_tileset.numTile;
     bgBaseTileIndex[1] = ind;
     VDP_loadTileSet(&bgb_tileset, ind, DMA);
     ind += bgb_tileset.numTile;
     bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
-    bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
+    bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(PAL3    , FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
     VDP_loadTileSet(&collision_tileset, ind, DMA);
     // ind += bgb_tileset.numTile;
     colMap = MAP_create(&col_map, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
 
+    //set pal2 to enemy 
+    PAL_setPalette(PAL2, blankGuard.palette->data);
     
 
     StartPlayer();
@@ -100,8 +103,8 @@ void MainGameUpdate(){
         if(!NPCs[n].dead)
             NPCs[n].Update(&NPCs[n]);
         //render even if dead, the body should be ppermanet
-        SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - PlayerSpriteOffsetX, 
-                                  fix32ToInt(NPCs[n].y)-camPosY - PlayerSpriteOffsetY);
+        SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset, 
+                                  fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset);
 
         
     }

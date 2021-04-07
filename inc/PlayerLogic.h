@@ -47,7 +47,28 @@
 #define PlAnim_silent_knife   24
 
 
-
+//also used by npcs
+typedef enum
+{
+    as_idle,    
+    as_startRun,    
+    as_run,
+    as_stopRun,
+    as_wallRunning,
+    as_horizontalJump,
+    as_attack,
+    as_wallDrag,
+    as_climb,
+    as_climbDown,
+    as_ledgeSwing,
+    as_squatDown,
+    as_squatUp,
+    as_crouch,
+    as_startwalk,
+    as_endwalk,
+    as_walk,
+    as_turn
+} AnimState;
 
 Sprite *playerSprite;
 fix32 plx;
