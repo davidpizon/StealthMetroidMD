@@ -54,7 +54,8 @@ typedef enum{
     aic_right,
     aic_left,
     aic_up,
-    aic_down
+    aic_down,
+    aic_attack
 }AICommands;
 
 typedef enum{
@@ -101,6 +102,6 @@ NPC AddNPC(fix32 x, fix32 y);
 
 void BasicNPCUpdate(NPC *n);
 void DamagePoint(fix32 x, fix32 y, int dmg);
-
+void TakeHit(NPC *n, int dmg);
 
 #endif

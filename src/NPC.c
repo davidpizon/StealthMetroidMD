@@ -20,11 +20,12 @@ NPC AddNPC(fix32 x, fix32 y){
     newnpc.h = 40;
     newnpc.xoffset = blankganim_xoffset;
     newnpc.yoffset = blankganim_yoffset;
-    newnpc.hitPoints = 1;
+    newnpc.hitPoints = 3;
     newnpc.dead = FALSE;
     newnpc.lookingRight = TRUE;
     newnpc.Update = &BasicNPCUpdate;
-    newnpc.sprite = SPR_addSprite(&blankGuard, x, y, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
+    newnpc.sprite = SPR_addSpriteSafe(&blankGuard, x, y, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
+    
     SPR_setVisibility(newnpc.sprite, 2 );
     SPR_setPosition(newnpc.sprite, fix32ToRoundedInt( x)-camPosX - PlayerSpriteOffsetX, 
                                   fix32ToRoundedInt( y)-camPosY - PlayerSpriteOffsetY);
@@ -41,7 +42,7 @@ NPC AddNPC(fix32 x, fix32 y){
 
 
 bool CanSeePlayer(NPC* npc){    
-    SPR_setPosition(debCornerNE, fix32ToRoundedInt( npc->x) + 60 - camPosX, fix32ToRoundedInt(npc->y) -20 - camPosY);
+    // SPR_setPosition(debCornerNE, fix32ToRoundedInt( npc->x) + 60 - camPosX, fix32ToRoundedInt(npc->y) -20 - camPosY);
     //first checks x and y distances
     //add check with lookingright once this var is defined
     if((npc->lookingRight && npc->x > plx)||(!npc->lookingRight && npc->x < plx))
@@ -77,7 +78,12 @@ bool CanSeePlayer(NPC* npc){
 
 void BasicNPCUpdate(NPC *n){
     
-
+    //  n->animTimer ++;
+    // if(n->animTimer > 5){
+    //     SPR_nextFrame(n->sprite);        
+    // }
+    // return;
+    
     int xint = fix32ToInt(n->x);
     int yint = fix32ToInt(n->y);
     int dxint = fix32ToInt(n->dx);
@@ -91,7 +97,7 @@ void BasicNPCUpdate(NPC *n){
         if(CanSeePlayer(n)){
             n->myAIState = Confused;
             n->myAICommands = aic_wait;
-            n->timer = 500;
+            n->timer = 100; 
             n->timerWait = 50;
             break;
         }
@@ -128,6 +134,7 @@ void BasicNPCUpdate(NPC *n){
         if(n->suspiciousness == 3){
             n->myAIState = Alerted;
             //animation for unsheating etc
+            n->timer = 100; //time to leave alerted and start searching
             break;
         }
 
@@ -135,14 +142,17 @@ void BasicNPCUpdate(NPC *n){
 
         if(CanSeePlayer(n)){
             n->timer ++;
-            if(n->timer > 1000){
+            if(n->timer > 300){
                 n->suspiciousness = 3;
                 n->myAIState = Alerted;
+                n->timer = 100; //time to leave alerted and start searching
                 //animation for unsheating etc
                 break;
             }else{
                 //wait a little
-                n->timerWait = fix32ToInt( abs( n->x - plx)); //could probably use a normalization factor
+                //n->timerWait = fix32ToInt( abs( n->x - plx)); //could probably use a normalization factor
+                n->timerWait = 50; //a function of distance makes sense but it should have an inverse relation 
+                //for now let's just stick with  a couple of secs
                 break;
             }
         }else{
@@ -162,52 +172,46 @@ void BasicNPCUpdate(NPC *n){
             }
         }
 
-        break; //isolating old code but keeping it as reference for now
-        //leave if cant see the player
-        if(!CanSeePlayer(n)){
-
-            //n->myAIState = Calm;
-            //break;
-            if(n->suspiciousness != 0)
-                n->suspiciousness --;
-            
-
-        }else{
-            n->suspiciousness ++;
-        }
-
-        if(n->suspiciousness ==0){
-            n->suspiciousness  = 0;
-            n->myAIState = Calm;
-            n->myAICommands = aic_right; //replace with last known command or something?
-            break;
-        }
-        if(n->suspiciousness > 500){            
-            n->myAIState = Alerted;
-            break;
-        }
-        
-        if(n->suspiciousness > 25){    
-            //command npc to move in direction stored in lastknownlocX
-            //for now he will jump off cliffs if he wants to...
-            if( fix32ToInt( n->x) != n->lastKnownLocX ){
-                if(fix32ToInt( n->x) < n->lastKnownLocX){
-                    if( !PointInWalkableTile (xint + 2, yint + 43))
-                        n->myAICommands = aic_right;
-                }else{
-                    if( !PointInWalkableTile (xint - 2, yint + 43))
-                        n->myAICommands = aic_left;
-                }
-            }else{
-                n->myAICommands = aic_wait;
-            }
-        }
-
-        
 
         break;
     case Alerted:
-        //move towards the player and start combat mode... ugh
+
+        if(n->myAICommands == aic_attack){
+            //wait until attack is done to continue running this loop
+            break;
+        }
+        
+        if(!CanSeePlayer(n)){
+            //go to searching. until i implement that, go to calm patrol
+            n->myAIState = Calm;
+            break;
+        }
+
+        //here we implement alerted state
+        
+        //if close enough to attack, attack? i dont know!
+        if( abs(plx - n->x) < FIX32(32)){
+            //random dice roll
+            if(random()>1000){ //65535 is max, 16383 is approx  half
+                //I need to come up with some math to find good values of probability per second. for now the above is a good
+                //placeholder
+                n->myAICommands = aic_wait;
+                // KDebug_Alert("NOT attacking player");
+                break;
+            }
+            
+            n->myAICommands = aic_attack;
+            n->myAnimState = as_attackant;
+            SPR_setAnim(n->sprite, blankganim_attackanti);
+            // KDebug_Alert("attacking player");
+            break;
+        }else{
+            //move towards player
+            n->myAICommands = n->lookingRight ? aic_right : aic_left;
+        }
+
+        //if not at player's last known location, go there
+        //if there, if can see player, attack, if not 
         break;
     default:
         break;
@@ -248,6 +252,10 @@ void BasicNPCUpdate(NPC *n){
             n->myAnimState = as_turn;
         }
         
+        break;
+    case aic_attack:
+        //most of the logic is handled elsewhere, but whatever..
+        n->dx = 0;
         break;
     default:
         n->dx = 0;
@@ -316,11 +324,62 @@ void BasicNPCUpdate(NPC *n){
                 SPR_setAnim(n->sprite, blankganim_startwalk);
             }
         }
+        break;
+    case as_attackant:
+        //attack anticipation
+        n->animTimer ++;
+        if(n->animTimer > 10){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            
+            if(n->sprite->frameInd == 0){ //looped back
+                //move to attack hit animstate            
+                //call HIT function or whatever                   
+                n->myAnimState = as_attackhit;
+                SPR_setAnim(n->sprite, blankganim_attack);
+                break;
+            }
+        }
+        break;
+    case as_attackhit:
+        //attack main part
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;            
+            if(n->sprite->frameInd == 0){ //looped back
+                //move to attack recovery  animstate                              
+                n->myAnimState = as_attackrec;
+                SPR_setAnim(n->sprite, blankganim_attackrec);
+                break;
+            }
+        }
+        break;
+    case as_attackrec:
+        //attack main part
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;            
+            if(n->sprite->frameInd == 0){ //looped back
+                //move to attack recovery  animstate                              
+                n->myAnimState = as_idle;
+                n->myAICommands = aic_wait;
+                SPR_setAnim(n->sprite, blankganim_idle);
+                break;
+            }
+        }
+        break;
     default:
         break;
     }
 
 
+
+    
+    
+    //too many NPCs will lag with these debug calls
+    return;
     //-------------------------
     //      DEBUG CRAP
     //-------------------------
@@ -381,7 +440,6 @@ void BasicNPCUpdate(NPC *n){
         break;
     }
 
-
     VDP_drawText("suspiciousness: ", 10, DEBUGLINE );
     VDP_drawText("sus timer:      ", 10, DEBUGLINE+1 );
     VDP_drawText("wait timer:      ", 10, DEBUGLINE+2 );
@@ -394,13 +452,22 @@ void BasicNPCUpdate(NPC *n){
 }
 
 void DamagePoint(fix32 x, fix32 y, int dmg){
+    //SPR_setVisibility(debCornerNE, SpriteVisibility.VISIBLE);
+    SPR_setPosition(debCornerNE, fix32ToRoundedInt( x) - camPosX, fix32ToRoundedInt( y) - camPosY);
     
+
+
+    //see if player is here.. maybe I could have dedicated functions from palyer and npcs to avoid unnecessary code
+    if(x >= plx && x <= plx+intToFix32(PlayerWidth)&&
+        ply<=y && ply+FIX32(PlayerHeight) >= y){
+        
+    }
+
     //cycle through all NPCs to see if any contain x,y, then deal damage
     for(u8 n = 0; n<numNPCs; n++){
-        
-        
         if(x >= NPCs[n].x && x <= NPCs[n].x+intToFix32(NPCs[n].w)&&
             NPCs[n].y<=y && NPCs[n].y+FIX32(NPCs[n].h) >= y){
+            TakeHit(&NPCs[n], dmg);
             
         }
     }
@@ -409,9 +476,22 @@ void DamagePoint(fix32 x, fix32 y, int dmg){
 void TakeHit(NPC *n, int dmg){
     //this function decides if the npc manages to defend, dodge, or take damage
     //for now it just takes damage
+    if( n->myAIState == Alerted && n->myAICommands == aic_wait){
+        //these are the conditions for an attempt to block
+        if(random()>16383){ //probability depends on npc
+            KDebug_Alert("blocked!");
+            return;
+        }
+    }
     n->hitPoints -= dmg;
+    //instead of this idiotic push back maybe I should create a new state for being hit
+    n->dx = n->lookingRight? FIX32(-8) : FIX32(8);
+    MoveX(&n->x,fix32ToRoundedInt( n->y), 16, 40, &n->dx  );
+    n->x += n->dx;
+    KDebug_Alert("npc took damage");
     if(n->hitPoints<=0){
         //play dead animation and set its dead flag
         n->dead = TRUE;
     }
+    
 }

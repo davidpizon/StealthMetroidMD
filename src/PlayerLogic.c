@@ -159,7 +159,7 @@ void UpdatePlayer(){
             
             //attack
             if(btndown_B){
-                animState = as_attack;
+                animState = as_attackhit;
                 SPR_setAnim(playerSprite, PlAnim_attack);
                 //damage check will be called during the right frame from in the animation state
             }
@@ -701,7 +701,7 @@ void UpdatePlayer(){
             }
         }
         break;
-        case as_attack:
+        case as_attackhit:
         VDP_drawText("attack              ", 0, DEBUGLINE);        
         passingAnimTimer ++; //better way?
         if(passingAnimTimer > 5){
@@ -718,7 +718,7 @@ void UpdatePlayer(){
                 if(playerSprite->frameInd == 1){ //frame 1 deals damage
                     //damage
                     //DamagePoint(plx + lookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
-                    fix32 disp = lookingRight? FIX32(16) : -FIX32(8);
+                    fix32 disp = lookingRight? FIX32( PlayerWidth+ 20) : -FIX32(20);
                     DamagePoint(plx+disp, ply, 1);
                 }
                 if(playerSprite->frameInd == 3){ //last frame
