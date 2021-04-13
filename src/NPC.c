@@ -355,6 +355,14 @@ void BasicNPCUpdate(NPC *n){
             }
         }
         break;
+    case as_defend:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            //single frame, so ujust change state
+            n->myAnimState = as_idle;
+            n->myAICommands = aic_wait;
+        }
+        break;
     case as_attackrec:
         //attack main part
         n->animTimer ++;
@@ -478,12 +486,15 @@ void TakeHit(NPC *n, int dmg){
     //for now it just takes damage
     if( n->myAIState == Alerted && n->myAICommands == aic_wait){
         //these are the conditions for an attempt to block
-        if(random()>16383){ //probability depends on npc
+        //if(random()>16383){ //probability depends on npc
+        if(1){
             KDebug_Alert("blocked!");
+            n->myAnimState = as_defend;
+            SPR_setAnim(n->sprite, blankganim_defend);
             return;
         }
     }
-    n->hitPoints -= dmg;
+    //n->hitPoints -= dmg;
     //instead of this idiotic push back maybe I should create a new state for being hit
     n->dx = n->lookingRight? FIX32(-8) : FIX32(8);
     MoveX(&n->x,fix32ToRoundedInt( n->y), 16, 40, &n->dx  );

@@ -21,7 +21,10 @@ typedef enum{
     ms_wallRunning,
     ms_attacking,
     ms_defending,
-    ms_counter
+    ms_counter,
+    ms_stepfor,
+    ms_stepback,
+    ms_jumpup
 } MovementState;
 
 MovementState movState = ms_normal;
@@ -141,11 +144,26 @@ void UpdatePlayer(){
             jumph -= fix32Mul( maxj, abs( plSpX));
             jumph += fix32Mul( minj, abs( plSpX));
             jumph = fix32Div(jumph, maxv);
-            if(btndown_C && grounded){
+            if(btndown_C && abs(plSpX) > 0 ){
                 plSpY = jumph;
                 if(plSpX != 0){
                     animState = as_horizontalJump;
                     SPR_setAnim(playerSprite, PlAnim_horjump);
+                }
+            }else{
+                if(btn_C && btn_Up){
+                    //jump straight up
+                }else if(btn_C && (btn_Right&&lookingRight ||btn_Left&&!lookingRight)){
+                    //step forward
+                    movState = ms_stepfor;
+                    animState = as_stepfor;
+                    SPR_setAnim(playerSprite, PlAnim_stepforward);
+                }
+                else if(btn_C && (btn_Right&&!lookingRight ||btn_Left&&lookingRight)){
+                    //step backward
+                    movState = ms_stepback;
+                    animState = as_stepback;
+                    SPR_setAnim(playerSprite, PlAnim_stepback);
                 }
             }
 
@@ -303,6 +321,12 @@ void UpdatePlayer(){
         
 
         break;
+    case ms_stepback:
+        //not sure i need a movement state here... animation state, sure
+        break;
+    case ms_stepfor:
+        //not sure i need a movement state here... animation state, sure
+        break;
     case ms_hanging:
 
         //static position:
@@ -447,6 +471,40 @@ void UpdatePlayer(){
                 break;
             }
         break;    
+    case as_stepback:
+        passingAnimTimer ++;
+        if(passingAnimTimer >5){
+            //move forward? here or in movstate?
+            plSpX = lookingRight? FIX32(-4.0) : FIX32(4.0);
+            MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
+            plx += plSpX;
+
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){ //looped back
+                movState = ms_normal;
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+                plSpX = 0 ;
+                break;
+            }
+        }
+        break;
+    case as_stepfor:
+        passingAnimTimer ++;
+        if(passingAnimTimer >5){
+            //move forward? here or in movstate?
+
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){ //looped back
+                movState = ms_normal;
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+                break;
+            }
+        }
+        break;
     case as_climb:
         //handled in the movement state
         break;

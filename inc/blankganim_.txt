@@ -12,4 +12,5 @@
 #define blankganim_attackanti   11
 #define blankganim_attack   12
 #define blankganim_attackrec   13
-#define blankganim_silent_knifed   14
+#define blankganim_defend   14
+#define blankganim_silent_knifed   15
