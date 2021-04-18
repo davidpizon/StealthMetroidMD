@@ -21,33 +21,40 @@
 
 //anim indices
 #define PlAnim_idle   0
-#define PlAnim_turnleft   1
-#define PlAnim_squatdown   2
-#define PlAnim_crouch   3
-#define PlAnim_squatup   4
-#define PlAnim_startwalk   5
-#define PlAnim_walk   6
-#define PlAnim_stepforward   7
-#define PlAnim_stepback   8
-#define PlAnim_endwalk   9
-#define PlAnim_startrun   10
-#define PlAnim_run   11
-#define PlAnim_wallrun   12
-#define PlAnim_test   13
-#define PlAnim_walldrag   14
-#define PlAnim_endrun   15
-#define PlAnim_jumpup   16
-#define PlAnim_climbup   17
-#define PlAnim_ledgegrab   18
-#define PlAnim_climbdown   19
-#define PlAnim_jumpupfall   20
-#define PlAnim_runtowalk   21
-#define PlAnim_walktorun   22
-#define PlAnim_wallkiss   23
-#define PlAnim_horjump   24
-#define PlAnim_attack   25
-#define PlAnim_defend   26
-#define PlAnim_silent_knife   27
+#define PlAnim_pain   1
+#define PlAnim_turnleft   2
+#define PlAnim_squatdown   3
+#define PlAnim_crouch   4
+#define PlAnim_squatup   5
+#define PlAnim_startwalk   6
+#define PlAnim_walk   7
+#define PlAnim_stepforward   8
+#define PlAnim_stepback   9
+#define PlAnim_endwalk   10
+#define PlAnim_startrun   11
+#define PlAnim_run   12
+#define PlAnim_wallrun   13
+#define PlAnim_test   14
+#define PlAnim_walldrag   15
+#define PlAnim_endrun   16
+#define PlAnim_jumpwindup   17
+#define PlAnim_climbup   18
+#define PlAnim_ledgegrab   19
+#define PlAnim_jumpup   20
+#define PlAnim_climbdown   21
+#define PlAnim_jumpupfall   22
+#define PlAnim_rolling   23
+#define PlAnim_runtowalk   24
+#define PlAnim_walktorun   25
+#define PlAnim_wallkiss   26
+#define PlAnim_horjump   27
+#define PlAnim_attack   28
+#define PlAnim_defend   29
+#define PlAnim_silent_knife   30
+
+
+
+
 
 
 
@@ -77,7 +84,14 @@ typedef enum
     as_turn,
     as_defend,
     as_stepfor,
-    as_stepback
+    as_stepback,
+    as_jumpwindup,
+    as_jumpup,
+    as_jumpfall,
+    as_pain,
+    as_rolling,
+    as_parrying,
+    as_stagger
 } AnimState;
 
 Sprite *playerSprite;
@@ -97,5 +111,7 @@ bool plLookingRight;
 
 void StartPlayer();
 void UpdatePlayer();
+
+void DamagePlayer(u8 dmg, u16 attacker);
 
 #endif

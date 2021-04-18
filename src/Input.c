@@ -1,5 +1,9 @@
 #include "../inc/Input.h"
 
+//btn is true whenever the button is held
+//btndown is only true the moment is pushed
+//btnup is only true the moment it is let go
+
 bool btn_A;
 bool btn_B;
 bool btn_C;

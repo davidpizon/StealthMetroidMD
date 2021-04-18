@@ -1,0 +1,7 @@
+notes:
+
+hit detection needs to be improved. Instead of point, check intersection.
+
+Besides that it's all parameter tweaking from now on. Tweak until it's fun!
+
+Change animations only when necessary. Don't waste time animating things that might not be used in the end

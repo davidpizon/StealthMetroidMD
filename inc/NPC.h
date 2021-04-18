@@ -13,21 +13,23 @@
 #define blankganim_xoffset 32
 #define blankganim_yoffset 46
 #define blankganim_idle   0
-#define blankganim_turnleft   1
-#define blankganim_startwalk   2
-#define blankganim_walk   3
-#define blankganim_endwalk   4
-#define blankganim_unsheathe   5
-#define blankganim_sheathe   6
-#define blankganim_idlealert   7
-#define blankganim_turnleftalert   8
-#define blankganim_startwalkalert   9
-#define blankganim_walkalert   10
-#define blankganim_attackanti   11
-#define blankganim_attack   12
-#define blankganim_attackrec   13
-#define blankganim_defend   14
-#define blankganim_silent_knifed   15
+#define blankganim_pain   1
+#define blankganim_turnleft   2
+#define blankganim_startwalk   3
+#define blankganim_walk   4
+#define blankganim_endwalk   5
+#define blankganim_unsheathe   6
+#define blankganim_sheathe   7
+#define blankganim_idlealert   8
+#define blankganim_turnleftalert   9
+#define blankganim_startwalkalert   10
+#define blankganim_walkalert   11
+#define blankganim_attackanti   12
+#define blankganim_attack   13
+#define blankganim_attackrec   14
+#define blankganim_defend   15
+#define blankganim_silent_knifed   16
+
 
 
 
@@ -57,7 +59,8 @@ typedef enum{
     aic_left,
     aic_up,
     aic_down,
-    aic_attack
+    aic_attack,
+    aic_stagger
 }AICommands;
 
 typedef enum{
@@ -92,6 +95,7 @@ struct NPC{
     u8 myAnimState;
     AICommands myAICommands;
     u8 animTimer;
+    u16 myindex;
     
 };
 
@@ -103,7 +107,7 @@ u16 numNPCs;
 NPC AddNPC(fix32 x, fix32 y);
 
 void BasicNPCUpdate(NPC *n);
-void DamagePoint(fix32 x, fix32 y, int dmg);
+void DamagePoint(u16 nind, fix32 x, fix32 y, int dmg);
 void TakeHit(NPC *n, int dmg);
 
 #endif

@@ -33,6 +33,8 @@ NPC AddNPC(fix32 x, fix32 y){
     newnpc.myAIState = Calm;
     newnpc.myAICommands = aic_wait;
     newnpc.myAnimState = as_idle;
+    newnpc.suspiciousness = 3; //obviously for testing combat only
+    newnpc.myindex = numNPCs;
     NPCs[numNPCs] = newnpc;
 
     numNPCs++;                                  
@@ -348,6 +350,9 @@ void BasicNPCUpdate(NPC *n){
             SPR_nextFrame(n->sprite);
             n->animTimer = 0;            
             if(n->sprite->frameInd == 0){ //looped back
+                //call hit func
+                fix32 disp = n->lookingRight? FIX32( n->w + 20) : -FIX32(20);
+                DamagePoint(n->myindex, n->x + disp, n->y, 1);
                 //move to attack recovery  animstate                              
                 n->myAnimState = as_attackrec;
                 SPR_setAnim(n->sprite, blankganim_attackrec);
@@ -361,6 +366,35 @@ void BasicNPCUpdate(NPC *n){
             //single frame, so ujust change state
             n->myAnimState = as_idle;
             n->myAICommands = aic_wait;
+        }
+        break;
+    case as_pain:
+        n->animTimer ++;
+        if( n->animTimer > 5){
+            n->animTimer = 0;
+            SPR_nextFrame(n->sprite);
+            if(n->sprite->frameInd == 0){//looped
+                //go to jumpup ms and as states, also give y vel
+                n->myAICommands = aic_wait;
+                n->myAnimState = as_idle;
+                SPR_setAnim(n->sprite, blankganim_idle);                
+                break;
+            }
+        }
+        break;
+    case as_stagger:
+        //same as pain but longer
+        n->animTimer ++;
+        if( n->animTimer > 8){
+            n->animTimer = 0;
+            SPR_nextFrame(n->sprite);
+            if(n->sprite->frameInd == 0){//looped
+                //go to jumpup ms and as states, also give y vel
+                n->myAICommands = aic_wait;
+                n->myAnimState = as_idle;
+                SPR_setAnim(n->sprite, blankganim_idle);                
+                break;
+            }
         }
         break;
     case as_attackrec:
@@ -459,29 +493,8 @@ void BasicNPCUpdate(NPC *n){
     
 }
 
-void DamagePoint(fix32 x, fix32 y, int dmg){
-    //SPR_setVisibility(debCornerNE, SpriteVisibility.VISIBLE);
-    SPR_setPosition(debCornerNE, fix32ToRoundedInt( x) - camPosX, fix32ToRoundedInt( y) - camPosY);
-    
 
-
-    //see if player is here.. maybe I could have dedicated functions from palyer and npcs to avoid unnecessary code
-    if(x >= plx && x <= plx+intToFix32(PlayerWidth)&&
-        ply<=y && ply+FIX32(PlayerHeight) >= y){
-        
-    }
-
-    //cycle through all NPCs to see if any contain x,y, then deal damage
-    for(u8 n = 0; n<numNPCs; n++){
-        if(x >= NPCs[n].x && x <= NPCs[n].x+intToFix32(NPCs[n].w)&&
-            NPCs[n].y<=y && NPCs[n].y+FIX32(NPCs[n].h) >= y){
-            TakeHit(&NPCs[n], dmg);
-            
-        }
-    }
-}
-
-void TakeHit(NPC *n, int dmg){
+void DamageNPC(NPC *n, int dmg){
     //this function decides if the npc manages to defend, dodge, or take damage
     //for now it just takes damage
     if( n->myAIState == Alerted && n->myAICommands == aic_wait){
@@ -503,6 +516,34 @@ void TakeHit(NPC *n, int dmg){
     if(n->hitPoints<=0){
         //play dead animation and set its dead flag
         n->dead = TRUE;
+    }else{
+        n->myAnimState = as_pain;
+        n->myAICommands = aic_wait;
+        SPR_setAnim(n->sprite, blankganim_pain);
     }
     
+}
+
+
+void DamagePoint(u16 nind, fix32 x, fix32 y, int dmg){
+    //SPR_setVisibility(debCornerNE, SpriteVisibility.VISIBLE);
+    SPR_setPosition(debCornerNE, fix32ToRoundedInt( x) - camPosX, fix32ToRoundedInt( y) - camPosY);
+    
+
+
+    //see if player is here.. maybe I could have dedicated functions from palyer and npcs to avoid unnecessary code
+    if(x >= plx && x <= plx+intToFix32(PlayerWidth)&&
+        ply<=y && ply+FIX32(PlayerHeight) >= y){
+        DamagePlayer(nind, 1);
+    }
+
+    //cycle through all NPCs to see if any contain x,y, then deal damage
+    for(u8 n = 0; n<numNPCs; n++){
+        //if(n == nind) continue;
+        if(x >= NPCs[n].x && x <= NPCs[n].x+intToFix32(NPCs[n].w)&&
+            NPCs[n].y<=y && NPCs[n].y+FIX32(NPCs[n].h) >= y){
+            DamageNPC(&NPCs[n], dmg);
+            
+        }
+    }
 }
