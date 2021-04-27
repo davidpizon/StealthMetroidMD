@@ -12,5 +12,5 @@
         "mycustomstate.h": "c",
         "kdebug.h": "c"
     },
-    "python.pythonPath": "C:\\Users\\owner\\Anaconda2\\python.exe"
+    "python.pythonPath": "C:\\Users\\owner\\Anaconda2\\envs\\pybraintest\\python.exe"
 }

@@ -1,6 +1,6 @@
 #include "../inc/World.h"
 
-
+//THIS IS TOTALLY DEPRECATED NOW. MAYBE I SHOULD GET RID OF IT
 int numBlocks = 24;
 Block blocks[24]={
 { 0,184,56,48,72 },
@@ -29,6 +29,57 @@ Block blocks[24]={
 { 1,80,88,8,8 }
 };
 
+//I still don't know how this will work eventually.
+//being a metroidvania I reckon some persistent data must exist, which would require a more 
+//sophisticated system than 'loadlevelstuff'
+//but one problem at a time
+
+enum entDefs{
+    PlayerStart,
+    BlankGuard
+};
+struct  LevelEnt{
+    enum entDefs def;
+    int x;
+    int y;
+}LevelEnt;
+
+#define numLevelEnts  7
+const struct LevelEnt ALLENTS[numLevelEnts]={
+{ PlayerStart,36,204 },
+{ BlankGuard,632,328 },
+{ BlankGuard,336,192 },
+{ BlankGuard,88,288 },
+{ BlankGuard,776,240 },
+{ BlankGuard,928,264 },
+{ BlankGuard,920,456 },
+
+};
+
+
+
+
+
+
+
+
+void LoadEntities(){
+    for(u8 e = 0; e < numLevelEnts; e++){
+        switch (ALLENTS[e].def)
+        {
+        case PlayerStart:
+            StartPlayer();
+            plx = intToFix32(ALLENTS[e].x);
+            ply = intToFix32(ALLENTS[e].y);
+            break;
+        case BlankGuard:
+            AddNPC(intToFix32(ALLENTS[e].x) , intToFix32(ALLENTS[e].y));
+        default:
+            break;
+        }
+    }
+    
+}
 
 bool WithinInterval(int x, int a, int b){
     if( x>=a && x<=b ) return TRUE;
@@ -173,6 +224,20 @@ bool SquareIntersectTile(int x, int y, int w, int h, int tile, int* outx, int* o
     return FALSE;
 }
 
+
+
+u8 LightLevel(int x, int y){
+    x = x >> 3;
+    y = y >> 3;
+    int curt = TILEINDEX(MAP_getTile(colMap, x, y));
+    if(curt == TILE_SHADOW){
+        return 0;
+    }
+    if(curt == TILE_LIGHT){
+        return 2;
+    }
+    return 1;
+}
 
 bool PointInWalkableTile(int x, int y){
     x = x >> 3;

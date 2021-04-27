@@ -9,26 +9,35 @@
 #include "Helper.h"
 #include "PlayerLogic.h"
 
+//frequency is probabiliyu per second (60 frames) normalized to unsigned 16 max value of 65535
+//550 is approx half attack per second (supposedly)
+//different method, pick a time to wait until attacking again, from a min and max
+#define blankganim_attackfreq 100 
+#define blankganim_attacktimemin 60
+#define blankganim_attacktimemax 240 
 #define blankganim_walkdelta FIX32(3)
 #define blankganim_xoffset 32
 #define blankganim_yoffset 46
 #define blankganim_idle   0
 #define blankganim_pain   1
-#define blankganim_turnleft   2
-#define blankganim_startwalk   3
-#define blankganim_walk   4
-#define blankganim_endwalk   5
-#define blankganim_unsheathe   6
-#define blankganim_sheathe   7
-#define blankganim_idlealert   8
-#define blankganim_turnleftalert   9
-#define blankganim_startwalkalert   10
-#define blankganim_walkalert   11
-#define blankganim_attackanti   12
-#define blankganim_attack   13
-#define blankganim_attackrec   14
-#define blankganim_defend   15
-#define blankganim_silent_knifed   16
+#define blankganim_hitback   2
+#define blankganim_hitfront   3
+#define blankganim_turnleft   4
+#define blankganim_startwalk   5
+#define blankganim_walk   6
+#define blankganim_endwalk   7
+#define blankganim_unsheathe   8
+#define blankganim_sheathe   9
+#define blankganim_idlealert   10
+#define blankganim_turnleftalert   11
+#define blankganim_startwalkalert   12
+#define blankganim_walkalert   13
+#define blankganim_attackanti   14
+#define blankganim_attack   15
+#define blankganim_attackrec   16
+#define blankganim_defend   17
+#define blankganim_silent_knifed   18
+
 
 
 
@@ -43,6 +52,7 @@ typedef enum {
     Calm,
     Confused,
     Alerted,
+    Searching,
     Dead//sd
 } AIState;
 
@@ -83,6 +93,7 @@ struct NPC{
     fix32 dx;
     fix32 dy;
     Sprite* sprite;
+    Sprite* icon;
     NPCUpdateCallback Update; //assigned depending on type
     bool lookingRight;
     u16 suspiciousness;
@@ -106,8 +117,11 @@ u16 numNPCs;
 
 NPC AddNPC(fix32 x, fix32 y);
 
+bool PlayerDamageBox( fix32 x, fix32 y, u16 w, u16 h , u8 dmg);
+bool NPCDamageBox(u16 attacker, fix32 x, fix32 y, u16 w, u16 h, u8 dmg);
+
 void BasicNPCUpdate(NPC *n);
-void DamagePoint(u16 nind, fix32 x, fix32 y, int dmg);
+void DamagePoint(u16 nind, fix32 x, fix32 y, int dmg); //DEPRECATED
 void TakeHit(NPC *n, int dmg);
 
 #endif

@@ -91,7 +91,11 @@ typedef enum
     as_pain,
     as_rolling,
     as_parrying,
-    as_stagger
+    as_stagger,
+    as_backstab,
+    as_frontstab,
+    as_unsheathe,
+    as_sheathe
 } AnimState;
 
 Sprite *playerSprite;

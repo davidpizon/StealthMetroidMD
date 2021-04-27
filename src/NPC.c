@@ -30,10 +30,14 @@ NPC AddNPC(fix32 x, fix32 y){
     SPR_setPosition(newnpc.sprite, fix32ToRoundedInt( x)-camPosX - PlayerSpriteOffsetX, 
                                   fix32ToRoundedInt( y)-camPosY - PlayerSpriteOffsetY);
 
+
+    newnpc.icon = SPR_addSprite(&AIIcons, 0,0,TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+    SPR_setVisibility(newnpc.icon, 1 ); //starts hidden
+
     newnpc.myAIState = Calm;
     newnpc.myAICommands = aic_wait;
     newnpc.myAnimState = as_idle;
-    newnpc.suspiciousness = 3; //obviously for testing combat only
+    newnpc.suspiciousness = 0; //3 obviously for testing combat only
     newnpc.myindex = numNPCs;
     NPCs[numNPCs] = newnpc;
 
@@ -132,11 +136,18 @@ void BasicNPCUpdate(NPC *n){
         break;
 
     case Confused:
+        SPR_setVisibility(n->icon, 0);
+        //SPR_setPosition(n->icon, fix32ToRoundedInt( n->x)+8, fix32ToRoundedInt(n->y));
 
         if(n->suspiciousness == 3){
             n->myAIState = Alerted;
+            n->timerWait = 0;
+            n->myAICommands = aic_wait;
+            n->myAnimState = as_unsheathe;
+            SPR_setAnim(n->sprite, blankganim_unsheathe);
             //animation for unsheating etc
             n->timer = 100; //time to leave alerted and start searching
+            SPR_setVisibility(n->icon, 1);
             break;
         }
 
@@ -147,6 +158,10 @@ void BasicNPCUpdate(NPC *n){
             if(n->timer > 300){
                 n->suspiciousness = 3;
                 n->myAIState = Alerted;
+                n->timerWait = 0;
+                n->myAICommands = aic_wait;
+                n->myAnimState = as_unsheathe;
+                SPR_setAnim(n->sprite, blankganim_unsheathe);
                 n->timer = 100; //time to leave alerted and start searching
                 //animation for unsheating etc
                 break;
@@ -170,6 +185,7 @@ void BasicNPCUpdate(NPC *n){
                 //leave confused state back to calm npatrol
                 n->myAIState = Calm;
                 n->suspiciousness ++;
+                SPR_setVisibility(n->icon, 1);
                 //ai command? walk? dont know
             }
         }
@@ -177,6 +193,10 @@ void BasicNPCUpdate(NPC *n){
 
         break;
     case Alerted:
+        if(n->myAnimState == as_sheathe || n->myAnimState == as_unsheathe){
+            //wait..
+            break;
+        }
 
         if(n->myAICommands == aic_attack){
             //wait until attack is done to continue running this loop
@@ -185,7 +205,7 @@ void BasicNPCUpdate(NPC *n){
         
         if(!CanSeePlayer(n)){
             //go to searching. until i implement that, go to calm patrol
-            n->myAIState = Calm;
+            n->myAIState = Searching;
             break;
         }
 
@@ -193,14 +213,25 @@ void BasicNPCUpdate(NPC *n){
         
         //if close enough to attack, attack? i dont know!
         if( abs(plx - n->x) < FIX32(32)){
-            //random dice roll
-            if(random()>1000){ //65535 is max, 16383 is approx  half
-                //I need to come up with some math to find good values of probability per second. for now the above is a good
-                //placeholder
-                n->myAICommands = aic_wait;
-                // KDebug_Alert("NOT attacking player");
+            if(n->timerWait != 0){
+                n->timerWait --;
+                if(n->myAICommands == aic_right || n->myAICommands == aic_left)
+                    n->myAICommands = aic_wait;
                 break;
             }
+
+            //time is up, attack and queue next timer
+            //this normalization equation might be too slow...
+            n->timerWait = random()*(blankganim_attacktimemax-blankganim_attacktimemin)/65535 + blankganim_attacktimemin;
+            
+            // //random dice roll
+            // if(random()>blankganim_attackfreq){ //65535 is max, 16383 is approx  half
+            //     //I need to come up with some math to find good values of probability per second. for now the above is a good
+            //     //placeholder
+            //     n->myAICommands = aic_wait;
+            //     // KDebug_Alert("NOT attacking player");
+            //     break;
+            // }
             
             n->myAICommands = aic_attack;
             n->myAnimState = as_attackant;
@@ -208,12 +239,38 @@ void BasicNPCUpdate(NPC *n){
             // KDebug_Alert("attacking player");
             break;
         }else{
+            if(n->timerWait != 0){
+                n->timerWait --;
+                //what a shitty piece of code
+                //reusing the timer above carefully so they don't influence one another
+                //the idea is that I don't want him to immediately pursue the player backing out
+                //the timer is probably set to some random number, but it cant be too large here..
+                if(n->timerWait > 10) n->timerWait = 10;
+                
+                break;
+            }
             //move towards player
             n->myAICommands = n->lookingRight ? aic_right : aic_left;
         }
 
         //if not at player's last known location, go there
         //if there, if can see player, attack, if not 
+        break;
+    case Searching:
+        //temporary solution: look left and right
+        if(CanSeePlayer(n)){
+            //go to searching. until i implement that, go to calm patrol
+            n->myAIState = Alerted;
+            n->myAICommands = n->lookingRight? aic_right : aic_left;
+            n->timerWait = 0;
+            break;
+        }
+        if(n->timerWait == 0){
+            n->myAICommands = aic_turn;
+            n->timerWait = 60;
+        }else{
+            n->timerWait --;
+        }
         break;
     default:
         break;
@@ -237,20 +294,24 @@ void BasicNPCUpdate(NPC *n){
     case aic_right:
         if(n->myAnimState == as_idle){
             n->myAnimState = as_startwalk;
-            SPR_setAnim(n->sprite, blankganim_startwalk);
+            if(n->myAIState == Alerted) SPR_setAnim(n->sprite, blankganim_startwalkalert);
+            else SPR_setAnim(n->sprite, blankganim_startwalk);
         }
         n->dx = n->myAICommands == aic_right? FIX32(1.0) : -FIX32(1.0);
         break;
     case aic_left:
         if(n->myAnimState == as_idle){
             n->myAnimState = as_startwalk;
-            SPR_setAnim(n->sprite, blankganim_startwalk);
+            if(n->myAIState == Alerted) SPR_setAnim(n->sprite, blankganim_startwalkalert);
+            else SPR_setAnim(n->sprite, blankganim_startwalk);
         }
         n->dx = n->myAICommands == aic_right? FIX32(1.0) : -FIX32(1.0);
         break;
     case aic_turn:
         if(n->myAnimState != as_turn){
-            SPR_setAnim(n->sprite, blankganim_turnleft);
+            // SPR_setAnim(n->sprite, blankganim_turnleft);
+            if(n->myAIState == Alerted) SPR_setAnim(n->sprite, blankganim_turnleftalert);
+            else SPR_setAnim(n->sprite, blankganim_turnleft);
             n->myAnimState = as_turn;
         }
         
@@ -283,6 +344,29 @@ void BasicNPCUpdate(NPC *n){
         //nothing..
         
         break;
+    case as_unsheathe:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            if(n->sprite->frameInd == 0){ //looped back                
+                n->myAnimState = as_idle;
+                
+                SPR_setAnim(n->sprite, blankganim_idlealert);
+            }
+        }
+        break;
+    case as_sheathe:
+        n->animTimer ++;
+        if(n->animTimer > 5){
+            SPR_nextFrame(n->sprite);
+            n->animTimer = 0;
+            if(n->sprite->frameInd == 0){ //looped back                
+                n->myAnimState = as_walk;
+                SPR_setAnim(n->sprite, blankganim_idle);
+            }
+        }
+        break;
     case as_startwalk:
         n->animTimer ++;
         if(n->animTimer > 5){
@@ -290,7 +374,8 @@ void BasicNPCUpdate(NPC *n){
             n->animTimer = 0;
             if(n->sprite->frameInd == 0){ //looped back                
                 n->myAnimState = as_walk;
-                SPR_setAnim(n->sprite, blankganim_walk);
+                if(n->myAIState == Alerted) SPR_setAnim(n->sprite, blankganim_walkalert);
+                else SPR_setAnim(n->sprite, blankganim_walk);
             }
         }
         break;
@@ -320,7 +405,7 @@ void BasicNPCUpdate(NPC *n){
             if(n->sprite->frameInd == 0){ //looped back
                 SPR_setHFlip(n->sprite, n->lookingRight);
                 n->lookingRight = !n->lookingRight;
-                debvar1 = n->lookingRight;
+                //debvar1 = n->lookingRight;
                 n->myAICommands = n->lookingRight ? aic_right : aic_left;
                 n->myAnimState = as_startwalk;
                 SPR_setAnim(n->sprite, blankganim_startwalk);
@@ -347,12 +432,18 @@ void BasicNPCUpdate(NPC *n){
         //attack main part
         n->animTimer ++;
         if(n->animTimer > 5){
+            if(n->sprite->frameInd == 0){
+                //hit
+                //call hit func
+                
+                fix32 disp = n->lookingRight? FIX32( n->w ) : -FIX32(20);
+                KDebug_AlertNumber(n->myindex);
+                NPCDamageBox(n->myindex, n->x+ disp, n->y, 20, n->h, 1);
+            }
             SPR_nextFrame(n->sprite);
             n->animTimer = 0;            
             if(n->sprite->frameInd == 0){ //looped back
-                //call hit func
-                fix32 disp = n->lookingRight? FIX32( n->w + 20) : -FIX32(20);
-                DamagePoint(n->myindex, n->x + disp, n->y, 1);
+                
                 //move to attack recovery  animstate                              
                 n->myAnimState = as_attackrec;
                 SPR_setAnim(n->sprite, blankganim_attackrec);
@@ -362,14 +453,35 @@ void BasicNPCUpdate(NPC *n){
         break;
     case as_defend:
         n->animTimer ++;
-        if(n->animTimer > 5){
+        if(n->animTimer > 50){
             //single frame, so ujust change state
             n->myAnimState = as_idle;
             n->myAICommands = aic_wait;
+            SPR_setAnim(n->sprite, n->myAIState==Alerted? blankganim_idlealert : blankganim_idle);
         }
         break;
-    case as_pain:
+    case as_backstab:
         n->animTimer ++;
+        n->dx = n->lookingRight? FIX32(2) : FIX32(-2);
+        MoveX(&n->x, fix32ToRoundedInt( n->y), n->w, n->h, &n->dx);
+        n->x += n->dx;
+        if( n->animTimer > 5){
+            n->animTimer = 0;
+            SPR_nextFrame(n->sprite);
+            if(n->sprite->frameInd == 0){//looped
+                //go to jumpup ms and as states, also give y vel
+                n->myAICommands = aic_wait;
+                n->myAnimState = as_idle;                
+                SPR_setAnim(n->sprite, n->myAIState==Alerted? blankganim_idlealert : blankganim_idle);                
+                break;
+            }
+        }
+        break;
+    case as_frontstab:
+        n->animTimer ++;
+        n->dx = n->lookingRight? FIX32(-2) : FIX32(2);
+        MoveX(&n->x, fix32ToRoundedInt( n->y), n->w, n->h, &n->dx);
+        n->x += n->dx;
         if( n->animTimer > 5){
             n->animTimer = 0;
             SPR_nextFrame(n->sprite);
@@ -377,22 +489,23 @@ void BasicNPCUpdate(NPC *n){
                 //go to jumpup ms and as states, also give y vel
                 n->myAICommands = aic_wait;
                 n->myAnimState = as_idle;
-                SPR_setAnim(n->sprite, blankganim_idle);                
+                SPR_setAnim(n->sprite, n->myAIState==Alerted? blankganim_idlealert : blankganim_idle);                
                 break;
             }
         }
         break;
     case as_stagger:
+        
         //same as pain but longer
         n->animTimer ++;
-        if( n->animTimer > 8){
+        if( n->animTimer > 50){
             n->animTimer = 0;
             SPR_nextFrame(n->sprite);
             if(n->sprite->frameInd == 0){//looped
                 //go to jumpup ms and as states, also give y vel
                 n->myAICommands = aic_wait;
                 n->myAnimState = as_idle;
-                SPR_setAnim(n->sprite, blankganim_idle);                
+                SPR_setAnim(n->sprite,  n->myAIState==Alerted? blankganim_idlealert : blankganim_idle);                
                 break;
             }
         }
@@ -407,7 +520,7 @@ void BasicNPCUpdate(NPC *n){
                 //move to attack recovery  animstate                              
                 n->myAnimState = as_idle;
                 n->myAICommands = aic_wait;
-                SPR_setAnim(n->sprite, blankganim_idle);
+                SPR_setAnim(n->sprite, n->myAIState==Alerted? blankganim_idlealert : blankganim_idle);
                 break;
             }
         }
@@ -436,6 +549,9 @@ void BasicNPCUpdate(NPC *n){
         break;
     case Alerted:
         VDP_drawText("Alerted           ", 0, DEBUGLINE);
+        break;
+    case Searching:
+        VDP_drawText("Searching           ", 0, DEBUGLINE);
         break;
     default:
         VDP_drawText("no ai state set", 0, DEBUGLINE);
@@ -497,31 +613,87 @@ void BasicNPCUpdate(NPC *n){
 void DamageNPC(NPC *n, int dmg){
     //this function decides if the npc manages to defend, dodge, or take damage
     //for now it just takes damage
-    if( n->myAIState == Alerted && n->myAICommands == aic_wait){
+    if( n->myAIState == Alerted && n->myAICommands == aic_wait && n->myAnimState != as_stagger){
         //these are the conditions for an attempt to block
-        //if(random()>16383){ //probability depends on npc
-        if(1){
+        if(random()>16383){ //probability depends on npc
+        //if(1){
             KDebug_Alert("blocked!");
             n->myAnimState = as_defend;
             SPR_setAnim(n->sprite, blankganim_defend);
             return;
         }
     }
-    //n->hitPoints -= dmg;
-    //instead of this idiotic push back maybe I should create a new state for being hit
-    n->dx = n->lookingRight? FIX32(-8) : FIX32(8);
-    MoveX(&n->x,fix32ToRoundedInt( n->y), 16, 40, &n->dx  );
-    n->x += n->dx;
-    KDebug_Alert("npc took damage");
-    if(n->hitPoints<=0){
-        //play dead animation and set its dead flag
-        n->dead = TRUE;
-    }else{
-        n->myAnimState = as_pain;
-        n->myAICommands = aic_wait;
-        SPR_setAnim(n->sprite, blankganim_pain);
-    }
     
+    //instead of this idiotic push back maybe I should create a new state for being hit
+    // n->dx = n->lookingRight? FIX32(-8) : FIX32(8);
+    // MoveX(&n->x,fix32ToRoundedInt( n->y), 16, 40, &n->dx  );
+    // n->x += n->dx;
+    KDebug_Alert("npc took damage");
+    
+    
+    if((n->lookingRight && plLookingRight)||(!n->lookingRight && !plLookingRight)){
+        //back stab
+        KDebug_Alert("back stab");
+        if(n->myAIState == Alerted)
+            n->hitPoints -= dmg*2;
+        else n->hitPoints -= dmg*3;
+        if(n->hitPoints<=0){
+            //play dead animation and set its dead flag
+            n->dead = TRUE;
+            SPR_setVisibility(n->sprite, 1);
+        }else{
+            n->myAnimState = as_backstab;
+            n->myAICommands = aic_wait;
+            SPR_setAnim(n->sprite, blankganim_hitback);
+        }
+
+       
+    }else{
+        //front  stab
+        KDebug_Alert("front stab");
+        if(n->myAIState == Alerted)
+            n->hitPoints -= dmg;
+        else n->hitPoints -= dmg*2;
+        if(n->hitPoints<=0){
+            //play dead animation and set its dead flag
+            n->dead = TRUE;
+            SPR_setVisibility(n->sprite, 1);
+        }else{
+            n->myAnimState = as_frontstab;
+            n->myAICommands = aic_wait;
+            SPR_setAnim(n->sprite, blankganim_hitfront);
+        }
+        
+    }
+    // n->myAnimState = as_pain;
+    // n->myAICommands = aic_wait;
+    // SPR_setAnim(n->sprite, blankganim_pain);
+
+    
+}
+
+bool PlayerDamageBox( fix32 x, fix32 y, u16 w, u16 h , u8 dmg){
+    //cycle through all NPCs to see if any contain x,y, then deal damage
+    DrawSquare(x, y, w, h, 10);
+    for(u8 n = 0; n<numNPCs; n++){
+        if(SquareIntersection(x, y, w, h, NPCs[n].x, NPCs[n].y, NPCs[n].w, NPCs[n].h)){
+            DamageNPC(&NPCs[n], dmg);
+            DrawSquare(x, y, w, h, 10);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+bool NPCDamageBox(u16 attacker, fix32 x, fix32 y, u16 w, u16 h, u8 dmg){
+    //function called by NPCs to deal damage in the square defined
+    //player will have its own function
+    DrawSquare(x, y, w, h, 10);
+    if(SquareIntersection(x, y, w, h, plx, ply, PlayerWidth, PlayerHeight)){
+        DamagePlayer(dmg, attacker);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -547,3 +719,4 @@ void DamagePoint(u16 nind, fix32 x, fix32 y, int dmg){
         }
     }
 }
+

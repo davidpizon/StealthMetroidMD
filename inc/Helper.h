@@ -4,7 +4,9 @@
 #include <genesis.h>
 #include "kdebug.h"
 
-//u8 animEndsCounter;
+
+
+bool SquareIntersection(fix32 x1, fix32 y1, u16 w1, u16 h1, fix32 x2, fix32 y2, u16 w2, u16 h2);
 
 bool LastFrame(Sprite* sp);
 bool AnimEnd(Sprite* sp);

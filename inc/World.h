@@ -5,11 +5,15 @@
 #include <genesis.h>
 #include "MainGameState.h"
 #include "../res/gfx.h"
+#include "PlayerLogic.h"
+#include "NPC.h"
 
 #define TILE_SOLID 1
 #define TILE_ONEWAY 2
 #define TILE_LEDGELEFT 3
 #define TILE_LEDGERIGHT 4
+#define TILE_SHADOW 5
+#define TILE_LIGHT 6
 
 #define GRAVITY FIX32(0.15)
 
@@ -29,6 +33,9 @@ typedef struct
 int numBlocks;
 Block blocks[24];
 
+
+void LoadEntities();
+
 //moveX will return FALSE if collision happened
 int AlignWithTile(int x);
 bool MoveX(fix32* x, int y, int w, int h, fix32* dx);
@@ -39,6 +46,7 @@ bool PointInTile(int x, int y, int tile);
 bool PointFromToInTileX(int x1, int x2, int y, int tile,  int* tilex);
 bool PointInTileOut(int x, int y, int tile, u16* outtile);
 bool PointInside(int x, int y, int* blockind);
-bool SquareIntersection(int x0, int y0, int w, int h, int* blockind);
+//bool SquareIntersection(int x0, int y0, int w, int h, int* blockind);
+u8 LightLevel(int x, int y);
 
 #endif

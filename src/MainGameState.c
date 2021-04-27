@@ -2,8 +2,8 @@
 #include "../inc/MainGameState.h"
 
 
-#define MAP_WIDTH 800
-#define MAP_HEIGHT 800
+#define MAP_WIDTH 1176
+#define MAP_HEIGHT 776
 #define MIN_POSX            FIX32(0)
 #define MAX_POSX            FIX32(MAP_WIDTH )
 #define MAX_POSY            FIX32(MAP_HEIGHT )
@@ -17,34 +17,15 @@ u16 bgBaseTileIndex[2];
 void updateCameraPosition();
 void setCameraPosition(s16 x, s16 y);
 
-
+fix32 sqx = FIX32(100.0);
+fix32 sqy = FIX32(50.0);
+u16 sqw = 40;
+u16 sqh = 18;
+u16 debugtimer;
 
 void MainGameStart(){
     
-    //create test blocks here
-    // PAL_setPalette(PAL2, simpleBlock.palette->data);
 
-    // blocks[0].x = 32*8;
-    // blocks[0].y = 24*8;
-    // blocks[0].w = 8*8;
-    // blocks[0].h = 80;
-    // blocks[0].sprite = SPR_addSprite(&simpleBlock, blocks[0].x-camPosX, blocks[0].y-camPosY, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
-    // SPR_setVisibility(blocks[0].sprite, 2);
-
-    // blocks[1].x = 38*8;
-    // blocks[1].y = 21*8;
-    // blocks[1].w = 2*8;
-    // blocks[1].h = 80;
-    // blocks[1].sprite = SPR_addSprite(&simpleBlock, blocks[1].x-camPosX, blocks[1].y-camPosY, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
-    // SPR_setVisibility(blocks[1].sprite, 2);
-
-    // blocks[2].x = 0;
-    // blocks[2].y = 0;
-    // blocks[2].w = 8;
-    
-    // blocks[2].h = 8;
-    // blocks[2].sprite = SPR_addSprite(&simpleBlock, blocks[2].x-camPosX, blocks[2].y-camPosY, TILE_ATTR(PAL2, FALSE, FALSE, FALSE) );
-    // SPR_setVisibility(blocks[2].sprite, 2);
 
     VDP_setWindowHPos(TRUE, 20);
     VDP_setWindowVPos(TRUE, DEBUGLINE);
@@ -77,10 +58,17 @@ void MainGameStart(){
     //set pal2 to enemy 
     PAL_setPalette(PAL2, blankGuard.palette->data);
     
+    //deb
+    debCornerNW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, TRUE));
+    debCornerNE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
+    debCornerSW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, TRUE, TRUE));
+    debCornerSE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, TRUE, FALSE));
 
-    StartPlayer();
 
-    
+    // StartPlayer();
+    LoadEntities();
+
+    //AddNPC(plx, ply);
 
     updateCameraPosition();
     SYS_doVBlankProcess();
@@ -88,7 +76,6 @@ void MainGameStart(){
 //int blockCycleInd=0;
 void MainGameUpdate(){
     
-
 
     UpdatePlayer();
     
@@ -103,27 +90,31 @@ void MainGameUpdate(){
         if(!NPCs[n].dead)
             NPCs[n].Update(&NPCs[n]);
         //render even if dead, the body should be ppermanet
+        debvar1 = (fix32ToInt(NPCs[n].y)- NPCs[n].yoffset - camPosY) ;
+        //debvar1 = random();
         SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset, 
                                   fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset);
 
+        SPR_setPosition(NPCs[n].icon, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset + 40, 
+                                  fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset + 30);
         
     }
+   
+   
+    // if(btn_Start)
+    //     DrawSquare(sqx, sqy, sqw, sqh, 10);
+   
+    if(debugtimer != 0 ){
+        debugtimer --;
+    }else{
+        HideDebugSquare();
+    }
     
-    // SPR_setPosition(debCornerNW, fix32ToRoundedInt( plx)-camPosX, fix32ToRoundedInt( ply)-camPosY);
-    // SPR_setPosition(debCornerNE, fix32ToRoundedInt( plx)-camPosX+8, fix32ToRoundedInt( ply)-camPosY);
-    // SPR_setPosition(debCornerSW, fix32ToRoundedInt( plx)-camPosX, fix32ToRoundedInt( ply)-camPosY+8);
-    // SPR_setPosition(debCornerSE, fix32ToRoundedInt( plx)-camPosX+8, fix32ToRoundedInt( ply)-camPosY+8);
-    
-    // int bx = blocks[blockCycleInd].x;
-    // int by = blocks[blockCycleInd].y;
-    // int bw = blocks[blockCycleInd].w-8;
-    // int bh = blocks[blockCycleInd].h-8;
-    // SPR_setPosition(debCornerNW, bx-camPosX, by-camPosY);
-    // SPR_setPosition(debCornerNE, bx+bw-camPosX, by-camPosY);
-    // SPR_setPosition(debCornerSW, bx-camPosX, by+bh-camPosY);
-    // SPR_setPosition(debCornerSE, bx+bw-camPosX, by+bh-camPosY);
-    // blockCycleInd++;
-    // if(blockCycleInd==10) blockCycleInd = 0;
+    // if(SquareIntersection(plx, ply, PlayerWidth, PlayerHeight, sqx, sqy, sqw, sqh)){
+    //     VDP_drawText("Intersection          ", 0, DEBUGLINE);
+    // }else{
+    //     VDP_drawText("NO Intersection          ", 0, DEBUGLINE);
+    // }
 
 
 }
@@ -180,3 +171,23 @@ SimpleState mainGameState =
     0,
     0
 };
+
+//debug function
+void DrawSquare(fix32 x, fix32 y, u16 w, u16 h, u16 duration){
+    debugtimer = duration;
+    SPR_setVisibility(debCornerNE, 2 );
+    SPR_setVisibility(debCornerNW, 2);
+    SPR_setVisibility(debCornerSE, 2);
+    SPR_setVisibility(debCornerSW, 2);
+
+    SPR_setPosition(debCornerNE, fix32ToRoundedInt( x)-camPosX, fix32ToRoundedInt( y)-camPosY);
+    SPR_setPosition(debCornerNW, fix32ToRoundedInt( x)-camPosX+w-8, fix32ToRoundedInt( y)-camPosY);
+    SPR_setPosition(debCornerSE, fix32ToRoundedInt( x)-camPosX, fix32ToRoundedInt( y)-camPosY+h);
+    SPR_setPosition(debCornerSW, fix32ToRoundedInt( x)-camPosX+w-8, fix32ToRoundedInt( y)-camPosY+h);
+}
+void HideDebugSquare(){
+    SPR_setVisibility(debCornerNE, 1 );
+    SPR_setVisibility(debCornerNW, 1);
+    SPR_setVisibility(debCornerSE, 1);
+    SPR_setVisibility(debCornerSW, 1);
+}

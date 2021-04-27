@@ -7,6 +7,9 @@ SPRITE blankGuard "sprite/blankGuard.png" 10 11 NONE
 SPRITE maskedGuard "sprite/maskedguard_sheet.png" 10 11 NONE 7
 SPRITE appleSprite "sprite/basicapple.png" 4 5 NONE 4
 
-SPRITE AIIcons "sprite/AIheadicons.png" 1 1 NONE 0
+SPRITE lightGem_sd "sprite/lightgem.png" 2 2 NONE
+SPRITE visibilityGem_sd "sprite/visiblegem.png" 1 2 NONE
+
+SPRITE AIIcons "sprite/AIheadicons.png" 1 1 NONE 5
 SPRITE debugCorner "sprite/debugCorner.png" 1 1 none 0
 

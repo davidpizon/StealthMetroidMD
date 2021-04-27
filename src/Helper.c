@@ -19,6 +19,22 @@ bool AnimEnd(Sprite* sp){
     return FALSE;
 }
 
+bool SquareIntersection(fix32 x1, fix32 y1, u16 w1, u16 h1, fix32 x2, fix32 y2, u16 w2, u16 h2){
+    
+    //if completely to the side of the other
+    if(x1 >= x2 + FIX32(w2))
+        return FALSE;
+    if(x2 >= x1 + FIX32(w1))
+        return FALSE;
+    //same thing vertically now
+    if(y1 >= y2 + FIX32(h2))
+        return FALSE;
+    if(y2 >= y1 + FIX32(h1))
+        return FALSE;
+    
+    return TRUE;
+    
+}
 
 char* itoa2(int i, char b[]){
     char const digit[] = "0123456789";
@@ -51,3 +67,4 @@ s16 Clamp32(fix32 value, fix32 min, fix32 max){
     if(value > max) return max;
     return value;
 }
+

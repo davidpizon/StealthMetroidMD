@@ -7,7 +7,8 @@ u16 passingAnimTimer = 0;
 #define WalkLowSpeed FIX32(0.1)
 #define WalkHighSpeed FIX32(0.5)
 
-
+Sprite* lightGem;
+Sprite* visibilityGem;
 
 AnimState animState = as_idle;
 
@@ -35,7 +36,7 @@ MovementState movState = ms_normal;
 
 
 bool grounded = FALSE;
-bool lookingRight = TRUE;
+bool plLookingRight = TRUE;
 int grabbingBlockY;
 int grabbingBlockType;
 bool wallRunningRight;
@@ -46,13 +47,13 @@ void StartPlayer(){
     PAL_setPalette(PAL1, playerSprites.palette->data);
     plx = FIX32(13*8);
     ply= FIX32(50);
-    KDebug_AlertNumber(&plx);
     playerSprite = SPR_addSprite(&playerSprites, fix32ToInt( plx), fix32ToInt( ply), TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
     SPR_setAnim(playerSprite, 9);
     SPR_setVisibility(playerSprite, 2);    
 
-    //deb
-    debCornerNE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
+    lightGem = SPR_addSprite(&lightGem_sd, 100, 10, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+    
+    visibilityGem = SPR_addSprite(&visibilityGem_sd, 92, 10, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
 }
 
 bool LedgeGrabber(){
@@ -86,6 +87,7 @@ bool LedgeGrabber(){
                 }
                               
                 grabbingBlockType = TILEINDEX(curt);
+                
                 return TRUE;
             }
         }
@@ -161,12 +163,12 @@ void UpdatePlayer(){
                         movState = ms_jumpwindup;
                         animState = as_jumpwindup;
                         SPR_setAnim(playerSprite, PlAnim_jumpwindup);
-                    }else if((btn_Right&&lookingRight) ||(btn_Left&&!lookingRight)){
+                    }else if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
                         //step forward
                         movState = ms_stepfor;
                         animState = as_stepfor;
                         SPR_setAnim(playerSprite, PlAnim_stepforward);
-                    }else if((btn_Right&&!lookingRight) ||(btn_Left&&lookingRight)){
+                    }else if((btn_Right&&!plLookingRight) ||(btn_Left&&plLookingRight)){
                         //step backward
                         movState = ms_stepback;
                         animState = as_stepback;
@@ -176,7 +178,7 @@ void UpdatePlayer(){
             }
 
             //parry
-            if(btn_A){
+            if(btn_A && abs(plSpX)<FIX32(0.1)){
                 //go to defend state
                 //set up variable for measuring how long it started
                 //which can be used to implement perfect parry with timing
@@ -206,9 +208,17 @@ void UpdatePlayer(){
             } 
             
             //attack
-            if(btndown_B){
-                animState = as_attackhit;
-                SPR_setAnim(playerSprite, PlAnim_attack);
+            if(btndown_B  ){
+                if(abs(plSpX)<FIX32(0.1)){
+                    //normal attack
+                    animState = as_attackhit;
+                    SPR_setAnim(playerSprite, PlAnim_attack);   
+                }else if(abs(plSpX)>FIX32(1.9)){
+                    //running attack. still dont have animation for it
+                    animState = as_attackhit;
+                    SPR_setAnim(playerSprite, PlAnim_attack);   
+                }
+                
                 //damage check will be called during the right frame from in the animation state
             }
             
@@ -229,7 +239,7 @@ void UpdatePlayer(){
         plSpY += plAccY;
 
         fix32 maxSpeed = FIX32(2);
-        if(btn_A) maxSpeed = FIX32(0.2);
+        //if(btn_A) maxSpeed = FIX32(0.2);
         if(plSpX > maxSpeed) plSpX = maxSpeed;
         else if(plSpX < -maxSpeed) plSpX = -maxSpeed;
 
@@ -307,10 +317,10 @@ void UpdatePlayer(){
             int tx;
             if(PointFromToInTileX(plxint, plxint+ PlayerWidth, plyint+PlayerHeight+1, TILE_LEDGELEFT, &tx)){
                 
-                if(!lookingRight){
+                if(!plLookingRight){
                     //flip
-                    SPR_setHFlip(playerSprite, lookingRight);
-                    lookingRight = !lookingRight;
+                    SPR_setHFlip(playerSprite, plLookingRight);
+                    plLookingRight = !plLookingRight;
                 }         
                 //climb down
                 movState = ms_frozen;
@@ -322,9 +332,9 @@ void UpdatePlayer(){
                 grabbingBlockY = (plyint+PlayerHeight);
 
             }else if(PointFromToInTileX(plxint, plxint+ PlayerWidth, plyint+PlayerHeight+1, TILE_LEDGERIGHT, &tx)){
-                if(lookingRight){
-                    SPR_setHFlip(playerSprite, lookingRight);
-                    lookingRight = !lookingRight;
+                if(plLookingRight){
+                    SPR_setHFlip(playerSprite, plLookingRight);
+                    plLookingRight = !plLookingRight;
                 }         
                 //climb down
                 movState = ms_frozen;
@@ -369,19 +379,19 @@ void UpdatePlayer(){
 
         break;
     case ms_rolling:
-        plSpX = lookingRight? FIX32(2.0) : FIX32(-2.0);
+        plSpX = plLookingRight? FIX32(2.0) : FIX32(-2.0);
         MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
         plx += plSpX;
         break;
     case ms_stepback:
         //not sure i need a movement state here... animation state, sure
-        plSpX = lookingRight? FIX32(-1.0) : FIX32(1.0);
+        plSpX = plLookingRight? FIX32(-1.0) : FIX32(1.0);
         MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
         plx += plSpX;
         break;
     case ms_stepfor:
         //not sure i need a movement state here... animation state, sure
-        plSpX = lookingRight? FIX32(1.0) : FIX32(-1.0);
+        plSpX = plLookingRight? FIX32(1.0) : FIX32(-1.0);
         MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
         plx += plSpX;
         break;
@@ -393,10 +403,12 @@ void UpdatePlayer(){
 
         //this bit is to move the player close to the wall hes climbing.
         if(grabbingBlockType == TILE_LEDGELEFT){
+            KDebug_Alert("here 1");
             plSpX = FIX32(1.0);
             MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
             plx += plSpX;
         }else if(grabbingBlockType == TILE_LEDGERIGHT){
+            KDebug_Alert("here 2");
             plSpX = -FIX32(1.0);
             MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
             plx += plSpX;
@@ -434,8 +446,8 @@ void UpdatePlayer(){
         }
         //change frame depending on climbingy
         SPR_setFrame(playerSprite, fix32ToInt(climbingY));
-        debvar1 = fix32ToInt(climbingY);
-        debvar2 = playerSprite->frameInd;
+        // debvar1 = fix32ToInt(climbingY);
+        // debvar2 = playerSprite->frameInd;
         break;
     case ms_debug:
         playerVisibility = 0;
@@ -512,7 +524,7 @@ void UpdatePlayer(){
     case as_idle:
         VDP_drawText("Idle      ", 0, DEBUGLINE);
         if(abs(plSpX) > FIX32(0.1)){
-            if((plAccX > 0 && lookingRight)||(plAccX < 0 && !lookingRight)){
+            if((plAccX > 0 && plLookingRight)||(plAccX < 0 && !plLookingRight)){
                 animState = as_startRun;
                 SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
@@ -521,13 +533,13 @@ void UpdatePlayer(){
             }
             
         }
-        if((plSpX > 0 && !lookingRight)||(plSpX < 0 && lookingRight)){
+        if((plSpX > 0 && !plLookingRight)||(plSpX < 0 && plLookingRight)){
                 //i need animation for turning before start running
                 animState = as_startRun;
                 SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
-                SPR_setHFlip(playerSprite, lookingRight);
-                lookingRight = !lookingRight;
+                SPR_setHFlip(playerSprite, plLookingRight);
+                plLookingRight = !plLookingRight;
                 // KDebug_Halt();
                 break;
             }
@@ -641,11 +653,11 @@ void UpdatePlayer(){
     case as_startRun:
         VDP_drawText("StartRun         ", 0, DEBUGLINE);
         //before the normal checks, this one gest priority:
-        if((lookingRight && plAccX < 0)||(!lookingRight && plAccX > 0)){
+        if((plLookingRight && plAccX < 0)||(!plLookingRight && plAccX > 0)){
             //start run the other direction
             //just flip H and reset this animation 
-            SPR_setHFlip(playerSprite,lookingRight);
-            lookingRight = !lookingRight;
+            SPR_setHFlip(playerSprite,plLookingRight);
+            plLookingRight = !plLookingRight;
             SPR_setFrame(playerSprite, 0);
             passingAnimTimer = 0;
             // KDebug_Halt();
@@ -691,10 +703,10 @@ void UpdatePlayer(){
             // KDebug_Halt();
             break;
         }
-        if((plAccX > 0 && !lookingRight)||(plAccX < 0 && lookingRight)){
+        if((plAccX > 0 && !plLookingRight)||(plAccX < 0 && plLookingRight)){
             //means we are reversing direction
-            SPR_setHFlip(playerSprite, lookingRight);
-            lookingRight = !lookingRight;
+            SPR_setHFlip(playerSprite, plLookingRight);
+            plLookingRight = !plLookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
             animState = as_startRun;
             // KDebug_Halt();
@@ -760,11 +772,11 @@ void UpdatePlayer(){
 
         VDP_drawText("StopRun           ", 0, DEBUGLINE);
         //before the normal checks, this one gest priority:
-        if((lookingRight && plAccX < 0)||(!lookingRight && plAccX > 0)){
+        if((plLookingRight && plAccX < 0)||(!plLookingRight && plAccX > 0)){
             //start run the other direction
             //just flip H and reset this animation 
-            SPR_setHFlip(playerSprite,lookingRight);
-            lookingRight = !lookingRight;
+            SPR_setHFlip(playerSprite,plLookingRight);
+            plLookingRight = !plLookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
             animState = as_startRun;
             // KDebug_Halt();
@@ -905,9 +917,10 @@ void UpdatePlayer(){
                 SPR_nextFrame(playerSprite);
                 if(playerSprite->frameInd == 1){ //frame 1 deals damage
                     //damage
-                    //DamagePoint(plx + lookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
-                    fix32 disp = lookingRight? FIX32( PlayerWidth+ 20) : -FIX32(20);
-                    DamagePoint(0, plx+disp, ply, 1);
+                    //DamagePoint(plx + plLookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
+                    fix32 disp = plLookingRight? FIX32( PlayerWidth ) : FIX32(-20);
+                    //DamagePoint(0, plx+disp, ply, 1);
+                    PlayerDamageBox(plx+disp, ply+ FIX32(5), 20, 5, 1);
                 }
                 if(playerSprite->frameInd == 3){ //last frame
                     LASTFRAME = TRUE;
@@ -922,6 +935,18 @@ void UpdatePlayer(){
 
 
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
+    
+    u8 lightLevel = LightLevel(plxint, plyint);
+    SPR_setFrame(lightGem, lightLevel);
+    playerVisibility = 0;
+    if(movState == ms_crouch){
+        if(lightLevel == 2) playerVisibility = 1;
+    } else if(abs(plSpX)<FIX32(0.1) ){
+        if(lightLevel == 1 || lightLevel == 2) playerVisibility = 1;
+    }else{
+        playerVisibility = 1;
+    }
+    SPR_setFrame(visibilityGem, playerVisibility);
 
     char blah[10];        
     fix32ToStr(plx, blah, 5 ); //last two bytes are tile index
@@ -936,15 +961,17 @@ void UpdatePlayer(){
 
 void DamagePlayer(u8 dmg, u16 attacker){
     if(movState == ms_parrying){
-        if(playerSprite->frameInd == 1 || playerSprite->frameInd == 3){
+        if(playerSprite->frameInd == 0 || playerSprite->frameInd == 4){
             //nothing happens maybe play a clang sound
             KDebug_Alert("player parry!");
+            
             return;
         }
-        if(playerSprite->frameInd == 2){
+        if(playerSprite->frameInd == 1 || playerSprite->frameInd == 3 || playerSprite->frameInd == 2){
             //perfect parry
             //need a ref to the npc attacking to inflict stagger
             KDebug_Alert("player PERFECT parry!");
+            KDebug_AlertNumber(attacker);
             NPCs[attacker].myAICommands = aic_wait;
             NPCs[attacker].myAnimState = as_stagger;
             SPR_setAnim(NPCs[attacker].sprite, blankganim_pain);
