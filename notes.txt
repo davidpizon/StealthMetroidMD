@@ -6,8 +6,7 @@ need animation for running attack
 
 Change animations only when necessary. Don't waste time animating things that might not be used in the end
 
-parameter tweaking from now on. Tweak until it's fun!
-Parameters to tweak:
+Combat parameters to tweak:
 - AI attack timing << changed method to something that looks reasonable
 - player attack range << seems ok
 - player attack speed <<
@@ -18,12 +17,9 @@ Parameters to tweak:
 -- maybe they shouldn't jump off cliffs 
 -- side step during combat
 
-
 parameters look ok-ish for now.
 Maybe it needs some juicy gamey effects to bring it up to standards. Animation, freeze frames for impact etc. 
 
-tired of combat for now. I think it's serviceable as is. 
-
-Moving on to visibility and stealth
 
 the AI head icons are too small to be readable with a CRT filter. Besides, I'm not sure how to use them with the current AI system
+

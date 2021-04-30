@@ -265,12 +265,24 @@ void BasicNPCUpdate(NPC *n){
             n->timerWait = 0;
             break;
         }
-        if(n->timerWait == 0){
-            n->myAICommands = aic_turn;
-            n->timerWait = 60;
+        if(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX) < 2){
+            //means we are near where we last saw player. look around
+            KDebug_AlertNumber(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX));
+            if(n->timerWait == 0){
+                n->myAICommands = aic_turn;
+                n->timerWait = 60;
+            }else{
+                n->timerWait --;
+            }
         }else{
-            n->timerWait --;
+            
+            if(fix32ToRoundedInt( n->x) > n->lastKnownLocX){
+                n->myindex = aic_right;
+            }else{
+                n->myindex = aic_left;
+            }
         }
+
         break;
     default:
         break;

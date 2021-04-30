@@ -101,8 +101,6 @@ void MainGameUpdate(){
     }
    
    
-    // if(btn_Start)
-    //     DrawSquare(sqx, sqy, sqw, sqh, 10);
    
     if(debugtimer != 0 ){
         debugtimer --;
@@ -182,8 +180,8 @@ void DrawSquare(fix32 x, fix32 y, u16 w, u16 h, u16 duration){
 
     SPR_setPosition(debCornerNE, fix32ToRoundedInt( x)-camPosX, fix32ToRoundedInt( y)-camPosY);
     SPR_setPosition(debCornerNW, fix32ToRoundedInt( x)-camPosX+w-8, fix32ToRoundedInt( y)-camPosY);
-    SPR_setPosition(debCornerSE, fix32ToRoundedInt( x)-camPosX, fix32ToRoundedInt( y)-camPosY+h);
-    SPR_setPosition(debCornerSW, fix32ToRoundedInt( x)-camPosX+w-8, fix32ToRoundedInt( y)-camPosY+h);
+    SPR_setPosition(debCornerSE, fix32ToRoundedInt( x)-camPosX, fix32ToRoundedInt( y)-camPosY+h-8);
+    SPR_setPosition(debCornerSW, fix32ToRoundedInt( x)-camPosX+w-8, fix32ToRoundedInt( y)-camPosY+h-8);
 }
 void HideDebugSquare(){
     SPR_setVisibility(debCornerNE, 1 );

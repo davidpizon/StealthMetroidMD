@@ -42,15 +42,17 @@
 #define PlAnim_ledgegrab   19
 #define PlAnim_jumpup   20
 #define PlAnim_climbdown   21
-#define PlAnim_jumpupfall   22
-#define PlAnim_rolling   23
-#define PlAnim_runtowalk   24
-#define PlAnim_walktorun   25
-#define PlAnim_wallkiss   26
-#define PlAnim_horjump   27
-#define PlAnim_attack   28
-#define PlAnim_defend   29
-#define PlAnim_silent_knife   30
+#define PlAnim_verticalfall   22
+#define PlAnim_verticallanding   23
+#define PlAnim_rolling   24
+#define PlAnim_runtowalk   25
+#define PlAnim_walktorun   26
+#define PlAnim_wallkiss   27
+#define PlAnim_horjump   28
+#define PlAnim_attack   29
+#define PlAnim_defend   30
+#define PlAnim_silent_knife   31
+
 
 
 
@@ -87,7 +89,8 @@ typedef enum
     as_stepback,
     as_jumpwindup,
     as_jumpup,
-    as_jumpfall,
+    as_verticalFalling,
+    as_verticalLanding,
     as_pain,
     as_rolling,
     as_parrying,

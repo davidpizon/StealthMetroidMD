@@ -44,15 +44,15 @@ struct  LevelEnt{
     int y;
 }LevelEnt;
 
-#define numLevelEnts  7
+#define numLevelEnts  2
 const struct LevelEnt ALLENTS[numLevelEnts]={
-{ PlayerStart,36,204 },
-{ BlankGuard,632,328 },
-{ BlankGuard,336,192 },
+{ PlayerStart,36,150 },
+// { BlankGuard,632,328 },
+// { BlankGuard,336,192 },
 { BlankGuard,88,288 },
-{ BlankGuard,776,240 },
-{ BlankGuard,928,264 },
-{ BlankGuard,920,456 },
+// { BlankGuard,776,240 },
+// { BlankGuard,928,264 },
+// { BlankGuard,920,456 },
 
 };
 

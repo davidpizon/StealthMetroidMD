@@ -26,8 +26,7 @@ typedef enum{
     ms_stepfor,
     ms_stepback,
     ms_jumpup,
-    ms_jumpwindup,
-    ms_jumpfall,
+    ms_jumpwindup,        
     ms_pain,
     ms_rolling
 } MovementState;
@@ -58,8 +57,8 @@ void StartPlayer(){
 
 bool LedgeGrabber(){
     
-    int tx0 = plxint >> 3;
-    int tx1 = tx0 + ((PlayerWidth -1)>> 3);
+    int tx0 = (plxint) >> 3;
+    int tx1 = tx0 + ((PlayerWidth )>> 3);
     int ty0 = plyint >> 3;
     int ty1 = ty0 + ((PlayerHeight-1) >> 3);
     for(int tx = tx0 ; tx <= tx1 ; tx++){
@@ -85,6 +84,20 @@ bool LedgeGrabber(){
                     SPR_setAnim(playerSprite, PlAnim_climbup);    
                     animState = as_climb;   
                 }
+
+                if((plLookingRight && TILEINDEX(curt)==TILE_LEDGERIGHT) || 
+                    (!plLookingRight && TILEINDEX(curt)==TILE_LEDGELEFT)){
+                    //flip
+                    SPR_setHFlip(playerSprite, plLookingRight);
+                    plLookingRight = !plLookingRight;
+                }
+                
+
+                int newx = tx << 3;
+                newx += plLookingRight? -8 : 0;
+                plx = FIX32( newx );
+
+                
                               
                 grabbingBlockType = TILEINDEX(curt);
                 
@@ -143,6 +156,12 @@ void UpdatePlayer(){
                     if(plSpX > 0) plSpX=0;
                 }
             }
+
+           
+
+            
+
+
             fix32 maxj = -FIX32(3);
             fix32 minj = -FIX32(2);
             fix32 maxv = FIX32(2);
@@ -295,16 +314,38 @@ void UpdatePlayer(){
         plSpY += GRAVITY;
         MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
         ply += plSpY;
-        //temporary solution, until I have proper jumpfall state and animation:
-        if(plSpY > 0){
-            movState = ms_normal;
-            animState = as_idle;
-            SPR_setAnim(playerSprite, PlAnim_idle);
+        if(btn_Up && LedgeGrabber()){
             break;
         }
+        //temporary solution, until I have proper jumpfall state and animation:
+        if(plSpY >= 0){
+            if(grounded){
+                movState = ms_frozen;
+                animState = as_verticalLanding;
+                SPR_setAnim(playerSprite, PlAnim_verticallanding);
+                break;
+            }else{
+                //check for wall
+                int delta = plLookingRight? PlayerWidth + 1 : -1;
+                if(PointInTile (plxint+delta, plyint, TILE_SOLID) ){
+                    movState = ms_wallRunning;
+
+                    break;
+                }
+                if(animState != as_verticalFalling){
+                    animState = as_verticalFalling;
+                    SPR_setAnim(playerSprite, PlAnim_verticalfall);
+                }
+                
+                
+            }            
+
+        }
+        
         break;
     case ms_crouch:
         //check for up key to uncrouch and down to climb down
+        plSpX = 0;
         if(btn_Up){
             movState = ms_frozen;
             //change animstate which will unfreeze the player
@@ -358,11 +399,22 @@ void UpdatePlayer(){
         MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);        
         ply += plSpY;
 
-        //if(btn_Up ){
+        if(ply > 0){
+            //falling and dragging
+            //check for wall
+            int delta = plLookingRight? PlayerWidth + 1 : -1;
+            if(!PointInTile(plxint+delta, plyint, TILE_SOLID)){
+                movState = ms_jumpup;
+                KDebug_Halt();
+                break;
+            }
+        }
+
+        if(!btn_Down ){
             LedgeGrabber();
             if(movState!=ms_wallRunning)
                 break;
-        //}
+        }
 
         if(btndown_C){
             plSpY = -FIX32(2);
@@ -403,13 +455,11 @@ void UpdatePlayer(){
 
         //this bit is to move the player close to the wall hes climbing.
         if(grabbingBlockType == TILE_LEDGELEFT){
-            KDebug_Alert("here 1");
-            plSpX = FIX32(1.0);
+            plSpX = FIX32(2.0);
             MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
             plx += plSpX;
         }else if(grabbingBlockType == TILE_LEDGERIGHT){
-            KDebug_Alert("here 2");
-            plSpX = -FIX32(1.0);
+            plSpX = -FIX32(2.0);
             MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
             plx += plSpX;
         }
@@ -434,8 +484,8 @@ void UpdatePlayer(){
         }else if(btn_Up){
             climbingY += FIX32(0.2);
         }else{
-            if(btn_Down){
-                movState = ms_normal; //should be falling or something..
+            if(btn_Down){                
+                movState = ms_jumpup;                
                 plSpY = plSpX = 0;
             }
             if(climbingY > 0){                
@@ -534,15 +584,15 @@ void UpdatePlayer(){
             
         }
         if((plSpX > 0 && !plLookingRight)||(plSpX < 0 && plLookingRight)){
-                //i need animation for turning before start running
-                animState = as_startRun;
-                SPR_setAnim(playerSprite,PlAnim_startrun);
-                passingAnimTimer = 0;
-                SPR_setHFlip(playerSprite, plLookingRight);
-                plLookingRight = !plLookingRight;
-                // KDebug_Halt();
-                break;
-            }
+            //i need animation for turning before start running
+            animState = as_startRun;
+            SPR_setAnim(playerSprite,PlAnim_startrun);
+            passingAnimTimer = 0;
+            SPR_setHFlip(playerSprite, plLookingRight);
+            plLookingRight = !plLookingRight;
+            // KDebug_Halt();
+            break;
+        }
         break;   
     case as_parrying:
          passingAnimTimer ++;
@@ -634,6 +684,29 @@ void UpdatePlayer(){
                 SPR_setAnim(playerSprite, PlAnim_jumpup);
                 plSpY = FIX32(-3.0);
                 
+            }
+        }
+        break;
+    case as_verticalFalling:
+        passingAnimTimer ++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer=0;
+            if(playerSprite->frameInd == 5){
+                SPR_setFrame(playerSprite, 4);
+            }else{
+                SPR_nextFrame(playerSprite);
+            }
+        }
+        break;
+    case as_verticalLanding:
+        passingAnimTimer ++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer=0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){
+                animState = as_idle;
+                movState = ms_normal;
+                SPR_setAnim(playerSprite, PlAnim_idle);
             }
         }
         break;
@@ -856,7 +929,7 @@ void UpdatePlayer(){
         break;
     case as_wallDrag:
         VDP_drawText("Wall Drag           ", 0, DEBUGLINE);        
-        passingAnimTimer ++; //better way?
+        passingAnimTimer ++;
         if(passingAnimTimer > 5){
             passingAnimTimer = 0;
             SPR_nextFrame(playerSprite);
@@ -872,7 +945,7 @@ void UpdatePlayer(){
         break;
     case as_horizontalJump:
         VDP_drawText("HorizontalJump           ", 0, DEBUGLINE);        
-        passingAnimTimer ++; //better way?
+        passingAnimTimer ++; 
         if(passingAnimTimer > 4){
             passingAnimTimer = 0;
             if(playerSprite->frameInd != 5){ //frame 3 is the falling down animation
@@ -933,9 +1006,19 @@ void UpdatePlayer(){
         break;
     }
 
+    // DrawSquare(plx, ply, PlayerWidth, PlayerHeight, 1);
 
+    bool prevgrounded = grounded;
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
-    
+    if(!grounded && prevgrounded){
+        if(animState == as_run || animState == as_startRun ||animState == as_stopRun){
+            KDebug_Alert("falling");
+            animState = as_horizontalJump;
+            SPR_setAnimAndFrame(playerSprite, PlAnim_horjump, 3);
+        }
+    }
+
+
     u8 lightLevel = LightLevel(plxint, plyint);
     SPR_setFrame(lightGem, lightLevel);
     playerVisibility = 0;
@@ -948,9 +1031,7 @@ void UpdatePlayer(){
     }
     SPR_setFrame(visibilityGem, playerVisibility);
 
-    char blah[10];        
-    fix32ToStr(plx, blah, 5 ); //last two bytes are tile index
-    VDP_drawText( blah, 0,0 );
+    
     
     camTargetX = fix32ToRoundedInt( plx)-150;
     // if(grounded) //interesting idea but needs additional check for y displacement...
