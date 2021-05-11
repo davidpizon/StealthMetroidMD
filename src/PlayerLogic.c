@@ -1,5 +1,5 @@
 #include "../inc/PlayerLogic.h"
-#define LASTFRAME playerSprite->data
+#define LASTFRAME playerSprite->animation->numFrame
 
 fix32 deltax = 0;
 u16 passingAnimTimer = 0;
@@ -39,7 +39,7 @@ bool plLookingRight = TRUE;
 int grabbingBlockY;
 int grabbingBlockType;
 bool wallRunningRight;
-
+bool canparry = FALSE;
 
 
 void StartPlayer(){
@@ -91,7 +91,7 @@ bool LedgeGrabber(){
                     SPR_setHFlip(playerSprite, plLookingRight);
                     plLookingRight = !plLookingRight;
                 }
-                
+
 
                 int newx = tx << 3;
                 newx += plLookingRight? -8 : 0;
@@ -116,6 +116,7 @@ void UpdatePlayer(){
             movState = ms_normal;
         }else{
             movState = ms_debug;
+            // PlotLine(plxint, plyint, plxint-(8<<3), plyint-132);
         }
     }
     
@@ -177,34 +178,55 @@ void UpdatePlayer(){
                         SPR_setAnim(playerSprite, PlAnim_horjump);
                     }
                 }else if(animState != as_horizontalJump){
-                    if(btn_Up){
-                        //jump up
-                        movState = ms_jumpwindup;
-                        animState = as_jumpwindup;
-                        SPR_setAnim(playerSprite, PlAnim_jumpwindup);
-                    }else if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
-                        //step forward
-                        movState = ms_stepfor;
-                        animState = as_stepfor;
-                        SPR_setAnim(playerSprite, PlAnim_stepforward);
-                    }else if((btn_Right&&!plLookingRight) ||(btn_Left&&plLookingRight)){
-                        //step backward
-                        movState = ms_stepback;
-                        animState = as_stepback;
-                        SPR_setAnim(playerSprite, PlAnim_stepback);
-                    }
+                    //jump up
+                    movState = ms_jumpwindup;
+                    animState = as_jumpwindup;
+                    SPR_setAnim(playerSprite, PlAnim_jumpwindup);
+
+                    // if(btn_Up){
+                    //     //jump up
+                    //     movState = ms_jumpwindup;
+                    //     animState = as_jumpwindup;
+                    //     SPR_setAnim(playerSprite, PlAnim_jumpwindup);
+                    // }else if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
+                    //     //step forward
+                    //     movState = ms_stepfor;
+                    //     animState = as_stepfor;
+                    //     SPR_setAnim(playerSprite, PlAnim_stepforward);
+                    // }else if((btn_Right&&!plLookingRight) ||(btn_Left&&plLookingRight)){
+                    //     //step backward
+                    //     movState = ms_stepback;
+                    //     animState = as_stepback;
+                    //     SPR_setAnim(playerSprite, PlAnim_stepback);
+                    // }
                 }                
             }
 
             //parry
+            
+            if(!btn_Up) canparry = TRUE;
             if(btn_A && abs(plSpX)<FIX32(0.1)){
-                //go to defend state
-                //set up variable for measuring how long it started
-                //which can be used to implement perfect parry with timing
-                //later though
-                movState = ms_parrying;
-                animState = as_parrying;
-                SPR_setAnim(playerSprite, PlAnim_defend);
+                
+                
+                
+                if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
+                    //step forward
+                    // canparry = FALSE;
+                    movState = ms_stepfor;
+                    animState = as_stepfor;
+                    SPR_setAnim(playerSprite, PlAnim_stepforward);
+                }else if((btn_Right&&!plLookingRight) ||(btn_Left&&plLookingRight)){
+                    //step backward
+                    // canparry = FALSE;
+                    movState = ms_stepback;
+                    animState = as_stepback;
+                    SPR_setAnim(playerSprite, PlAnim_stepback);
+                } else if(canparry && btn_Up){
+                    canparry = FALSE;
+                    movState = ms_parrying;
+                    animState = as_parrying;
+                    SPR_setAnim(playerSprite, PlAnim_defend);
+                }
                 break;
             }
 
@@ -378,6 +400,7 @@ void UpdatePlayer(){
                     plLookingRight = !plLookingRight;
                 }         
                 //climb down
+
                 movState = ms_frozen;
                 animState = as_climbDown;
                 ply += FIX32( PlayerHeight);                
@@ -438,14 +461,26 @@ void UpdatePlayer(){
     case ms_stepback:
         //not sure i need a movement state here... animation state, sure
         plSpX = plLookingRight? FIX32(-1.0) : FIX32(1.0);
-        MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
-        plx += plSpX;
+        if(MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX))
+            plx += plSpX;
+        else{
+            //leave this state
+            movState = ms_normal;
+            animState = as_idle;
+            SPR_setAnim(playerSprite, PlAnim_idle);
+        }
         break;
     case ms_stepfor:
         //not sure i need a movement state here... animation state, sure
         plSpX = plLookingRight? FIX32(1.0) : FIX32(-1.0);
-        MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
-        plx += plSpX;
+        if(MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX))
+            plx += plSpX;
+        else{
+            //leave this state
+            movState = ms_normal;
+            animState = as_idle;
+            SPR_setAnim(playerSprite, PlAnim_idle);
+        }
         break;
     case ms_hanging:
 
@@ -550,6 +585,13 @@ void UpdatePlayer(){
         break;
     case ms_pain:
         //do nothing.. just feel the paaaaaaain
+        //actually, move back as well
+        plSpX = plLookingRight? FIX32(-2) : FIX32(2);
+        if(MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX)){
+            plx += plSpX;
+        }
+        //maybe gravity as well?
+        
         break;
     case ms_attacking:
         
@@ -596,7 +638,7 @@ void UpdatePlayer(){
         break;   
     case as_parrying:
          passingAnimTimer ++;
-        if(passingAnimTimer > 5){
+        if(passingAnimTimer > 2){ //speed of parry influences combat a lot
             passingAnimTimer = 0;
             SPR_nextFrame(playerSprite);
             if(playerSprite->frameInd == 1 || playerSprite->frameInd == 3){
@@ -625,6 +667,7 @@ void UpdatePlayer(){
                 //go to jumpup ms and as states, also give y vel
                 movState = ms_normal;
                 animState = as_idle;
+                plSpX = 0;
                 SPR_setAnim(playerSprite, PlAnim_idle);                
                 break;
             }
@@ -865,15 +908,14 @@ void UpdatePlayer(){
 
 
         passingAnimTimer ++; //better way?
-        if(passingAnimTimer > 2){
+        if(passingAnimTimer > 5){
             passingAnimTimer = 0;
-            if(playerSprite->frameInd == 7){
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){
                 SPR_setAnim(playerSprite,PlAnim_idle);
                 animState = as_idle;
                 //KDebug_Halt();
                 break;
-            }else{
-                SPR_nextFrame(playerSprite);
             }
         }
         break;
@@ -979,26 +1021,19 @@ void UpdatePlayer(){
         passingAnimTimer ++; //better way?
         if(passingAnimTimer > 5){
             passingAnimTimer = 0;
-                        
-            if(LASTFRAME == TRUE){
-                //return to idle
+
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 1){ //frame 1 deals damage
+                //damage
+                //DamagePoint(plx + plLookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
+                fix32 disp = plLookingRight? FIX32( PlayerWidth ) : FIX32(-20);
+                //DamagePoint(0, plx+disp, ply, 1);
+                PlayerDamageBox(plx+disp, ply+ FIX32(5), 20, 5, 1);
+            } else if(playerSprite->frameInd == 0){
                 animState = as_idle;
                 SPR_setAnim(playerSprite, PlAnim_idle);
-                LASTFRAME = FALSE;
-                break;
-            }else{
-                SPR_nextFrame(playerSprite);
-                if(playerSprite->frameInd == 1){ //frame 1 deals damage
-                    //damage
-                    //DamagePoint(plx + plLookingRight? FIX32(32):--FIX32(8), ply+FIX32(20), 1);
-                    fix32 disp = plLookingRight? FIX32( PlayerWidth ) : FIX32(-20);
-                    //DamagePoint(0, plx+disp, ply, 1);
-                    PlayerDamageBox(plx+disp, ply+ FIX32(5), 20, 5, 1);
-                }
-                if(playerSprite->frameInd == 3){ //last frame
-                    LASTFRAME = TRUE;
-                }                
             }
+                  
         }
         
         break;
@@ -1013,6 +1048,7 @@ void UpdatePlayer(){
     if(!grounded && prevgrounded){
         if(animState == as_run || animState == as_startRun ||animState == as_stopRun){
             KDebug_Alert("falling");
+            
             animState = as_horizontalJump;
             SPR_setAnimAndFrame(playerSprite, PlAnim_horjump, 3);
         }
@@ -1062,6 +1098,7 @@ void DamagePlayer(u8 dmg, u16 attacker){
     }
     movState = ms_pain;
     animState = as_pain;
+    
     SPR_setAnim(playerSprite, PlAnim_pain);
     KDebug_Alert("player taking dmg");
 }

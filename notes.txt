@@ -13,9 +13,14 @@ Combat parameters to tweak:
 - player parry animation length << fine
 - npc parry stagger time <<ok
 - can only attack standing or at max speed << ok
+- pushback when hit (player)
+- change control scheme to: A up parry, A left/right sidestep, c jumps running, c hold jumps vertically standing <<i like it!
+
+
 - AI behavior:
 -- maybe they shouldn't jump off cliffs 
--- side step during combat
+-- side step during combat <<done
+-- fall damage
 
 parameters look ok-ish for now.
 Maybe it needs some juicy gamey effects to bring it up to standards. Animation, freeze frames for impact etc. 
@@ -23,3 +28,7 @@ Maybe it needs some juicy gamey effects to bring it up to standards. Animation, 
 
 the AI head icons are too small to be readable with a CRT filter. Besides, I'm not sure how to use them with the current AI system
 
+
+
+ANIMATION NOTES:
+- running animation might require double length instead of this fake thing

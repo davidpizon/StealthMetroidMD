@@ -1,0 +1,25 @@
+#define numLevels  3
+const struct LevelDef ALLLEVELS[numLevels]={
+//Level: Playground 
+{  0,0,0, //id, x, y 
+   1024,1024,0,2, // w, h, start of entities, num of entities 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ }, 
+//Level: Level_1 
+{  30,1024,0, //id, x, y 
+   768,768,2,2, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ }, 
+//Level: Level_2 
+{  59,768,1024, //id, x, y 
+   256,256,4,0, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ } 
+};
+#define numEnts  4
+const struct LevelEnt ALLENTS[numEnts]={
+{ BlankGuard,152,280 },
+{ PlayerStart,28,196 },
+{ BlankGuard,472,208 },
+{ PlayerStart,652,188 } 
+};

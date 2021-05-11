@@ -18,6 +18,8 @@
 #define blankganim_walkdelta FIX32(3)
 #define blankganim_xoffset 32
 #define blankganim_yoffset 46
+#define blankganim_stepspeed FIX32(0.5)
+
 #define blankganim_idle   0
 #define blankganim_pain   1
 #define blankganim_hitback   2
@@ -29,14 +31,17 @@
 #define blankganim_unsheathe   8
 #define blankganim_sheathe   9
 #define blankganim_idlealert   10
-#define blankganim_turnleftalert   11
-#define blankganim_startwalkalert   12
-#define blankganim_walkalert   13
-#define blankganim_attackanti   14
-#define blankganim_attack   15
-#define blankganim_attackrec   16
-#define blankganim_defend   17
-#define blankganim_silent_knifed   18
+#define blankganim_backstep   11
+#define blankganim_forstep   12
+#define blankganim_turnleftalert   13
+#define blankganim_startwalkalert   14
+#define blankganim_walkalert   15
+#define blankganim_attackanti   16
+#define blankganim_attack   17
+#define blankganim_attackrec   18
+#define blankganim_defend   19
+#define blankganim_silent_knifed   20
+
 
 
 
@@ -70,7 +75,9 @@ typedef enum{
     aic_up,
     aic_down,
     aic_attack,
-    aic_stagger
+    aic_stagger,
+    aic_stepforward,
+    aic_stepbackward
 }AICommands;
 
 typedef enum{

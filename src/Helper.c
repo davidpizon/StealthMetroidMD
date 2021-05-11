@@ -36,6 +36,63 @@ bool SquareIntersection(fix32 x1, fix32 y1, u16 w1, u16 h1, fix32 x2, fix32 y2, 
     
 }
 
+bool TraceObstacle(int x0, int y0, int x1, int y1){
+    //trace from v0 to v1 and returns true when a solid block is found
+    x0 = x0 >> 3;
+    x1 = x1 >> 3;
+    y0 = y0 >> 3;
+    y1 = y1 >> 3;
+    int dx = abs(x1 - x0);
+    int sx = x0<x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0<y1 ? 1 : -1;
+    int err = dx+dy;  
+    while(TRUE){
+        int curt = MAP_getTile(colMap, x0, y0);
+        if(TILEINDEX(curt)==TILE_SOLID){
+            return TRUE;
+        }
+
+        if (x0 == x1 && y0 == y1) break;
+        int e2 = err << 1;
+        if (e2 >= dy){
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx){
+            err += dx;
+            y0 += sy;
+        }
+    }
+    return FALSE;
+}
+
+void PlotLine(int x0, int y0, int x1, int y1){
+    x0 = x0 >> 3;
+    x1 = x1 >> 3;
+    y0 = y0 >> 3;
+    y1 = y1 >> 3;
+    int dx = abs(x1 - x0);
+    int sx = x0<x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0<y1 ? 1 : -1;
+    int err = dx+dy;  
+    while(TRUE){
+        
+        SPR_addSprite(&AIIcons, (x0<<3)-camPosX, (y0<<3)-camPosY, TILE_ATTR(PAL0, TRUE, FALSE, FALSE)); 
+        if (x0 == x1 && y0 == y1) break;
+        int e2 = 2*err;
+        if (e2 >= dy){
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx){
+            err += dx;
+            y0 += sy;
+        }
+    }
+}
+
 char* itoa2(int i, char b[]){
     char const digit[] = "0123456789";
     char* p = b;

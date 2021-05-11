@@ -33,28 +33,24 @@
 #define PlAnim_endwalk   10
 #define PlAnim_startrun   11
 #define PlAnim_run   12
-#define PlAnim_wallrun   13
-#define PlAnim_test   14
+#define PlAnim_endrun   13
+#define PlAnim_wallrun   14
 #define PlAnim_walldrag   15
-#define PlAnim_endrun   16
-#define PlAnim_jumpwindup   17
-#define PlAnim_climbup   18
-#define PlAnim_ledgegrab   19
-#define PlAnim_jumpup   20
-#define PlAnim_climbdown   21
-#define PlAnim_verticalfall   22
-#define PlAnim_verticallanding   23
-#define PlAnim_rolling   24
-#define PlAnim_runtowalk   25
-#define PlAnim_walktorun   26
-#define PlAnim_wallkiss   27
-#define PlAnim_horjump   28
-#define PlAnim_attack   29
-#define PlAnim_defend   30
-#define PlAnim_silent_knife   31
-
-
-
+#define PlAnim_jumpwindup   16
+#define PlAnim_climbup   17
+#define PlAnim_ledgegrab   18
+#define PlAnim_jumpup   19
+#define PlAnim_climbdown   20
+#define PlAnim_verticalfall   21
+#define PlAnim_verticallanding   22
+#define PlAnim_rolling   23
+#define PlAnim_runtowalk   24
+#define PlAnim_walktorun   25
+#define PlAnim_wallkiss   26
+#define PlAnim_horjump   27
+#define PlAnim_attack   28
+#define PlAnim_defend   29
+#define PlAnim_silent_knife   30
 
 
 
