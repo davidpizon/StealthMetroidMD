@@ -34,6 +34,16 @@ Block blocks[24]={
 //sophisticated system than 'loadlevelstuff'
 //but one problem at a time
 
+struct  LevelDef{    
+    u8 index;
+    u16 x;
+    u16 y;
+    u8 w;
+    u8 h;
+    u8 neighbors[8];
+}LevelDef;
+
+
 enum entDefs{
     PlayerStart,
     BlankGuard
@@ -44,27 +54,56 @@ struct  LevelEnt{
     int y;
 }LevelEnt;
 
-#define numLevelEnts  2
-const struct LevelEnt ALLENTS[numLevelEnts]={
-{ PlayerStart,36,150 },
-// { BlankGuard,632,328 },
-// { BlankGuard,336,192 },
-{ BlankGuard,88,288 },
-// { BlankGuard,776,240 },
-// { BlankGuard,928,264 },
-// { BlankGuard,920,456 },
 
+#define numLevels  3
+const struct LevelDef ALLLEVELS[numLevels]={
+//Level: Playground 
+{  0,0,0, //id, x, y 
+   1024,1024,0,2, // w, h, start of entities, num of entities 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ }, 
+//Level: Level_1 
+{  30,1024,0, //id, x, y 
+   768,768,2,2, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ }, 
+//Level: Level_2 
+{  59,768,1024, //id, x, y 
+   256,256,4,0, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+ } 
+};
+#define numEnts  4
+const struct LevelEnt ALLENTS[numEnts]={
+{ BlankGuard,152,280 },
+{ PlayerStart,28,196 },
+{ BlankGuard,472,208 },
+{ PlayerStart,652,188 } 
 };
 
+void LoadLevel(u8 l){
+    u16 ind = TILE_USERINDEX;
+    bgBaseTileIndex[0] = ind;
+    VDP_loadTileSet(&bga_tileset, ind, DMA);
+    PAL_setPalette(PAL0, bga_map.palette->data);
+    PAL_setPalette(PAL3, bgb_map.palette->data);
+    ind += bga_tileset.numTile;
+    bgBaseTileIndex[1] = ind;
+    VDP_loadTileSet(&bgb_tileset, ind, DMA);
+    ind += bgb_tileset.numTile;
+    bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
+    bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(PAL3    , FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
+    VDP_loadTileSet(&collision_tileset, ind, DMA);
+    // ind += bgb_tileset.numTile;
+    colMap = MAP_create(&col_map, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
 
-
-
-
-
+    //set pal2 to enemy 
+    PAL_setPalette(PAL2, blankGuard.palette->data);
+}
 
 
 void LoadEntities(){
-    for(u8 e = 0; e < numLevelEnts; e++){
+    for(u8 e = 0; e < numEnts; e++){
         switch (ALLENTS[e].def)
         {
         case PlayerStart:
@@ -90,7 +129,7 @@ int AlignWithTile(int x){
     int xx = x >> 3;
     xx = xx << 3;
     return xx;
-}
+}  
 
 bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
     
