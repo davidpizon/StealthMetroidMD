@@ -2,16 +2,6 @@
 #include "../inc/MainGameState.h"
 
 
-#define MAP_WIDTH 1176
-#define MAP_HEIGHT 776
-#define MIN_POSX            FIX32(0)
-#define MAX_POSX            FIX32(MAP_WIDTH )
-#define MAX_POSY            FIX32(MAP_HEIGHT )
-
-Map *bga;
-Map *bgb;
-
-u16 bgBaseTileIndex[2];
 
 
 void updateCameraPosition();
@@ -39,21 +29,22 @@ void MainGameStart(){
 
     camPosX = 0;
     camPosY = 0;
-        
-    u16 ind = TILE_USERINDEX;
-    bgBaseTileIndex[0] = ind;
-    VDP_loadTileSet(&bga_tileset, ind, DMA);
-    PAL_setPalette(PAL0, bga_map.palette->data);
-    PAL_setPalette(PAL3, bgb_map.palette->data);
-    ind += bga_tileset.numTile;
-    bgBaseTileIndex[1] = ind;
-    VDP_loadTileSet(&bgb_tileset, ind, DMA);
-    ind += bgb_tileset.numTile;
-    bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
-    bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(PAL3    , FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
-    VDP_loadTileSet(&collision_tileset, ind, DMA);
+    
+    LoadLevel(0);
+    // u16 ind = TILE_USERINDEX;
+    // bgBaseTileIndex[0] = ind;
+    // VDP_loadTileSet(&bga_tileset, ind, DMA);
+    // PAL_setPalette(PAL0, bga_map.palette->data);
+    // PAL_setPalette(PAL3, bgb_map.palette->data);
+    // ind += bga_tileset.numTile;
+    // bgBaseTileIndex[1] = ind;
+    // VDP_loadTileSet(&bgb_tileset, ind, DMA);
     // ind += bgb_tileset.numTile;
-    colMap = MAP_create(&col_map, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
+    // bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
+    // bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(PAL3    , FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
+    // VDP_loadTileSet(&collision_tileset, ind, DMA);
+    // // ind += bgb_tileset.numTile;
+    // colMap = MAP_create(&col_map, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
 
     //set pal2 to enemy 
     PAL_setPalette(PAL2, blankGuard.palette->data);
@@ -66,7 +57,7 @@ void MainGameStart(){
 
 
     // StartPlayer();
-    LoadEntities();
+    // LoadEntities();
 
     //AddNPC(plx, ply);
 
@@ -78,7 +69,7 @@ void MainGameUpdate(){
     
 
     UpdatePlayer();
-    
+    debvar1 = plxint;
     updateCameraPosition();    
     
     //reposition sprites because camera moves  
@@ -90,7 +81,7 @@ void MainGameUpdate(){
         if(!NPCs[n].dead)
             NPCs[n].Update(&NPCs[n]);
         //render even if dead, the body should be ppermanet
-        debvar1 = (fix32ToInt(NPCs[n].y)- NPCs[n].yoffset - camPosY) ;
+        
         //debvar1 = random();
         SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset, 
                                   fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset);
@@ -99,7 +90,13 @@ void MainGameUpdate(){
                                   fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset + 30);
         
     }
-   
+    
+    //check if within level boundaries and call transition
+    if(plxint > MAP_WIDTH || plxint < 0 || plyint < 0 || plyint > MAP_HEIGHT){
+        TransitionLevel();
+        updateCameraPosition();
+        SYS_doVBlankProcess();
+    }
    
    
     if(debugtimer != 0 ){
@@ -108,11 +105,6 @@ void MainGameUpdate(){
         HideDebugSquare();
     }
     
-    // if(SquareIntersection(plx, ply, PlayerWidth, PlayerHeight, sqx, sqy, sqw, sqh)){
-    //     VDP_drawText("Intersection          ", 0, DEBUGLINE);
-    // }else{
-    //     VDP_drawText("NO Intersection          ", 0, DEBUGLINE);
-    // }
 
 
 }

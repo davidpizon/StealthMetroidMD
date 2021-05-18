@@ -42,10 +42,10 @@ bool wallRunningRight;
 bool canparry = FALSE;
 
 
-void StartPlayer(){
+void StartPlayer(fix32 x, fix32 y){
     PAL_setPalette(PAL1, playerSprites.palette->data);
-    plx = FIX32(13*8);
-    ply= FIX32(50);
+    plx = x;
+    ply= y;
     playerSprite = SPR_addSprite(&playerSprites, fix32ToInt( plx), fix32ToInt( ply), TILE_ATTR(PAL1, FALSE, FALSE, FALSE) );
     SPR_setAnim(playerSprite, 9);
     SPR_setVisibility(playerSprite, 2);    

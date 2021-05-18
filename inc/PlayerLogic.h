@@ -97,6 +97,7 @@ typedef enum
     as_sheathe
 } AnimState;
 
+
 Sprite *playerSprite;
 fix32 plx;
 fix32 ply;
@@ -112,7 +113,7 @@ fix32 climbingY;
 u8 playerVisibility;
 bool plLookingRight;
 
-void StartPlayer();
+void StartPlayer(fix32 x, fix32 y);
 void UpdatePlayer();
 
 void DamagePlayer(u8 dmg, u16 attacker);

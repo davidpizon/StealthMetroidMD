@@ -10,6 +10,7 @@
 #include "./Helper.h"
 #include "PlayerLogic.h"
 #include "NPC.h"
+#include "World.h"
 
 #define DEBUGLINE 24
 

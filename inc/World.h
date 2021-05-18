@@ -20,6 +20,16 @@
 #define TILEINDEX(t) (t & 0xFF)
 #define ALIGNWITHTILE(t) ((t>>3)<<3)
 
+
+u16 MAP_WIDTH;
+u16 MAP_HEIGHT;
+fix32 MIN_POSX ;
+fix32 MAX_POSX;
+fix32 MAX_POSY;
+
+Map *bga;
+Map *bgb;
+
 typedef struct 
 {
     // Sprite* sprite;
@@ -33,8 +43,9 @@ typedef struct
 int numBlocks;
 Block blocks[24];
 
-
+void LoadLevel(u8 l);
 void LoadEntities();
+void TransitionLevel();
 
 //moveX will return FALSE if collision happened
 int AlignWithTile(int x);

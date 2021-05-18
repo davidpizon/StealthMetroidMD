@@ -1,25 +1,62 @@
-#define numLevels  3
+RES FILE LINES:
+
+
+
+TILESET Playground_tileset "Levels/LDtk_project/world_levels/Playground-AutoMain.png" BEST ALL
+MAP Playground_map "Levels/LDtk_project/world_levels/Playground-AutoMain.png" Playground_tileset BEST 0
+MAP Playground_colmap "Levels/LDtk_project/world_levels/Playground-col.png" collision_tileset BEST 0
+TILESET Level_1_tileset "Levels/LDtk_project/world_levels/Level_1-AutoMain.png" BEST ALL
+MAP Level_1_map "Levels/LDtk_project/world_levels/Level_1-AutoMain.png" Level_1_tileset BEST 0
+MAP Level_1_colmap "Levels/LDtk_project/world_levels/Level_1-col.png" collision_tileset BEST 0
+TILESET Level_2_tileset "Levels/LDtk_project/world_levels/Level_2-AutoMain.png" BEST ALL
+MAP Level_2_map "Levels/LDtk_project/world_levels/Level_2-AutoMain.png" Level_2_tileset BEST 0
+MAP Level_2_colmap "Levels/LDtk_project/world_levels/Level_2-col.png" collision_tileset BEST 0
+TILESET Level_3_tileset "Levels/LDtk_project/world_levels/Level_3-AutoMain.png" BEST ALL
+MAP Level_3_map "Levels/LDtk_project/world_levels/Level_3-AutoMain.png" Level_3_tileset BEST 0
+MAP Level_3_colmap "Levels/LDtk_project/world_levels/Level_3-col.png" collision_tileset BEST 0
+
+
+
+
+LEVELS HEADER FILE LINES:
+
+
+#define numLevels  4
 const struct LevelDef ALLLEVELS[numLevels]={
 //Level: Playground 
 {  0,0,0, //id, x, y 
    1024,1024,0,2, // w, h, start of entities, num of entities 
-   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 } 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Playground_tileset, &Playground_map, &bgb_tileset, &bgb_map, &Playground_colmap 
+
  }, 
 //Level: Level_1 
-{  30,1024,0, //id, x, y 
+{  1,1024,0, //id, x, y 
    768,768,2,2, // w, h, start of entities, num of entities 
-   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
+
  }, 
 //Level: Level_2 
-{  59,768,1024, //id, x, y 
-   256,256,4,0, // w, h, start of entities, num of entities 
-   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
- } 
-};
-#define numEnts  4
-const struct LevelEnt ALLENTS[numEnts]={
+{  2,768,1024, //id, x, y 
+   768,768,4,2, // w, h, start of entities, num of entities 
+   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_2_tileset, &Level_2_map, &bgb_tileset, &bgb_map, &Level_2_colmap 
+
+ }, 
+//Level: Level_3 
+{  3,1536,768, //id, x, y 
+   512,512,6,0, // w, h, start of entities, num of entities 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_3_tileset, &Level_3_map, &bgb_tileset, &bgb_map, &Level_3_colmap 
+} 
+ };
+#define totalEnts  6
+const struct LevelEnt ALLENTS[totalEnts]={
 { BlankGuard,152,280 },
 { PlayerStart,28,196 },
 { BlankGuard,472,208 },
-{ PlayerStart,652,188 } 
+{ PlayerStart,652,188 },
+{ PlayerStart,124,68 },
+{ BlankGuard,56,176 } 
 };

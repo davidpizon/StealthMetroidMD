@@ -34,13 +34,26 @@ Block blocks[24]={
 //sophisticated system than 'loadlevelstuff'
 //but one problem at a time
 
+
+
+u16 bgBaseTileIndex[2];
+
 struct  LevelDef{    
-    u8 index;
+    u16 index;
     u16 x;
     u16 y;
-    u8 w;
-    u8 h;
-    u8 neighbors[8];
+    u16 w;
+    u16 h;
+    u8 startEnt;
+    u8 numEnts;
+    
+    int neighbors[8];   
+
+    const TileSet* tilesetA;
+    const MapDefinition* mapA;
+    const TileSet* tilesetB;
+    const MapDefinition* mapB;
+    const MapDefinition* thisColMap;
 }LevelDef;
 
 
@@ -55,61 +68,112 @@ struct  LevelEnt{
 }LevelEnt;
 
 
-#define numLevels  3
+
+
+
+#define numLevels  4
 const struct LevelDef ALLLEVELS[numLevels]={
 //Level: Playground 
 {  0,0,0, //id, x, y 
    1024,1024,0,2, // w, h, start of entities, num of entities 
-   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 } 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Playground_tileset, &Playground_map, &bgb_tileset, &bgb_map, &Playground_colmap 
+
  }, 
 //Level: Level_1 
-{  30,1024,0, //id, x, y 
+{  1,1024,0, //id, x, y 
    768,768,2,2, // w, h, start of entities, num of entities 
-   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
+   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
+
  }, 
 //Level: Level_2 
-{  59,768,1024, //id, x, y 
-   256,256,4,0, // w, h, start of entities, num of entities 
-   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 } 
- } 
-};
-#define numEnts  4
-const struct LevelEnt ALLENTS[numEnts]={
+{  2,768,1024, //id, x, y 
+   768,768,4,2, // w, h, start of entities, num of entities 
+   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_2_tileset, &Level_2_map, &bgb_tileset, &bgb_map, &Level_2_colmap 
+
+ }, 
+//Level: Level_3 
+{  3,1536,768, //id, x, y 
+   512,512,6,0, // w, h, start of entities, num of entities 
+   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_3_tileset, &Level_3_map, &bgb_tileset, &bgb_map, &Level_3_colmap 
+} 
+ };
+#define totalEnts  6
+const struct LevelEnt ALLENTS[totalEnts]={
 { BlankGuard,152,280 },
 { PlayerStart,28,196 },
 { BlankGuard,472,208 },
-{ PlayerStart,652,188 } 
+{ PlayerStart,652,188 },
+{ PlayerStart,124,68 },
+{ BlankGuard,56,176 } 
 };
 
+
+
+
+
+u8 curlevel = 0;
+bool playerStarted = FALSE;
+
+
 void LoadLevel(u8 l){
+    curlevel = l;
+    MAP_WIDTH = ALLLEVELS[l].w;
+    MAP_HEIGHT = ALLLEVELS[l].h;
+    MIN_POSX = 0;
+    MAX_POSX = FIX32(MAP_WIDTH );
+    MAX_POSY = FIX32(MAP_HEIGHT );
+    
     u16 ind = TILE_USERINDEX;
     bgBaseTileIndex[0] = ind;
-    VDP_loadTileSet(&bga_tileset, ind, DMA);
-    PAL_setPalette(PAL0, bga_map.palette->data);
+    // VDP_loadTileSet(&bga_tileset, ind, DMA);
+    VDP_loadTileSet(ALLLEVELS[l].tilesetA, ind, DMA);
+    // PAL_setPalette(PAL0, bga_map.palette->data);
+    PAL_setPalette(PAL0, ALLLEVELS[l].mapA->palette->data);
     PAL_setPalette(PAL3, bgb_map.palette->data);
-    ind += bga_tileset.numTile;
+    ind += ALLLEVELS[l].tilesetA->numTile;
     bgBaseTileIndex[1] = ind;
-    VDP_loadTileSet(&bgb_tileset, ind, DMA);
+    VDP_loadTileSet(ALLLEVELS[l].tilesetB, ind, DMA);
     ind += bgb_tileset.numTile;
-    bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
+    //bga = MAP_create(&bga_map, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
+    bga = MAP_create(ALLLEVELS[l].mapA, BG_A, TILE_ATTR_FULL(0, FALSE, FALSE, FALSE, bgBaseTileIndex[0]));
     bgb = MAP_create(&bgb_map, BG_B, TILE_ATTR_FULL(PAL3    , FALSE, FALSE, FALSE, bgBaseTileIndex[1]));
     VDP_loadTileSet(&collision_tileset, ind, DMA);
     // ind += bgb_tileset.numTile;
-    colMap = MAP_create(&col_map, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
+    colMap = MAP_create(ALLLEVELS[l].thisColMap, BG_A, TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, ind));
 
     //set pal2 to enemy 
     PAL_setPalette(PAL2, blankGuard.palette->data);
+    
+    
+
+    LoadEntities();
 }
 
-
 void LoadEntities(){
-    for(u8 e = 0; e < numEnts; e++){
+    u8 start = ALLLEVELS[curlevel].startEnt;
+    u8 end = start + ALLLEVELS[curlevel].numEnts;
+    
+    KDebug_Alert("--- ");
+    KDebug_AlertNumber(start);
+    KDebug_AlertNumber(end);
+    // start =0;
+    // end = 2;
+    for(u8 e = start ; e < end; e++){
         switch (ALLENTS[e].def)
         {
         case PlayerStart:
-            StartPlayer();
+            if(playerStarted){
+                break;
+            } 
+            playerStarted = TRUE;
             plx = intToFix32(ALLENTS[e].x);
             ply = intToFix32(ALLENTS[e].y);
+            StartPlayer(plx, ply);            
+            
             break;
         case BlankGuard:
             AddNPC(intToFix32(ALLENTS[e].x) , intToFix32(ALLENTS[e].y));
@@ -119,6 +183,86 @@ void LoadEntities(){
     }
     
 }
+
+void TransitionLevel(){
+    //check for neighbors of the current level
+    u16 lx;
+    u16 ly;
+    u16 lw;
+    u16 lh;
+    u16 l=0;
+    while(TRUE){
+        int curnei = ALLLEVELS[curlevel].neighbors[l];
+        if(curnei == -1) break;
+        lx = ALLLEVELS[curnei].x;
+        ly = ALLLEVELS[curnei].y;
+        lw = ALLLEVELS[curnei].w;
+        lh = ALLLEVELS[curnei].h;
+        if(SquareIntersectionInt(plxint+ALLLEVELS[curlevel].x, plyint+ALLLEVELS[curlevel].y, 
+                                    PlayerWidth, PlayerHeight, lx, ly, lw, lh)){
+            //load this level
+            // VDP_clearSprites();
+            // VDP_resetSprites();
+            
+            VDP_resetScreen();
+
+
+            //release current sprites
+            for(int s=0; s<numNPCs; s++){
+                SPR_releaseSprite(NPCs[s].sprite);
+            }
+            // SPR_update();
+            numNPCs=0;
+            
+            // VDP_clearPlane(VDP_PLAN_A,TRUE);
+            // VDP_clearPlane(VDP_PLAN_B,TRUE);
+
+            u8 fromlevel = curlevel;
+            LoadLevel(curnei);
+            KDebug_Alert("going to level");
+            KDebug_AlertNumber(curlevel);
+            //match player new poition
+            // KDebug_AlertNumber(plyint);
+            plxint += ALLLEVELS[fromlevel].x;
+            plxint -= ALLLEVELS[curlevel].x;
+            plyint += (int) ALLLEVELS[fromlevel].y;
+            // KDebug_AlertNumber(plyint);
+            plyint -= (int)ALLLEVELS[curlevel].y;
+            // KDebug_AlertNumber(plyint);
+
+            //add small displacement
+            if(plxint > MAP_WIDTH){
+                plxint += 16;
+            }else if(plxint < 0){
+                plxint -= 16;
+            }else if(plyint < 0){
+                plyint -= 40;
+            }else if(plyint > MAP_HEIGHT){
+                plyint += 40;
+            }
+            // KDebug_Alert("new coords");
+            // KDebug_AlertNumber(plxint);
+            // KDebug_AlertNumber(plyint);
+
+            plx = intToFix32(plxint);
+            ply = intToFix32(plyint);
+            StartPlayer(plx, ply);
+            camTargetX = plxint;
+            camTargetY = plyint;
+
+            camPosX = plxint;
+            camPosY = plyint;
+
+            break;
+        }
+        l++;
+    }
+    //if we get here with no new level then the player left the level into the void!
+}
+
+
+
+
 
 bool WithinInterval(int x, int a, int b){
     if( x>=a && x<=b ) return TRUE;
@@ -137,13 +281,21 @@ bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
     int xf = fix32ToInt(*x+*dx);
     int ti = xi >> 3;
     int tf = xf >> 3;
+    int ww = w >> 3;
+    int hh = h >> 3;
+    
+
+    if(*x+*dx<0 || fix32ToRoundedInt( *x+*dx) + w > MAP_WIDTH){
+        return TRUE;
+    }
 
     if( *dx > 0){
         int ty = y >> 3;
         bool collided = FALSE;
         
         for(int len = 0 ; len<5; len++){
-            int curt = MAP_getTile(colMap, ti + 2 , ty+len) & 0xFF; 
+            
+            int curt = MAP_getTile(colMap, ti + ww , ty+len) & 0xFF; 
         
             if(curt == 1){
                 collided = TRUE;

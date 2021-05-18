@@ -35,6 +35,22 @@ bool SquareIntersection(fix32 x1, fix32 y1, u16 w1, u16 h1, fix32 x2, fix32 y2, 
     return TRUE;
     
 }
+bool SquareIntersectionInt(int x1, int y1, u16 w1, u16 h1, int x2, int y2, u16 w2, u16 h2){
+    
+    //if completely to the side of the other
+    if(x1 >= x2 + w2)
+        return FALSE;
+    if(x2 >= x1 + (w1))
+        return FALSE;
+    //same thing vertically now
+    if(y1 >= y2 + (h2))
+        return FALSE;
+    if(y2 >= y1 + (h1))
+        return FALSE;
+    
+    return TRUE;
+    
+}
 
 bool TraceObstacle(int x0, int y0, int x1, int y1){
     //trace from v0 to v1 and returns true when a solid block is found
