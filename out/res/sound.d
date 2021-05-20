@@ -1,4 +1,5 @@
 out/res/sound.o: res/sound.res \
+C:/gamedev/PlatformerMD/res/sfx/tangerinedream.vgm \
 C:/gamedev/PlatformerMD/res/sfx/sound4.wav \
 C:/gamedev/PlatformerMD/res/sfx/Grow.wav \
 C:/gamedev/PlatformerMD/res/sfx/sound3.wav \

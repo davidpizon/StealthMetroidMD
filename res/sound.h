@@ -10,5 +10,6 @@ extern const u8 sound_3[2816];
 extern const u8 sound_4[19200];
 extern const u8 gouldfish_chime[22528];
 extern const u8 xgm_1[35584];
+extern const u8 mymusic[10240];
 
 #endif // _RES_SOUND_H_

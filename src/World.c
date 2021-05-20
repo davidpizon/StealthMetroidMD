@@ -149,6 +149,7 @@ void LoadLevel(u8 l){
     PAL_setPalette(PAL2, blankGuard.palette->data);
     
     
+    
 
     LoadEntities();
 }
@@ -157,11 +158,7 @@ void LoadEntities(){
     u8 start = ALLLEVELS[curlevel].startEnt;
     u8 end = start + ALLLEVELS[curlevel].numEnts;
     
-    KDebug_Alert("--- ");
-    KDebug_AlertNumber(start);
-    KDebug_AlertNumber(end);
-    // start =0;
-    // end = 2;
+    
     for(u8 e = start ; e < end; e++){
         switch (ALLENTS[e].def)
         {
@@ -202,57 +199,74 @@ void TransitionLevel(){
                                     PlayerWidth, PlayerHeight, lx, ly, lw, lh)){
             //load this level
             // VDP_clearSprites();
-            // VDP_resetSprites();
+            VDP_resetSprites();
+            
             
             VDP_resetScreen();
 
 
             //release current sprites
-            for(int s=0; s<numNPCs; s++){
-                SPR_releaseSprite(NPCs[s].sprite);
-            }
+            // for(int s=0; s<numNPCs; s++){
+            //     SPR_releaseSprite(NPCs[s].sprite);
+            // }
             // SPR_update();
             numNPCs=0;
             
             // VDP_clearPlane(VDP_PLAN_A,TRUE);
             // VDP_clearPlane(VDP_PLAN_B,TRUE);
 
+            MEM_free(bga);
+            MEM_free(bgb);
+            MEM_free(colMap);
+            
+
             u8 fromlevel = curlevel;
-            LoadLevel(curnei);
+            u8 tolevel = curnei;
+            int x = plxint;
+            int y = plyint;
+
+            KDebug_Alert("-------");            
             KDebug_Alert("going to level");
             KDebug_AlertNumber(curlevel);
             //match player new poition
-            // KDebug_AlertNumber(plyint);
-            plxint += ALLLEVELS[fromlevel].x;
-            plxint -= ALLLEVELS[curlevel].x;
-            plyint += (int) ALLLEVELS[fromlevel].y;
-            // KDebug_AlertNumber(plyint);
-            plyint -= (int)ALLLEVELS[curlevel].y;
-            // KDebug_AlertNumber(plyint);
-
+            
+            
+            KDebug_AlertNumber(x);
             //add small displacement
-            if(plxint > MAP_WIDTH){
-                plxint += 16;
-            }else if(plxint < 0){
-                plxint -= 16;
-            }else if(plyint < 0){
-                plyint -= 40;
-            }else if(plyint > MAP_HEIGHT){
-                plyint += 40;
+            if(x > MAP_WIDTH){
+                x += 16;
+            }else if(x < 0){
+                x -= 16;
+            }else if(y < 0){
+                y -= 40;
+            }else if(y > MAP_HEIGHT){
+                y += 40;
             }
+
+            KDebug_AlertNumber(x);
+            x += (int)ALLLEVELS[fromlevel].x;
+            x -= (int)ALLLEVELS[tolevel].x;
+            y += (int) ALLLEVELS[fromlevel].y;
+            y -= (int)ALLLEVELS[tolevel].y;
+            KDebug_AlertNumber(x);
+
             // KDebug_Alert("new coords");
             // KDebug_AlertNumber(plxint);
             // KDebug_AlertNumber(plyint);
 
-            plx = intToFix32(plxint);
-            ply = intToFix32(plyint);
+            plx = intToFix32(x);
+            ply = intToFix32(y);
+            plxint = x;
+            plyint = y;
             StartPlayer(plx, ply);
-            camTargetX = plxint;
-            camTargetY = plyint;
+            // camTargetX = x;
+            // camTargetY = y;
 
-            camPosX = plxint;
-            camPosY = plyint;
+            // camPosX = x;
+            // camPosY = y;
 
+            LoadLevel(curnei);
+            KDebug_Alert("-------");
             break;
         }
         l++;

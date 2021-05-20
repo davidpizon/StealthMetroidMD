@@ -578,9 +578,9 @@ void UpdatePlayer(){
         if(plSpY > FIX32(2)) plSpY = FIX32(2);
         else if(plSpY < -FIX32(2)) plSpY = -FIX32(2);
 
-        MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
+        //MoveX(&plx, plyint, PlayerWidth, PlayerHeight, &plSpX);
         plx += plSpX;
-        MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
+        //MoveY(plxint, &ply, PlayerWidth, PlayerHeight, &plSpY);
         ply += plSpY;
         break;
     case ms_pain:

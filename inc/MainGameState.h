@@ -5,6 +5,7 @@
 #include "SimpleState.h"
 #include "../res/gfx.h"
 #include "../res/sprite.h"
+#include "../res/sound.h"
 #include "../inc/Input.h"
 #include "kdebug.h"
 #include "./Helper.h"
