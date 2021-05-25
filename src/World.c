@@ -198,23 +198,12 @@ void TransitionLevel(){
         if(SquareIntersectionInt(plxint+ALLLEVELS[curlevel].x, plyint+ALLLEVELS[curlevel].y, 
                                     PlayerWidth, PlayerHeight, lx, ly, lw, lh)){
             //load this level
-            // VDP_clearSprites();
-            VDP_resetSprites();
-            
             
             VDP_resetScreen();
+            SPR_reset();
 
-
-            //release current sprites
-            // for(int s=0; s<numNPCs; s++){
-            //     SPR_releaseSprite(NPCs[s].sprite);
-            // }
-            // SPR_update();
             numNPCs=0;
             
-            // VDP_clearPlane(VDP_PLAN_A,TRUE);
-            // VDP_clearPlane(VDP_PLAN_B,TRUE);
-
             MEM_free(bga);
             MEM_free(bgb);
             MEM_free(colMap);
@@ -225,13 +214,7 @@ void TransitionLevel(){
             int x = plxint;
             int y = plyint;
 
-            KDebug_Alert("-------");            
-            KDebug_Alert("going to level");
-            KDebug_AlertNumber(curlevel);
-            //match player new poition
-            
-            
-            KDebug_AlertNumber(x);
+
             //add small displacement
             if(x > MAP_WIDTH){
                 x += 16;
@@ -243,30 +226,25 @@ void TransitionLevel(){
                 y += 40;
             }
 
-            KDebug_AlertNumber(x);
             x += (int)ALLLEVELS[fromlevel].x;
             x -= (int)ALLLEVELS[tolevel].x;
             y += (int) ALLLEVELS[fromlevel].y;
             y -= (int)ALLLEVELS[tolevel].y;
-            KDebug_AlertNumber(x);
-
-            // KDebug_Alert("new coords");
-            // KDebug_AlertNumber(plxint);
-            // KDebug_AlertNumber(plyint);
 
             plx = intToFix32(x);
             ply = intToFix32(y);
             plxint = x;
             plyint = y;
             StartPlayer(plx, ply);
-            // camTargetX = x;
-            // camTargetY = y;
+            camTargetX = x;
+            camTargetY = y;
 
-            // camPosX = x;
-            // camPosY = y;
+            camPosX = x;
+            camPosY = y;
+            updateCameraPosition();
 
             LoadLevel(curnei);
-            KDebug_Alert("-------");
+            SYS_doVBlankProcess();
             break;
         }
         l++;

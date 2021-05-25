@@ -39,6 +39,7 @@ void MainGameStart();
 void MainGameUpdate();
 void MainGameEnd();
 
+void updateCameraPosition();
 void DrawSquare(fix32 x, fix32 y, u16 w, u16 h, u16 duration);
 void HideDebugSquare();
 
