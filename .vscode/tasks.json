@@ -1,57 +1,70 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "cmd",
-    "isShellCommand": true,
-    "args": ["/C"],
-    "showOutput": "always",
+    "args": [
+        "/C"
+    ],
     "tasks": [
         {
-            "isBuildCommand": false,
-            "suppressTaskName": true,
-            "echoCommand": true,
-            "taskName": "make",
+            "label": "make",
+            "type": "shell",
+            "command": "cmd",
             "args": [
-                "${env:GDK}\\bin\\make", "-f", "${env:GDK}\\makefile.gen"
-            ]
-
+                "/C",
+                "${env:GDK}\\bin\\make",
+                "-f",
+                "${env:GDK}\\makefile.gen"
+            ],
+            "problemMatcher": []
         },
         {
-            "suppressTaskName": true,
-            "echoCommand": true,
-            "taskName": "clean",
+            "label": "clean",
+            "type": "shell",
+            "command": "cmd",
             "args": [
-                "${env:GDK}\\bin\\make", "clean", "-f", "${env:GDK}\\makefile.gen"
-            ]
-
+                "/C",
+                "${env:GDK}\\bin\\make",
+                "clean",
+                "-f",
+                "${env:GDK}\\makefile.gen"
+            ],
+            "problemMatcher": []
         },
         {
-            "isBuildCommand": true,
-            "suppressTaskName": true,
-            "echoCommand": true,
-            "taskName": "makeAndRun",
+            "label": "makeAndRun",
+            "type": "shell",
+            "command": "cmd",
             "args": [
+                "/C",
                 "aftercompile.bat"
-            ]
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
-            "isBuildCommand": false,
-            "suppressTaskName": true,
-            "echoCommand": true,
-            "taskName": "debug",
+            "label": "debug",
+            "type": "shell",
+            "command": "cmd",
             "args": [
+                "/C",
                 "debugrun.bat"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
-            "suppressTaskName": true,
-            "echoCommand": true,
-            "taskName": "play",
+            "label": "play",
+            "type": "shell",
+            "command": "cmd",
             "args": [
+                "/C",
                 "play.bat"
-            ]
-
+            ],
+            "problemMatcher": []
         }
     ]
 }
