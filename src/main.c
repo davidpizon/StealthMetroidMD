@@ -19,7 +19,8 @@ int main()
 	SPR_init();
 	JOY_init();
     JOY_setEventHandler( &InputHandler );
-	StateMachineStart(&GameMachineState, &mainGameState); 
+	// StateMachineStart(&GameMachineState, &mainGameState); 
+	StateMachineStart(&GameMachineState, &IntroState); 
 
 	while(TRUE)
     {        		

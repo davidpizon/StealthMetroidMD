@@ -4,6 +4,8 @@ TILESET bgb_tileset "gfx/simpleplatforms_back.png" BEST ALL
 MAP bgb_map "gfx/simpleplatforms_back.png" bgb_tileset BEST 0
 TILESET collision_tileset "Levels/collision_tileset.png" BEST 0
 
+//IMAGE cutscenetest "gfx/output.png" BEST ALL
+IMAGE cutscenetest "gfx/concepts/thing.png" BEST ALL
 
 //automatically generated:
 

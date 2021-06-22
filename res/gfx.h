@@ -7,6 +7,7 @@ extern const TileSet Playground_tileset;
 extern const TileSet Level_1_tileset;
 extern const TileSet Level_2_tileset;
 extern const TileSet Level_3_tileset;
+extern const Image cutscenetest;
 extern const MapDefinition bgb_map;
 extern const MapDefinition Playground_map;
 extern const MapDefinition Playground_colmap;
