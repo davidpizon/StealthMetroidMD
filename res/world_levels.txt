@@ -1,0 +1,52 @@
+RES FILE LINES:
+
+
+
+TILESET Playground_tileset "Levels/LDtk_project/world_levels/Playground-AutoMain.png" BEST ALL
+MAP Playground_map "Levels/LDtk_project/world_levels/Playground-AutoMain.png" Playground_tileset BEST 0
+MAP Playground_colmap "Levels/LDtk_project/world_levels/Playground-col.png" collision_tileset BEST 0
+TILESET Level_1_tileset "Levels/LDtk_project/world_levels/Level_1-AutoMain.png" BEST ALL
+MAP Level_1_map "Levels/LDtk_project/world_levels/Level_1-AutoMain.png" Level_1_tileset BEST 0
+MAP Level_1_colmap "Levels/LDtk_project/world_levels/Level_1-col.png" collision_tileset BEST 0
+TILESET CityStreets_tileset "Levels/LDtk_project/world_levels/CityStreets-AutoMain.png" BEST ALL
+MAP CityStreets_map "Levels/LDtk_project/world_levels/CityStreets-AutoMain.png" CityStreets_tileset BEST 0
+MAP CityStreets_colmap "Levels/LDtk_project/world_levels/CityStreets-col.png" collision_tileset BEST 0
+
+
+
+
+LEVELS HEADER FILE LINES:
+
+
+#define numLevels  3
+const struct LevelDef ALLLEVELS[numLevels]={
+//Level: Playground 
+{  0,0,0, //id, x, y 
+   1024,1024,0,2, // w, h, start of entities, num of entities 
+   {  1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Playground_tileset, &Playground_map, &bgb_tileset, &bgb_map, &Playground_colmap 
+
+ }, 
+//Level: Level_1 
+{  1,1024,0, //id, x, y 
+   2048,1024,2,4, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
+
+ }, 
+//Level: CityStreets 
+{  2,3584,1792, //id, x, y 
+   1536,512,6,0, // w, h, start of entities, num of entities 
+   {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &CityStreets_tileset, &CityStreets_map, &bgb_tileset, &bgb_map, &CityStreets_colmap 
+} 
+ };
+#define totalEnts  6
+const struct LevelEnt ALLENTS[totalEnts]={
+{ BlankGuard,152,280 },
+{ PlayerStart,36,156 },
+{ PlayerStart,556,820 },
+{ BlankGuard,1112,312 },
+{ BlankGuard,1400,800 },
+{ BlankGuard,848,416 } 
+};
