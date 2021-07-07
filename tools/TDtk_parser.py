@@ -48,8 +48,8 @@ for lvl in levels:
     
     levelname = lvl["identifier"]
     outputfile.write('//Level: {} \n'.format(levelname))
-    ents = lvl['layerInstances'][3]['entityInstances']
-    
+    ents = lvl['layerInstances'][5]['entityInstances']
+    #I should not rely on the numbering staying as is and make a loop to check the identifier of the layer
     
     #write to file level stuff
     for id,ind in idtoindex:
@@ -86,11 +86,12 @@ outputfile.write("};\n")
 
 #entities
 outputfile.write('#define totalEnts  {}\n'.format(numents))
+print('totalEnts  {}\n'.format(numents))
 outputfile.write('const struct LevelEnt ALLENTS[totalEnts]={')
 outputfile.write("\n")
 
 for lvl in levels:
-    ents = lvl['layerInstances'][3]['entityInstances']
+    ents = lvl['layerInstances'][5]['entityInstances']
     
     
     count = 0

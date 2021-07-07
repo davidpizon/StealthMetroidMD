@@ -4,10 +4,10 @@ import copy
 
 print(random.uniform(0.0, 10.0))
 
-distThresh = 10.0
+distThresh = 5.0
 # creating a image object 
 #im = Image.open(r"C:/gamedev/PlatformerMD/res/gfx/simpleplatforms_back.png") 
-im = Image.open(r"C:/gamedev/PlatformerMD/res/gfx/concepts/thing_pixatooled.png") 
+im = Image.open(r"C:/gamedev/PlatformerMD/res/Levels/concepts/city_tilesetconversion.png") 
 
 
 px = im.load() 
@@ -331,7 +331,7 @@ for imgelem in range(len(newimage)):
         x += 8
         y=0
 
-im.save("output.png")
+im.save("tools/tilecompressionoutput/output.png")
 
 print("previous unique tiles: {}".format(len(uniquetiles)))
 print("unique tiles now: {}".format(len(newUniqueTiles)))
@@ -359,7 +359,7 @@ for imgelem in range(len(newimage)):
         x += 8
         y=0
 
-im.save("outputoriginal.png")
+im.save("tools/tilecompressionoutput/outputoriginal.png")
 
 print("saving all tiles")
 #clear image
@@ -377,4 +377,4 @@ for t in newUniqueTiles:
         x += 8
         y=0
 
-im.save("output_tiles.png")
+im.save("tools/tilecompressionoutput/output_tiles.png")

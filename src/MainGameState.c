@@ -63,6 +63,8 @@ void MainGameStart(){
 
     updateCameraPosition();
     SYS_doVBlankProcess();
+
+    
 }
 //int blockCycleInd=0;
 void MainGameUpdate(){

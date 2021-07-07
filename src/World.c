@@ -71,44 +71,37 @@ struct  LevelEnt{
 
 
 
-#define numLevels  4
+#define numLevels  3
 const struct LevelDef ALLLEVELS[numLevels]={
 //Level: Playground 
 {  0,0,0, //id, x, y 
    1024,1024,0,2, // w, h, start of entities, num of entities 
-   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
+   {  1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &Playground_tileset, &Playground_map, &bgb_tileset, &bgb_map, &Playground_colmap 
 
  }, 
 //Level: Level_1 
 {  1,1024,0, //id, x, y 
-   768,768,2,2, // w, h, start of entities, num of entities 
-   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
+   2048,1024,2,4, // w, h, start of entities, num of entities 
+   {  0  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
 
  }, 
-//Level: Level_2 
-{  2,768,1024, //id, x, y 
-   768,768,4,2, // w, h, start of entities, num of entities 
-   {  0  , 3  , -1  , -1  , -1  , -1  , -1  , -1 },
-     &Level_2_tileset, &Level_2_map, &bgb_tileset, &bgb_map, &Level_2_colmap 
-
- }, 
-//Level: Level_3 
-{  3,1536,768, //id, x, y 
-   512,512,6,0, // w, h, start of entities, num of entities 
-   {  1  , 2  , -1  , -1  , -1  , -1  , -1  , -1 },
-     &Level_3_tileset, &Level_3_map, &bgb_tileset, &bgb_map, &Level_3_colmap 
+//Level: CityStreets 
+{  2,3584,1792, //id, x, y 
+   1536,512,6,0, // w, h, start of entities, num of entities 
+   {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
+     &CityStreets_tileset, &CityStreets_map, &bgb_tileset, &bgb_map, &CityStreets_colmap 
 } 
  };
 #define totalEnts  6
 const struct LevelEnt ALLENTS[totalEnts]={
 { BlankGuard,152,280 },
-{ PlayerStart,28,196 },
-{ BlankGuard,472,208 },
-{ PlayerStart,652,188 },
-{ PlayerStart,124,68 },
-{ BlankGuard,56,176 } 
+{ PlayerStart,36,156 },
+{ PlayerStart,556,820 },
+{ BlankGuard,1112,312 },
+{ BlankGuard,1400,800 },
+{ BlankGuard,848,416 } 
 };
 
 
