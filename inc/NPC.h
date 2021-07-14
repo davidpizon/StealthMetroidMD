@@ -118,7 +118,7 @@ struct NPC{
 };
 
 
-
+//NPCs loaded in RAM to be updated every frame
 NPC NPCs[10];
 u16 numNPCs;
 

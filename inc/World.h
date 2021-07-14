@@ -43,6 +43,8 @@ typedef struct
 int numBlocks;
 Block blocks[24];
 
+//int numInteractables
+
 void LoadLevel(u8 l);
 void LoadEntities();
 void TransitionLevel();

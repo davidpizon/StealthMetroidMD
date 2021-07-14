@@ -16,8 +16,12 @@ for l in range(numlevels):
     print(levels[l]['uid']) 
     idtoindex.append([levels[l]['uid'],l])
     path   = "C:\\gamedev\\PlatformerMD\\res\Levels\\LDtk_project\\world_levels"
-    pathfg = path+"\\png\\{}-AutoMainBG.png".format(levels[l]["identifier"])
-    pathbg = path+"\\png\\{}-AutoMainFG.png".format(levels[l]["identifier"])
+    
+    # pathfg = path+"\\png\\{}-AutoMainBG.png".format(levels[l]["identifier"])
+    # pathbg = path+"\\png\\{}-AutoMainFG.png".format(levels[l]["identifier"])
+    pathfg = path+"\\png\\{}-MAINBG.png".format(levels[l]["identifier"])
+    pathbg = path+"\\png\\{}-MAINFG.png".format(levels[l]["identifier"])
+
     pathcol = path+"\\png\\{}-Col_layer.png".format(levels[l]["identifier"])
     pathinter=path+"\\png\\{}-output.ase".format(levels[l]["identifier"])
     pathout = path+"\\{}-AutoMain.png".format(levels[l]["identifier"])
@@ -90,9 +94,18 @@ print('totalEnts  {}\n'.format(numents))
 outputfile.write('const struct LevelEnt ALLENTS[totalEnts]={')
 outputfile.write("\n")
 
+#search entity layer index
+layerind = 0
+for l in range( len(levels[0]['layerInstances'] )):
+    if (levels[0]['layerInstances'][l]["__identifier"]=="EntLayer"):
+        layerind = l
+        break
+
+print("layer ind = {}".format(layerind))
+
 for lvl in levels:
-    ents = lvl['layerInstances'][5]['entityInstances']
-    
+    #ents = lvl['layerInstances'][5]['entityInstances']
+    ents = lvl['layerInstances'][layerind]['entityInstances']    
     
     count = 0
     i=0

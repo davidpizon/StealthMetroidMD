@@ -26,4 +26,4 @@ set pileupscript=C:\Users\owner\AppData\Roaming\Aseprite\scripts\MakeSheetIntoLa
 
 %aseprite% -b  %output1% -script %palscript% --save-as %output1%
 
-%aseprite% -b  %output1% -script %shiftscript% --save-as %finaloutput%
+%aseprite% -b  -script-param cli="yes" %output1% -script %shiftscript% --save-as %finaloutput%

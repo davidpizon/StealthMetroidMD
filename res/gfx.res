@@ -1,7 +1,11 @@
 
 
-TILESET bgb_tileset "gfx/simpleplatforms_back.png" BEST ALL
-MAP bgb_map "gfx/simpleplatforms_back.png" bgb_tileset BEST 0
+//TILESET bgb_tileset "gfx/simpleplatforms_back.png" BEST ALL
+//MAP bgb_map "gfx/simpleplatforms_back.png" bgb_tileset BEST 0
+
+TILESET bgb_tileset "Levels/concepts/city_backgroundtileset.png" BEST ALL
+MAP bgb_map "Levels/concepts/city_backgroundtileset.png" bgb_tileset BEST 0
+
 TILESET collision_tileset "Levels/collision_tileset.png" BEST 0
 
 

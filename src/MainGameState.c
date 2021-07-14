@@ -17,11 +17,10 @@ void MainGameStart(){
     
     //XGM_startPlay(&mymusic);
 
-    VDP_setWindowHPos(TRUE, 20);
-    VDP_setWindowVPos(TRUE, DEBUGLINE);
-    VDP_setTextPlane(WINDOW);
-    VDP_setTextPriority(TRUE);
-     //   VDP_setPlaneSize(5, 5, TRUE);
+    // VDP_setWindowHPos(TRUE, 20);
+    // VDP_setWindowVPos(TRUE, DEBUGLINE);
+    // VDP_setTextPlane(WINDOW);
+    // VDP_setTextPriority(TRUE);
 
 
     camTargetX = 0;
@@ -30,7 +29,7 @@ void MainGameStart(){
     camPosX = 0;
     camPosY = 0;
     
-    LoadLevel(0);
+    LoadLevel(1);
     // u16 ind = TILE_USERINDEX;
     // bgBaseTileIndex[0] = ind;
     // VDP_loadTileSet(&bga_tileset, ind, DMA);
@@ -84,12 +83,19 @@ void MainGameUpdate(){
             NPCs[n].Update(&NPCs[n]);
         //render even if dead, the body should be ppermanet
         
-        //debvar1 = random();
+        //check if inside y camera frame
+        if( fix32ToRoundedInt( NPCs[n].y)+NPCs[n].h > camPosY && fix32ToRoundedInt( NPCs[n].y) < camPosY+224){
+            SPR_setVisibility(NPCs[n].sprite, AUTO_FAST);
+                        
+        }else{
+            SPR_setVisibility(NPCs[n].sprite, HIDDEN );
+        }
         SPR_setPosition(NPCs[n].sprite, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset, 
                                   fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset);
 
         SPR_setPosition(NPCs[n].icon, fix32ToInt(NPCs[n].x)-camPosX - NPCs[n].xoffset + 40, 
-                                  fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset + 30);
+                                fix32ToInt(NPCs[n].y)-camPosY - NPCs[n].yoffset + 30);
+        
         
     }
     
