@@ -22,30 +22,28 @@ LEVELS HEADER FILE LINES:
 const struct LevelDef ALLLEVELS[numLevels]={
 //Level: Playground 
 {  0,0,0, //id, x, y 
-   1024,1024,0,0, // w, h, start of entities, num of entities 
+   1024,1024,0,3, // w, h, start of entities, end of entities 
    {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &Playground_tileset, &Playground_map, &bgb_tileset, &bgb_map, &Playground_colmap 
 
  }, 
 //Level: Level_1 
 {  1,1280,256, //id, x, y 
-   1792,768,0,0, // w, h, start of entities, num of entities 
+   1792,768,4,23, // w, h, start of entities, end of entities 
    {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
 
  }, 
 //Level: CityStreets 
 {  2,3584,1792, //id, x, y 
-   1536,512,0,0, // w, h, start of entities, num of entities 
+   1536,512,24,23, // w, h, start of entities, end of entities 
    {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &CityStreets_tileset, &CityStreets_map, &bgb_tileset, &bgb_map, &CityStreets_colmap 
 } 
  };
-#define totalEnts  0
-const struct LevelEnt ALLENTS[totalEnts]={
-{ BlankGuard,152,280 },
-{ PlayerStart,308,532 },
-{ BlankGuard,640,344 },
-{ BlankGuard,680,528 },
-{ BlankGuard,592,160 } 
+#define SIZEENTARRAY  25
+const int ALLENTS[SIZEENTARRAY]={
+BlankGuard, 152, 280, 1, PlayerStart, 308, 532, BlankGuard, 640, 344, 1, 
+BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 521, 260, 
+0, 68, 14
 };

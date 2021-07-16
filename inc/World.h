@@ -40,10 +40,27 @@ typedef struct
     int h;
 }Block;
 
+typedef struct 
+{
+    Sprite* sprite;
+    fix32 x;
+    fix32 y;
+    u8 w;
+    u8 h;
+    bool opened;
+}Door;
+
+
 int numBlocks;
 Block blocks[24];
 
-//int numInteractables
+//interactables are entities that can be interacted with but not updated every frame
+//not yet implemented
+// int numInteractables;
+
+//doors are not only interactable but also have collision, so they go in their special list
+u8 numDoors;
+Door doors[10]; //10 max doors per area
 
 void LoadLevel(u8 l);
 void LoadEntities();
