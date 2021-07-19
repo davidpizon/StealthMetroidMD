@@ -107,7 +107,7 @@ const struct LevelDef ALLLEVELS[numLevels]={
 #define SIZEENTARRAY  25
 const int ALLENTS[SIZEENTARRAY]={
 BlankGuard, 152, 280, 1, PlayerStart, 308, 532, BlankGuard, 640, 344, 1, 
-BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 521, 260, 
+BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 308, 532, 
 0, 68, 14
 };
 
@@ -153,7 +153,6 @@ void LoadLevel(u8 l){
     
     
     
-
     LoadEntities();
 }
 
@@ -200,6 +199,8 @@ void LoadEntities(){
             fix32 tempx2 = intToFix32(ALLENTS[eind++]);
             fix32 tempy2 = intToFix32(ALLENTS[eind++]);
             //put door
+            AddDoor(tempx, tempy);
+            KDebug_Alert("added a door");
             break;
         default:
             break;

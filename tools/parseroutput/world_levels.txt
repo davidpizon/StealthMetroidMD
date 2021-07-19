@@ -44,6 +44,6 @@ const struct LevelDef ALLLEVELS[numLevels]={
 #define SIZEENTARRAY  25
 const int ALLENTS[SIZEENTARRAY]={
 BlankGuard, 152, 280, 1, PlayerStart, 308, 532, BlankGuard, 640, 344, 1, 
-BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 521, 260, 
+BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 385, 516, 
 0, 68, 14
 };

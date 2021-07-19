@@ -98,6 +98,23 @@ void MainGameUpdate(){
         
         
     }
+
+    for(int r = 0; r<numRends; r++){
+        //check if inside y camera frame
+        if( fix32ToRoundedInt( loadedRenderables[r].y)+loadedRenderables[r].h > camPosY 
+            && fix32ToRoundedInt( loadedRenderables[r].y) < camPosY+224){
+            
+            SPR_setVisibility(loadedRenderables[r].sprite, AUTO_FAST);
+                        
+        }else{
+            SPR_setVisibility(loadedRenderables[r].sprite, HIDDEN );
+        }
+        SPR_setPosition(loadedRenderables[r].sprite, fix32ToInt(loadedRenderables[r].x)-camPosX - loadedRenderables[r].xoffset, 
+                        fix32ToInt(loadedRenderables[r].y)-camPosY - loadedRenderables[r].yoffset);
+
+        
+        
+    }
     
     //check if within level boundaries and call transition
     if(plxint > MAP_WIDTH || plxint < 0 || plyint < 0 || plyint > MAP_HEIGHT){

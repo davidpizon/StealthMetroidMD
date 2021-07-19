@@ -23,5 +23,5 @@ out/src/main.o: src/main.c c:/gamedev/sgdk/inc/genesis.h \
  c:/gamedev/sgdk/inc/kdebug.h src/../inc/./Helper.h \
  src/../inc/./../res/gfx.h src/../inc/./../res/sprite.h \
  src/../inc/./MainGameState.h src/../inc/PlayerLogic.h src/../inc/World.h \
- src/../inc/NPC.h src/../inc/Helper.h src/../inc/MainGameState.h \
- src/../inc/Input.h src/../res/gfx.h
+ src/../inc/NPC.h src/../inc/Helper.h src/../inc/Entities.h \
+ src/../inc/MainGameState.h src/../inc/Input.h src/../res/gfx.h

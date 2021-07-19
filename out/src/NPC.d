@@ -22,4 +22,4 @@ out/src/NPC.o: src/NPC.c src/../inc/NPC.h c:/gamedev/sgdk/inc/genesis.h \
  src/../inc/./Helper.h src/../inc/./../res/gfx.h \
  src/../inc/./../res/sprite.h src/../inc/./MainGameState.h \
  src/../inc/PlayerLogic.h src/../inc/World.h src/../inc/NPC.h \
- src/../inc/Helper.h
+ src/../inc/Entities.h src/../inc/Helper.h
