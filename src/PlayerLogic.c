@@ -118,7 +118,8 @@ void UpdatePlayer(){
             movState = ms_debug;
             // PlotLine(plxint, plyint, plxint-(8<<3), plyint-132);
         }
-        loadedInteractables[0].Interact(&loadedInteractables[0]);
+        u16 i = loadedInteractables[0];
+        loadedEntities[i].interactFunction(&loadedEntities[i]);
     }
     
       

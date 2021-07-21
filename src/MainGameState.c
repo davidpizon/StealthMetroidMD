@@ -101,16 +101,18 @@ void MainGameUpdate(){
 
     for(int r = 0; r<numRends; r++){
         //check if inside y camera frame
-        if( fix32ToRoundedInt( loadedRenderables[r].y)+loadedRenderables[r].h > camPosY 
-            && fix32ToRoundedInt( loadedRenderables[r].y) < camPosY+224){
+        u16 index = loadedRenderables[r];
+
+        if( fix32ToRoundedInt( loadedEntities[index].y)+loadedEntities[index].h > camPosY 
+            && fix32ToRoundedInt( loadedEntities[index].y) < camPosY+224){
             
-            SPR_setVisibility(loadedRenderables[r].sprite, AUTO_FAST);
+            SPR_setVisibility(loadedEntities[index].sprite, AUTO_FAST);
                         
         }else{
-            SPR_setVisibility(loadedRenderables[r].sprite, HIDDEN );
+            SPR_setVisibility(loadedEntities[index].sprite, HIDDEN );
         }
-        SPR_setPosition(loadedRenderables[r].sprite, fix32ToInt(loadedRenderables[r].x)-camPosX - loadedRenderables[r].xoffset, 
-                        fix32ToInt(loadedRenderables[r].y)-camPosY - loadedRenderables[r].yoffset);
+        SPR_setPosition(loadedEntities[index].sprite, fix32ToInt(loadedEntities[index].x)-camPosX - loadedEntities[index].xoffset, 
+                        fix32ToInt(loadedEntities[index].y)-camPosY - loadedEntities[index].yoffset);
 
         
         
