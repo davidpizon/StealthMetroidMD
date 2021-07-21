@@ -16,4 +16,4 @@ out/src/Entities.o: src/Entities.c inc/Entities.h \
  c:/gamedev/sgdk/inc/xgm.h c:/gamedev/sgdk/inc/z80_ctrl.h \
  c:/gamedev/sgdk/inc/ym2612.h c:/gamedev/sgdk/inc/psg.h \
  c:/gamedev/sgdk/inc/joy.h c:/gamedev/sgdk/inc/timer.h \
- inc/../res/sprite.h
+ inc/../res/sprite.h c:/gamedev/sgdk/inc/kdebug.h

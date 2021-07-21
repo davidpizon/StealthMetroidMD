@@ -79,8 +79,9 @@ for lvl in levels:
                     print(f['__value'])
                     allents.append(0)
             elif(f['__type']=='Point'):
-                allents.append(f['__value']['cx'])
-                allents.append(f['__value']['cy'])
+                if(f['__value']!=None):                    
+                    allents.append(f['__value']['cx'])
+                    allents.append(f['__value']['cy'])
             else:
                 allents.append(f['__value'])
                 
