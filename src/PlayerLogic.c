@@ -118,8 +118,7 @@ void UpdatePlayer(){
             movState = ms_debug;
             // PlotLine(plxint, plyint, plxint-(8<<3), plyint-132);
         }
-        u16 i = loadedInteractables[0];
-        loadedEntities[i].interactFunction(&loadedEntities[i]);
+        
     }
     
       
@@ -204,8 +203,13 @@ void UpdatePlayer(){
                 }                
             }
 
-            //parry
             
+            if(btnup_A){
+                u16 i = loadedInteractables[0];
+                loadedEntities[i].interactFunction(&loadedEntities[i]);
+            }
+            
+            //parry
             if(!btn_Up) canparry = TRUE;
             if(btn_A && abs(plSpX)<FIX32(0.1)){
                 

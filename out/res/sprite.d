@@ -1,6 +1,7 @@
 out/res/sprite.o: res/sprite.res \
 C:/gamedev/PlatformerMD/res/gfx/playericon.png \
 C:/gamedev/PlatformerMD/res/gfx/simpleBlock.png \
+C:/gamedev/PlatformerMD/res/Sprite/slidingdoor01.png \
 C:/gamedev/PlatformerMD/res/sprite/debugCorner.png \
 C:/gamedev/PlatformerMD/res/sprite/RoguePlatformer_v3.png \
 C:/gamedev/PlatformerMD/res/sprite/basicapple.png \

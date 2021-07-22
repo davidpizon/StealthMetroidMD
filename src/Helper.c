@@ -1,6 +1,12 @@
 #include "../inc/Helper.h"
 
-
+void StopAnimationOnLastFrame(Sprite* sp){
+    if(LastFrame(sp)){
+        sp->timer = 0;
+        KDebug_Alert("reached the end of animation. Frame:");
+        KDebug_AlertNumber(sp->frameInd);
+    }
+}
 
 bool LastFrame(Sprite* sp){
     
