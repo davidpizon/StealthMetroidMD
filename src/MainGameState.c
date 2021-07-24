@@ -49,10 +49,10 @@ void MainGameStart(){
     PAL_setPalette(PAL2, blankGuard.palette->data);
     
     //deb
-    debCornerNW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, TRUE));
-    debCornerNE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
-    debCornerSW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, TRUE, TRUE));
-    debCornerSE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, FALSE, TRUE, FALSE));
+    debCornerNW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, TRUE, FALSE, TRUE));
+    debCornerNE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
+    debCornerSW = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, TRUE, TRUE, TRUE));
+    debCornerSE = SPR_addSprite(&debugCorner, plxint, plyint, TILE_ATTR(PAL1, TRUE, TRUE, FALSE));
 
 
     // StartPlayer();

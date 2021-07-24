@@ -204,9 +204,14 @@ void UpdatePlayer(){
             }
 
             
-            if(btnup_A){
-                u16 i = loadedInteractables[0];
-                loadedEntities[i].interactFunction(&loadedEntities[i]);
+            if(btndown_A){
+                //search for an interactable object nearby
+                u16 ent = 0;
+                if( ColliderHere(plxint + (plLookingRight? PlayerWidth+5:-8), plyint+8, &ent) ){                    
+                    u16 i = loadedInteractables[ent];
+                    loadedEntities[i].interactFunction(&loadedEntities[i]);
+                }
+                
             }
             
             //parry

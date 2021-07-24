@@ -325,6 +325,23 @@ int AlignWithTile(int x){
 //the whole moveX moveY thing is awful
 // and the collider check is called several unnecessary times
 
+bool ColliderHere(int x, int y, u16* ent){
+    
+    for (u8 c = 0; c<numCols; c++){
+        u8 ind = loadedColliders[c];
+                
+        
+        if( x  >= fix32ToRoundedInt(loadedEntities[ind].x) && x<= fix32ToRoundedInt(loadedEntities[ind].x)+ loadedEntities[ind].w ){
+            
+            if( y  >= fix32ToRoundedInt(loadedEntities[ind].y) && y<= fix32ToRoundedInt(loadedEntities[ind].y)+ loadedEntities[ind].h ){
+                *ent = ind;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 bool ColliderCheck(int x, int y){
     for (u8 c = 0; c<numCols; c++){
         u8 ind = loadedColliders[c];

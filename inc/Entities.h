@@ -16,22 +16,33 @@ typedef struct{
 }Door;
 
 typedef struct{
+    bool active;
+    //activatePoint is a position, camera is going to "Interact" with whatever is there
+    //could open a door, sound an alarm etc
+    fix32 activatePoint[2];
+}Camera;
+
+
+typedef struct{
 }EntTest;
 
 //generic crap----------
 
 typedef enum{
     et_DOOR,
+    et_CAMERA,
     et_TEST
 }EntityTypes;
 
 
 typedef void (*InteractFunction)(Entity* );
+typedef void (*EntityUpdate)(Entity* );
 
 typedef struct Entity{
     EntityTypes type;
     bool canInteract;
     bool collider;
+    bool frameUpdate;
     Sprite* sprite;
     fix32 x;
     fix32 y;
@@ -45,7 +56,7 @@ typedef struct Entity{
         EntTest enttest;
     }SubType;
     InteractFunction interactFunction;
-    
+    EntityUpdate entityUpdate;
 };
 
 
