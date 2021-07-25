@@ -18,6 +18,7 @@ char* itoa2(int i, char b[]);
 s16 Clamp(s16 value, s16 min, s16 max);
 s16 Clamp32(fix32 value, fix32 min, fix32 max);
 void PlotLine(int x0, int y0, int x1, int y1);
+bool CanSeePlayerGeneral(fix32 x, fix32 y, bool lookingRight);
 bool TraceObstacle(int x0, int y0, int x1, int y1);
 
 #endif

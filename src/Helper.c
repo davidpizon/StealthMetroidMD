@@ -8,6 +8,7 @@ void StopAnimationOnLastFrame(Sprite* sp){
     }
 }
 
+
 bool LastFrame(Sprite* sp){
     
     if(sp->frameInd == sp->animation->numFrame - 1){
@@ -56,6 +57,33 @@ bool SquareIntersectionInt(int x1, int y1, u16 w1, u16 h1, int x2, int y2, u16 w
     
     return TRUE;
     
+}
+
+
+bool CanSeePlayerGeneral(fix32 x, fix32 y, bool lookingRight){
+    
+    if((lookingRight && x > plx)||(!lookingRight && x < plx))
+        return FALSE;
+    if(abs( fix32ToInt( y - ply)) > 40 )
+        return FALSE;
+    if(abs( fix32ToInt( x - plx)) > 140 )
+        return FALSE;
+    
+    
+    //if we got here it means player is within view cone, now we test for line of sight:
+    if(TraceObstacle( fix32ToRoundedInt(x), fix32ToRoundedInt(y), plxint, plyint)){        
+        return FALSE;
+    }
+    
+    
+    //if we got here then the player is within range to be seen and there is line of sight
+    //if there are any additional factors (hiding in shadows, distance, ai specific stuff)
+    //it should be here
+    if(playerVisibility == 0)
+        return FALSE;
+   
+    return TRUE;
+
 }
 
 bool TraceObstacle(int x0, int y0, int x1, int y1){

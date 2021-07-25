@@ -2,6 +2,7 @@
 #define _RES_SPRITE_H_
 
 extern const SpriteDefinition slidingDoor;
+extern const SpriteDefinition camerasprite;
 extern const SpriteDefinition playerToken;
 extern const SpriteDefinition playerSprites;
 extern const SpriteDefinition simpleBlock;

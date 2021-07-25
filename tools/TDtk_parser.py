@@ -67,7 +67,7 @@ for lvl in levels:
     ents = lvl['layerInstances'][layerind]['entityInstances']  
     curentcount = entcount
     for n in ents:
-        allents.append(n['__identifier'])  
+        allents.append("ed_"+n['__identifier'])  
         allents.append(n['px'][0])  
         allents.append(n['px'][1])  
         entcount += 3
@@ -80,8 +80,8 @@ for lvl in levels:
                     allents.append(0)
             elif(f['__type']=='Point'):
                 if(f['__value']!=None):                    
-                    allents.append(f['__value']['cx'])
-                    allents.append(f['__value']['cy'])
+                    allents.append(f['__value']['cx']*8)
+                    allents.append(f['__value']['cy']*8)
             else:
                 allents.append(f['__value'])
                 

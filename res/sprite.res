@@ -1,6 +1,7 @@
 //my stuff
 
 SPRITE slidingDoor "/Sprite/slidingdoor01.png" 2 6 NONE 5
+SPRITE camerasprite "/Sprite/camera.png" 3 2 NONE 5
 
 SPRITE playerToken "gfx/playericon.png" 2 5 BEST
 SPRITE playerSprites "sprite/RoguePlatformer_v3.png" 10 13 NONE 

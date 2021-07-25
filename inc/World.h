@@ -56,6 +56,7 @@ void TransitionLevel();
 //moveX will return FALSE if collision happened
 int AlignWithTile(int x);
 bool ColliderHere(int x, int y, u16* ent);
+bool InteractableHere(int x, int y, u16* ent);
 bool ColliderCheck(int x, int y);
 bool MoveX(fix32* x, int y, int w, int h, fix32* dx);
 void MoveY(int x, fix32* y, int w, int h, fix32* dy);

@@ -29,22 +29,22 @@ const struct LevelDef ALLLEVELS[numLevels]={
  }, 
 //Level: Level_1 
 {  1,1280,256, //id, x, y 
-   1792,768,4,34, // w, h, start of entities, end of entities 
+   1792,768,4,41, // w, h, start of entities, end of entities 
    {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &Level_1_tileset, &Level_1_map, &bgb_tileset, &bgb_map, &Level_1_colmap 
 
  }, 
 //Level: CityStreets 
 {  2,3584,1792, //id, x, y 
-   1536,512,35,34, // w, h, start of entities, end of entities 
+   1536,512,42,41, // w, h, start of entities, end of entities 
    {  -1  , -1  , -1  , -1  , -1  , -1  , -1  , -1 },
      &CityStreets_tileset, &CityStreets_map, &bgb_tileset, &bgb_map, &CityStreets_colmap 
 } 
  };
-#define SIZEENTARRAY  35
+#define SIZEENTARRAY  43
 const int ALLENTS[SIZEENTARRAY]={
-BlankGuard, 152, 280, 1, PlayerStart, 308, 532, BlankGuard, 640, 344, 1, 
-BlankGuard, 680, 528, 1, BlankGuard, 616, 144, 0, SimpleDoor, 464, 537, 
-0, SimpleDoor, 1561, 392, 0, SimpleDoor, 779, 645, 0, SimpleDoor, 624, 
-608, 0
+ed_BlankGuard, 152, 280, 1, ed_PlayerStart, 308, 532, ed_BlankGuard, 640, 344, 1, 
+ed_BlankGuard, 680, 528, 1, ed_BlankGuard, 616, 144, 0, ed_SimpleDoor, 464, 537, 
+0, ed_SimpleDoor, 1561, 392, 0, ed_SimpleDoor, 779, 645, 0, ed_SimpleDoor, 624, 
+608, 0, ed_Camera, 596, 527, 1, 120, 30, 632, 632
 };

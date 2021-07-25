@@ -99,6 +99,13 @@ void MainGameUpdate(){
         
     }
 
+    //update all updatable entities
+    for(int up = 0; up<numUpdatables; up++){
+        u16 ind = loadedUpdatables[up];
+        if(loadedEntities[ind].frameUpdate)
+            loadedEntities[ind].entityUpdate(&loadedEntities[ind]);
+    }
+
     for(int r = 0; r<numRends; r++){
         //check if inside y camera frame
         u16 index = loadedRenderables[r];
