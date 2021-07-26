@@ -6,6 +6,8 @@ u8 numRends = 0;
 u8 numInter = 0;
 u8 numCols = 0;
 u8 numUpdatables = 0;
+
+
 void AddDoor(fix32 x, fix32 y){
     
     Entity newe;    
@@ -69,7 +71,7 @@ void AddCamera(fix32 x, fix32 y, int initialstate, u8 lefttimer, u8 righttimer, 
     newe.h = 2*8;
     Camera c;
     c.state = initialstate;
-    c.timeLookingRight = righttimer;
+    c.timeLookingRight = righttimer*3;
     c.timeLookingLeft = lefttimer;
     c.activatePoint[0] = tx;
     c.activatePoint[1] = ty;
@@ -107,7 +109,7 @@ void CameraUpdate(Entity* self){
         if(InteractableHere(fix32ToRoundedInt(self->SubType.camera.activatePoint[0]), 
                     fix32ToRoundedInt(self->SubType.camera.activatePoint[1]), &ent)){
             loadedEntities[ent].interactFunction(&loadedEntities[ent]);
-            KDebug_Alert("camear is opening door now!");
+            
             //cheap temporary hack: disable the camera once this happens
             self->SubType.camera.state = 0;
         }
