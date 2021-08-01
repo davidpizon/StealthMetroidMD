@@ -35,11 +35,7 @@ ANIMATION NOTES:
 
 Things to add for the short demo:
 - Crawl
-- doors PRIORITY
+- doors DONE
 - look up and down
-- an impossible to defeat mechanism, like a camera, or something that functions like a soft door PRIORITY
+- an impossible to defeat mechanism, like a camera, or something that functions like a soft door DONE
 - stairs? some means of vertical locomotion for npcs (and the player) specially for indoor locs
-
-Idea for door implementation:
-make it a special entity that gets checked by the collision system and NPC line of sight.
-Also, considering only NPCs require updating every frame, maybe put them in a separate list from all entities.

@@ -32,8 +32,10 @@ void AddDoor(fix32 x, fix32 y){
     
 }
 
-void DoorInteract(Entity* self){
-    
+void DoorInteract(Entity* self, int code){
+    //code can be used as a key and lock system
+    if(code != self->SubType.door.code && !self->SubType.door.opened)
+        return; //wrong key
     
     KDebug_Alert("interacted with door");
     if(self->SubType.door.opened){
@@ -86,6 +88,25 @@ void AddCamera(fix32 x, fix32 y, int initialstate, u8 lefttimer, u8 righttimer, 
 void CameraUpdate(Entity* self){
     if(self->SubType.camera.state == 0) return;
 
+
+    //checks for visibility against the player
+    if( CanSeePlayerGeneral(self->x, self->y+FIX32(20), self->SubType.camera.state==1? TRUE:FALSE )){
+        self->SubType.camera.alertTimer++;
+        if(self->SubType.camera.alertTimer < 120){
+            return;
+            //don't run the rest until the timer is up
+        }
+        u16 ent;
+        if(InteractableHere(fix32ToRoundedInt(self->SubType.camera.activatePoint[0]), 
+                    fix32ToRoundedInt(self->SubType.camera.activatePoint[1]), &ent)){
+            loadedEntities[ent].interactFunction(&loadedEntities[ent],0);
+            
+            //cheap temporary hack: disable the camera once this happens
+            self->SubType.camera.state = 0;
+        }
+    }
+    self->SubType.camera.alertTimer = 0;
+
     self->SubType.camera.timer++;
     if(self->SubType.camera.state == -1){
         if(self->SubType.camera.timer > self->SubType.camera.timeLookingLeft){
@@ -102,16 +123,69 @@ void CameraUpdate(Entity* self){
             self->SubType.camera.state = -1;
         }
     }
-    //checks for visibility against the player
-    if( CanSeePlayerGeneral(self->x, self->y+FIX32(20), self->SubType.camera.state==1? TRUE:FALSE )){
-        
-        u16 ent;
-        if(InteractableHere(fix32ToRoundedInt(self->SubType.camera.activatePoint[0]), 
-                    fix32ToRoundedInt(self->SubType.camera.activatePoint[1]), &ent)){
-            loadedEntities[ent].interactFunction(&loadedEntities[ent]);
-            
-            //cheap temporary hack: disable the camera once this happens
-            self->SubType.camera.state = 0;
-        }
+    
+}
+
+//-------- SPAWN POINT STUFF
+void AddSpawnPoint(fix32 x, fix32 y, u8 numGuards){
+    Entity newe;    
+    //change sprite or none actually!
+    //newe.sprite = SPR_addSpriteSafe(&camerasprite, x, y, TILE_ATTR(PAL3, FALSE, FALSE, FALSE));    
+    // SPR_setAnimAndFrame(newe.sprite, s, 0); 
+    // SPR_setFrameChangeCallback(newe.sprite, StopAnimationOnLastFrame);
+    newe.type = et_SPAWNPOINT;    
+    newe.x = x;
+    newe.y = y;
+    newe.w = 2*8;
+    newe.h = 5*8;
+    SpawnPoint sp;    
+    sp.numOfGuards = numGuards;
+    newe.SubType.spawnPoint = sp;
+    newe.interactFunction = &ActivateSpawnPoint;
+    loadedEntities[numEnt] = newe;
+    loadedInteractables[numInter++] = numEnt;
+    numEnt++;
+}
+
+void ActivateSpawnPoint(Entity* self, int code){
+    for(u8 i = 0; i < self->SubType.spawnPoint.numOfGuards; i++){
+        AddNPC(self->x+FIX32(8*i), self->y);
     }
+}
+
+//-------- stairway stuff
+void AddStairway(fix32 x, fix32 y, fix32 exitx, fix32 exity){
+    Entity newe;    
+    //change sprite or none actually!
+    //newe.sprite = SPR_addSpriteSafe(&camerasprite, x, y, TILE_ATTR(PAL3, FALSE, FALSE, FALSE));    
+    // SPR_setAnimAndFrame(newe.sprite, s, 0); 
+    // SPR_setFrameChangeCallback(newe.sprite, StopAnimationOnLastFrame);
+    newe.type = et_STAIRWAY;    
+    newe.x = x;
+    newe.y = y;
+    newe.w = 2*8;
+    newe.h = 5*8;
+    Stairway st;    
+    st.exitPoint[0] = exitx;
+    st.exitPoint[1] = exity;
+    newe.SubType.stairway = st;
+    newe.interactFunction = &ActivateStairway;
+    loadedEntities[numEnt] = newe;
+    loadedInteractables[numInter++] = numEnt;
+    numEnt++;
+}
+
+//interact functions need a pointer for the thing interacting with..
+//for now let's assume only the player interacts with stairways
+void ActivateStairway(Entity* self, int code){
+    KDebug_Alert("using stairway!");
+    KDebug_AlertNumber(fix32ToRoundedInt( ply));
+    plx = self->SubType.stairway.exitPoint[0];
+    ply = self->SubType.stairway.exitPoint[1];
+    KDebug_AlertNumber(fix32ToRoundedInt( ply));
+    KDebug_AlertNumber(fix32ToRoundedInt(self->SubType.stairway.exitPoint[1]));
+    KDebug_Alert("using stairway END");
+    // plx = 0;
+    // ply = 0;
+    //557056 565248
 }

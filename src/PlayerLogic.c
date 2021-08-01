@@ -207,9 +207,9 @@ void UpdatePlayer(){
             if(btndown_A){
                 //search for an interactable object nearby
                 u16 ent = 0;
-                if( ColliderHere(plxint + (plLookingRight? PlayerWidth+5:-8), plyint+8, &ent) ){                    
-                    u16 i = loadedInteractables[ent];
-                    loadedEntities[i].interactFunction(&loadedEntities[i]);
+                if( InteractableHere(plxint + (plLookingRight? PlayerWidth+5:-8), plyint+8, &ent) ){                                        
+                    loadedEntities[ent].interactFunction(&loadedEntities[ent], 0);
+                    // DrawSquare(loadedEntities[ent].x, loadedEntities[ent].y, 8,8,60);
                 }
                 
             }
