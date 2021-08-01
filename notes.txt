@@ -1,10 +1,6 @@
 notes:
 
-sprite visibility needs to be checked
 
-need animation for running attack
-
-Change animations only when necessary. Don't waste time animating things that might not be used in the end
 
 Combat parameters to tweak:
 - AI attack timing << changed method to something that looks reasonable
@@ -15,15 +11,13 @@ Combat parameters to tweak:
 - can only attack standing or at max speed << ok
 - pushback when hit (player)
 - change control scheme to: A up parry, A left/right sidestep, c jumps running, c hold jumps vertically standing <<i like it!
-
+parameters look ok-ish for now.
+Maybe it needs some juicy gamey effects to bring it up to standards. Animation, freeze frames for impact etc. 
 
 - AI behavior:
 -- maybe they shouldn't jump off cliffs 
--- side step during combat <<done
 -- fall damage
 
-parameters look ok-ish for now.
-Maybe it needs some juicy gamey effects to bring it up to standards. Animation, freeze frames for impact etc. 
 
 
 the AI head icons are too small to be readable with a CRT filter. Besides, I'm not sure how to use them with the current AI system
@@ -32,6 +26,8 @@ the AI head icons are too small to be readable with a CRT filter. Besides, I'm n
 
 ANIMATION NOTES:
 - running animation might require double length instead of this fake thing
+need animation for running attack
+Change animations only when necessary. Don't waste time animating things that might not be used in the end
 
 Things to add for the short demo:
 - Crawl

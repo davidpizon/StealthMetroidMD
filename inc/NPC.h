@@ -61,11 +61,6 @@ typedef enum {
     Dead//sd
 } AIState;
 
-// typedef enum{
-//     as_idle,
-//     as_turn,
-//     as_walk
-// }AIAnim;
 
 typedef enum{
     aic_wait,

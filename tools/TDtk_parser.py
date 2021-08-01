@@ -99,7 +99,7 @@ for lvl in levels:
             lind = ind
             break
     outputfile.write('{{  {},{},{}, //id, x, y \n'.format(lind, lvl['worldX'], lvl['worldY']))
-    outputfile.write('   {},{},{},{}, // w, h, start of entities, end of entities \n'.format(lvl['pxWid'], lvl['pxHei'], curentcount, entcount-1))
+    outputfile.write('   {},{},{},{}, // w, h, start of entities, end of entities \n'.format(lvl['pxWid'], lvl['pxHei'], curentcount, curentcount+entcount-1))
     outputfile.write('   { ')
     for i in range(8):
         try:
