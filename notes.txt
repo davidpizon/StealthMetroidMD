@@ -30,8 +30,12 @@ need animation for running attack
 Change animations only when necessary. Don't waste time animating things that might not be used in the end
 
 Things to add for the short demo:
-- Crawl
+- Crawl NOT NEEDED ATM
 - doors DONE
 - look up and down
 - an impossible to defeat mechanism, like a camera, or something that functions like a soft door DONE
-- stairs? some means of vertical locomotion for npcs (and the player) specially for indoor locs
+- stairs? some means of vertical locomotion for npcs (and the player) specially for indoor locs DONE
+- tweak inertia
+- change combat toggle
+- add light shadow to demo
+- make crouching bumpable

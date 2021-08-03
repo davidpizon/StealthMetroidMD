@@ -212,12 +212,31 @@ void UpdatePlayer(){
                     // DrawSquare(loadedEntities[ent].x, loadedEntities[ent].y, 8,8,60);
                 }
                 
+                if( InteractableHere(plxint + 8, plyint+8, &ent) ){                                        
+                    loadedEntities[ent].interactFunction(&loadedEntities[ent], 0);
+                    // DrawSquare(loadedEntities[ent].x, loadedEntities[ent].y, 8,8,60);
+                }
+                
+            }
+
+            //attack
+            if(btndown_B  ){
+                if(abs(plSpX)<FIX32(0.1)){
+                    //normal attack
+                    animState = as_attackhit;
+                    SPR_setAnim(playerSprite, PlAnim_attack);   
+                }else if(abs(plSpX)>FIX32(1.9)){
+                    //running attack. still dont have animation for it
+                    animState = as_attackhit;
+                    SPR_setAnim(playerSprite, PlAnim_attack);   
+                }
+                
+                //damage check will be called during the right frame from in the animation state
             }
             
             //parry
             if(!btn_Up) canparry = TRUE;
-            if(btn_A && abs(plSpX)<FIX32(0.1)){
-                
+            if(btn_A && abs(plSpX)<FIX32(0.1)){                
                 
                 
                 if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
@@ -259,20 +278,7 @@ void UpdatePlayer(){
                 
             } 
             
-            //attack
-            if(btndown_B  ){
-                if(abs(plSpX)<FIX32(0.1)){
-                    //normal attack
-                    animState = as_attackhit;
-                    SPR_setAnim(playerSprite, PlAnim_attack);   
-                }else if(abs(plSpX)>FIX32(1.9)){
-                    //running attack. still dont have animation for it
-                    animState = as_attackhit;
-                    SPR_setAnim(playerSprite, PlAnim_attack);   
-                }
-                
-                //damage check will be called during the right frame from in the animation state
-            }
+            
             
             
         }else
