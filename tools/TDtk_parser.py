@@ -28,8 +28,8 @@ for l in range(numlevels):
     pathoutcol = path+"\\{}-col.png".format(levels[l]["identifier"])
     
     # process the images:
-    # p = Popen("C:\\gamedev\\PlatformerMD\\tools\\aseprite_batch.bat {} {} {} {} {} {}".format(pathfg,pathbg,pathcol,pathinter,pathout,pathoutcol), cwd=r"C:\\gamedev\\PlatformerMD\\tools")
-    # stdout, stderr = p.communicate()
+    p = Popen("C:\\gamedev\\PlatformerMD\\tools\\aseprite_batch.bat {} {} {} {} {} {}".format(pathfg,pathbg,pathcol,pathinter,pathout,pathoutcol), cwd=r"C:\\gamedev\\PlatformerMD\\tools")
+    stdout, stderr = p.communicate()
 
     # create the RES file for these images
     name = levels[l]["identifier"]        

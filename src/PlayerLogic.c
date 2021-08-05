@@ -40,6 +40,7 @@ int grabbingBlockY;
 int grabbingBlockType;
 bool wallRunningRight;
 bool canparry = FALSE;
+bool combatMode = FALSE;
 
 
 void StartPlayer(fix32 x, fix32 y){
@@ -146,15 +147,15 @@ void UpdatePlayer(){
 
         if(grounded){
                 
-            if(btn_Left) plAccX  = -FIX32(0.06);    
-            else if(btn_Right) plAccX =  FIX32(0.06);
+            if(btn_Left) plAccX  = -PlayerAccel;    
+            else if(btn_Right) plAccX =  PlayerAccel;
             else{
                 //brakes
                 if(plSpX > 0){
-                    plSpX -= FIX32(0.05);
+                    plSpX -= PlayerDecel;
                     if(plSpX < 0) plSpX=0;
                 }else if(plSpX < 0){
-                    plSpX += FIX32(0.05);
+                    plSpX += PlayerDecel;
                     if(plSpX > 0) plSpX=0;
                 }
             }
@@ -203,8 +204,8 @@ void UpdatePlayer(){
                 }                
             }
 
-            
-            if(btndown_A){
+            //UP is the new interact
+            if(btndown_Up){
                 //search for an interactable object nearby
                 u16 ent = 0;
                 if( InteractableHere(plxint + (plLookingRight? PlayerWidth+5:-8), plyint+8, &ent) ){                                        
@@ -216,7 +217,12 @@ void UpdatePlayer(){
                     loadedEntities[ent].interactFunction(&loadedEntities[ent], 0);
                     // DrawSquare(loadedEntities[ent].x, loadedEntities[ent].y, 8,8,60);
                 }
-                
+            }
+
+            if(btndown_A){
+                //enter and leave combat mode
+                //eventually I will want to have a movement state dedicated
+                combatMode = !combatMode;
             }
 
             //attack
@@ -236,7 +242,7 @@ void UpdatePlayer(){
             
             //parry
             if(!btn_Up) canparry = TRUE;
-            if(btn_A && abs(plSpX)<FIX32(0.1)){                
+            if(combatMode && abs(plSpX)<FIX32(0.1)){                
                 
                 
                 if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){

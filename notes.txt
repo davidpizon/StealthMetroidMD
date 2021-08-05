@@ -32,10 +32,10 @@ Change animations only when necessary. Don't waste time animating things that mi
 Things to add for the short demo:
 - Crawl NOT NEEDED ATM
 - doors DONE
-- look up and down
+- look up and down - not priority
 - an impossible to defeat mechanism, like a camera, or something that functions like a soft door DONE
 - stairs? some means of vertical locomotion for npcs (and the player) specially for indoor locs DONE
-- tweak inertia
-- change combat toggle
-- add light shadow to demo
-- make crouching bumpable
+- tweak inertia - looks good to me
+- change combat toggle DONE
+- add light shadow to demo - done
+- make crouching bumpable 

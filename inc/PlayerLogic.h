@@ -13,6 +13,8 @@
 #define PlayerHeight 40
 #define PlayerWidth 16
 #define PlayerClimbDist 26
+#define PlayerDecel FIX32(0.07)
+#define PlayerAccel FIX32(0.06)
 
 //anim lengths
 #define PlAnim_walk2run_lastframe 5
