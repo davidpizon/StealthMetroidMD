@@ -4,3 +4,4 @@ This is a work in progress game engine for the Mega Drive written with SGDK. I a
 
 Eventually I will start populating with game assets and move it to private but will probably leave a public version forever.
 
+![demo](https://i.imgur.com/qLosX49.gif)
