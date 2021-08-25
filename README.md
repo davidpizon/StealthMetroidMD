@@ -1,7 +1,7 @@
 # StealthMetroidMD
 
-This is a work in progress game engine for the Mega Drive written with SGDK. I am making it open souce for now, in the hopes it serves as learning material or starting point for someone. 
+This is a work in progress game engine for the Mega Drive written with SGDK. I am making it open souce in the hopes it serves as learning material or starting point for someone. 
 
-Eventually I will start populating with game assets and move it to private but will probably leave a public version forever.
+The directory with art stuff, like sprites and maps and levels, is the only thing not included. So it may take some tweaking to get it running, since the engine expects certain files to be there.
 
-![demo](https://i.imgur.com/qLosX49.gif)
+![demo](demo.gif)
