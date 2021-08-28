@@ -35,7 +35,7 @@ def CombTileMinimize(t1, t2, n1, n2):
     i=0
     while i<100 :
         i+=1
-        curTile = CombineTile1(t1, t2, n1, n1)
+        curTile = CombineTile1(t1, t2, n1, n2)
         d1 = MatrixSim2(t1, curTile)
         d2 = MatrixSim2(t2, curTile)
         curd = (d1+d2)/2.0
@@ -162,8 +162,9 @@ for x in range(0, width-1, 8):
             image.append(imagepart)
             timesTileAppears[existingTile]+=1
 
-       
-
+print("tile frequency")
+for x in timesTileAppears:
+    print (x)
 
 #find similar tiles now
 def MatrixSim1(t1, t2):
