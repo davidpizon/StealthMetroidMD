@@ -365,6 +365,9 @@ bool ColliderHere(int x, int y, u16* ent){
 //I am just pretending to write something here to make it look like I'm working
 //boy, I sure am tired. 
 //I wonder if anyone will ever read this.
+//I have like 30 minutes to do something then I have other stuff to do
+// but i don't know what to work on. I ahve no motivation right now
+// ok maybe aseprite has something for me to do, let's go over that app now!
 
 
 bool InteractableHere(int x, int y, u16* ent){
