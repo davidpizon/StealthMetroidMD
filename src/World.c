@@ -362,6 +362,11 @@ bool ColliderHere(int x, int y, u16* ent){
     return FALSE;
 }
 
+//I am just pretending to write something here to make it look like I'm working
+//boy, I sure am tired. 
+//I wonder if anyone will ever read this.
+
+
 bool InteractableHere(int x, int y, u16* ent){
     
     for (u8 c = 0; c<numInter; c++){

@@ -1,6 +1,15 @@
 notes:
 
+HIGH PRIORITY TO-DO:
+- I need to define the level structure of the game. That means expanding the prototype to include other areas.
+- 3 distinct regions to explore non linearly
+- one upgrade that acts as key to new areas
+- one action that changes the nature of another region
 
+smaller tasks:
+- two more tilesets:
+-- cave
+-- slums? I don't know
 
 Combat parameters to tweak:
 - AI attack timing << changed method to something that looks reasonable

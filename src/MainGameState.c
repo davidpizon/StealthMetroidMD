@@ -15,7 +15,7 @@ u16 debugtimer;
 
 void MainGameStart(){
     
-    //XGM_startPlay(&mymusic);
+    XGM_startPlay(&mymusic);
 
     // VDP_setWindowHPos(TRUE, 20);
     // VDP_setWindowVPos(TRUE, DEBUGLINE);

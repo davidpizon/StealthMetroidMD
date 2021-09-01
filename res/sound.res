@@ -15,4 +15,4 @@ WAV sound_4 "sfx/sound4.wav" XGM
 WAV gouldfish_chime "sfx/gouldfish.wav" XGM
 
 XGM xgm_1 "sfx/techo2.vgm"
-XGM mymusic "sfx/tangerinedream.vgm"
+XGM mymusic "sfx/moodybass.vgm"
