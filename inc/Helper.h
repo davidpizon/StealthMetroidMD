@@ -7,6 +7,10 @@
 #include "../res/sprite.h"
 #include "MainGameState.h"
 
+//macro for kdebug functions
+#define DEBUGMODE 1
+#define print(a) if(DEBUGMODE) KDebug_Alert(a)
+
 
 
 bool SquareIntersection(fix32 x1, fix32 y1, u16 w1, u16 h1, fix32 x2, fix32 y2, u16 w2, u16 h2);

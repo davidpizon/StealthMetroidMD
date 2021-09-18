@@ -133,6 +133,8 @@ void MainGameUpdate(){
     }
    
    
+    //obvious debug stuff.. this turns off the debug square renderer
+    //unless I wrap this around #ifdef stuff I should remove it in the final version
     if(debugtimer != 0 ){
         debugtimer --;
     }else{
@@ -144,7 +146,8 @@ void MainGameUpdate(){
 }
 
 void MainGameEnd(){
-
+    //do i even need this crap?
+    
 }
 
 

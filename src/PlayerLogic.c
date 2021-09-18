@@ -1070,7 +1070,8 @@ void UpdatePlayer(){
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
     if(!grounded && prevgrounded){
         if(animState == as_run || animState == as_startRun ||animState == as_stopRun){
-            KDebug_Alert("falling");
+            //KDebug_Alert("falling");
+            print("falling");
             
             animState = as_horizontalJump;
             SPR_setAnimAndFrame(playerSprite, PlAnim_horjump, 3);
