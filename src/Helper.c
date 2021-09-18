@@ -3,8 +3,8 @@
 void StopAnimationOnLastFrame(Sprite* sp){
     if(LastFrame(sp)){
         sp->timer = 0;
-        KDebug_Alert("reached the end of animation. Frame:");
-        KDebug_AlertNumber(sp->frameInd);
+        print("reached the end of animation. Frame:");
+        print_number(sp->frameInd);
     }
 }
 

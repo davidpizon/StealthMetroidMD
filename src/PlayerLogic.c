@@ -1070,7 +1070,7 @@ void UpdatePlayer(){
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
     if(!grounded && prevgrounded){
         if(animState == as_run || animState == as_startRun ||animState == as_stopRun){
-            //KDebug_Alert("falling");
+            //print("falling");
             print("falling");
             
             animState = as_horizontalJump;
@@ -1104,15 +1104,15 @@ void DamagePlayer(u8 dmg, u16 attacker){
     if(movState == ms_parrying){
         if(playerSprite->frameInd == 0 || playerSprite->frameInd == 4){
             //nothing happens maybe play a clang sound
-            KDebug_Alert("player parry!");
+            print("player parry!");
             
             return;
         }
         if(playerSprite->frameInd == 1 || playerSprite->frameInd == 3 || playerSprite->frameInd == 2){
             //perfect parry
             //need a ref to the npc attacking to inflict stagger
-            KDebug_Alert("player PERFECT parry!");
-            KDebug_AlertNumber(attacker);
+            print("player PERFECT parry!");
+            print_number(attacker);
             NPCs[attacker].myAICommands = aic_wait;
             NPCs[attacker].myAnimState = as_stagger;
             SPR_setAnim(NPCs[attacker].sprite, blankganim_pain);
@@ -1124,5 +1124,5 @@ void DamagePlayer(u8 dmg, u16 attacker){
     animState = as_pain;
     
     SPR_setAnim(playerSprite, PlAnim_pain);
-    KDebug_Alert("player taking dmg");
+    print("player taking dmg");
 }

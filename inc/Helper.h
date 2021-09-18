@@ -8,8 +8,9 @@
 #include "MainGameState.h"
 
 //macro for kdebug functions
-#define DEBUGMODE 1
+#define DEBUGMODE 0
 #define print(a) if(DEBUGMODE) KDebug_Alert(a)
+#define print_number(a) if(DEBUGMODE) KDebug_AlertNumber(a)
 
 
 

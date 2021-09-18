@@ -178,7 +178,7 @@ void LoadEntities(){
         switch (ALLENTS[eind])
         {
         case ed_PlayerStart:
-        KDebug_AlertNumber(eind);
+        print_number(eind);
             eind++;
             if(playerStarted){
                 //don't know how to handle this shit yet
@@ -191,8 +191,8 @@ void LoadEntities(){
             
             break;
         case ed_BlankGuard:
-            KDebug_AlertNumber(eind);
-            KDebug_Alert("NPC added");
+            print_number(eind);
+            print("NPC added");
             eind++;
             tempx = intToFix32(ALLENTS[eind++]);
             tempy = intToFix32(ALLENTS[eind++]);
@@ -200,14 +200,14 @@ void LoadEntities(){
             AddNPC(tempx , tempy);
             break;
         case ed_SimpleDoor:
-            KDebug_AlertNumber(eind);
+            print_number(eind);
             eind++;
             tempx = intToFix32(ALLENTS[eind++]);
             tempy = intToFix32(ALLENTS[eind++]);
             bool tempb = ALLENTS[eind++];            
             //put door
             AddDoor(tempx, tempy);
-            KDebug_Alert("added a door");
+            print("added a door");
             break;
         case ed_Camera:
             eind++;
@@ -220,7 +220,7 @@ void LoadEntities(){
             fix32 targety = intToFix32(ALLENTS[eind++]);
             //put camera
             AddCamera(tempx, tempy, s, lt, rt, targetx, targety);
-            KDebug_Alert("added a door");
+            print("added a door");
             break;
         case ed_SpawnPoint:
             eind++;
@@ -228,7 +228,7 @@ void LoadEntities(){
             tempy = intToFix32(ALLENTS[eind++]);
             u8 n = ALLENTS[eind++];
             AddSpawnPoint(tempx, tempy, n);
-            KDebug_Alert("added a spawn point");
+            print("added a spawn point");
             break;
         case ed_Stairway:
             eind++;
@@ -238,7 +238,7 @@ void LoadEntities(){
             tempx2 = intToFix32(ALLENTS[eind++]);
             tempy2 = intToFix32(ALLENTS[eind++]);
             AddStairway(tempx, tempy, tempx2, tempy2);
-            KDebug_Alert("added a stairway");
+            print("added a stairway");
             break;
         default:
             break;
@@ -247,9 +247,9 @@ void LoadEntities(){
         if(eind >= end) break;
     }
 
-    KDebug_Alert("asdasdasd");
+    print("asdasdasd");
     for(int e = 0 ; e<numEnt; e++){
-        KDebug_AlertNumber(loadedEntities[e].type);
+        print_number(loadedEntities[e].type);
     }
     
 }
@@ -374,14 +374,14 @@ bool InteractableHere(int x, int y, u16* ent){
     
     for (u8 c = 0; c<numInter; c++){
         u8 ind = loadedInteractables[c];
-        KDebug_Alert("searching for interactable");
-        KDebug_AlertNumber(fix32ToRoundedInt(loadedEntities[ind].x));
-        KDebug_AlertNumber(x);
+        print("searching for interactable");
+        print_number(fix32ToRoundedInt(loadedEntities[ind].x));
+        print_number(x);
         if( x  >= fix32ToRoundedInt(loadedEntities[ind].x) && x<= fix32ToRoundedInt(loadedEntities[ind].x)+ loadedEntities[ind].w ){
-            KDebug_Alert("found one in x range");
+            print("found one in x range");
             if( y  >= fix32ToRoundedInt(loadedEntities[ind].y) && y<= fix32ToRoundedInt(loadedEntities[ind].y)+ loadedEntities[ind].h ){
                 *ent = ind;
-                KDebug_Alert("in y range too, returning true");
+                print("in y range too, returning true");
                 return TRUE;
             }
         }
@@ -448,15 +448,15 @@ bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
         if(ti==tf){
             //still in the same tile. return
             // char ble[10];
-            // KDebug_Alert("things");
+            // print("things");
             // fix32ToStr(*x, ble, 5);
-            // KDebug_Alert(ble);
+            // print(ble);
             // fix32ToStr(*dx, ble, 5);
-            // KDebug_Alert(ble);
-            // KDebug_Alert(itoa2(xi,ble));
-            // KDebug_Alert(itoa2(xf,ble));
-            // KDebug_Alert(itoa2(ti,ble));
-            // KDebug_Alert(itoa2(tf,ble));
+            // print(ble);
+            // print(itoa2(xi,ble));
+            // print(itoa2(xf,ble));
+            // print(itoa2(ti,ble));
+            // print(itoa2(tf,ble));
             return TRUE;
         }
         int ty = y >> 3;
