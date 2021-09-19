@@ -451,7 +451,7 @@ void UpdatePlayer(){
             int delta = plLookingRight? PlayerWidth + 1 : -1;
             if(!PointInTile(plxint+delta, plyint, TILE_SOLID)){
                 movState = ms_jumpup;
-                KDebug_Halt();
+                HALT();
                 break;
             }
         }
@@ -537,7 +537,7 @@ void UpdatePlayer(){
                 ply = FIX32(grabbingBlockY - PlayerHeight );
                 plSpY = plSpX = 0;
                 break;
-                //KDebug_Halt();
+                //HALT();
             }
         }else if(btn_Up){
             climbingY += FIX32(0.2);
@@ -643,7 +643,7 @@ void UpdatePlayer(){
                 animState = as_startRun;
                 SPR_setAnim(playerSprite,PlAnim_startrun);
                 passingAnimTimer = 0;
-                // KDebug_Halt();
+                // HALT();
                 break;
             }
             
@@ -655,7 +655,7 @@ void UpdatePlayer(){
             passingAnimTimer = 0;
             SPR_setHFlip(playerSprite, plLookingRight);
             plLookingRight = !plLookingRight;
-            // KDebug_Halt();
+            // HALT();
             break;
         }
         break;   
@@ -799,7 +799,7 @@ void UpdatePlayer(){
             plLookingRight = !plLookingRight;
             SPR_setFrame(playerSprite, 0);
             passingAnimTimer = 0;
-            // KDebug_Halt();
+            // HALT();
             break;
         }
         if(plAccX == 0){
@@ -808,7 +808,7 @@ void UpdatePlayer(){
             animState = as_stopRun;
             passingAnimTimer = 0;
             animState = as_stopRun; 
-            // KDebug_Halt();           
+            // HALT();           
             break;
         }
         
@@ -819,7 +819,7 @@ void UpdatePlayer(){
             if(playerSprite->frameInd == 2){
                 SPR_setAnim(playerSprite, PlAnim_run);
                 animState = as_run;
-                // KDebug_Halt();
+                // HALT();
                 break;
             }else{
                 SPR_nextFrame(playerSprite);
@@ -839,7 +839,7 @@ void UpdatePlayer(){
             animState = as_stopRun;
             passingAnimTimer = 0;
             animState = as_stopRun;
-            // KDebug_Halt();
+            // HALT();
             break;
         }
         if((plAccX > 0 && !plLookingRight)||(plAccX < 0 && plLookingRight)){
@@ -848,7 +848,7 @@ void UpdatePlayer(){
             plLookingRight = !plLookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
             animState = as_startRun;
-            // KDebug_Halt();
+            // HALT();
             break;
         }
         break;
@@ -918,14 +918,14 @@ void UpdatePlayer(){
             plLookingRight = !plLookingRight;
             SPR_setAnim(playerSprite,PlAnim_startrun);
             animState = as_startRun;
-            // KDebug_Halt();
+            // HALT();
             break;
         }
         if(plAccX != 0){
             //means we started running again
             animState = as_startRun;
             SPR_setAnim(playerSprite,PlAnim_startrun);
-            //KDebug_Halt();
+            //HALT();
             break;
         }
 
@@ -937,7 +937,7 @@ void UpdatePlayer(){
             if(playerSprite->frameInd == 0){
                 SPR_setAnim(playerSprite,PlAnim_idle);
                 animState = as_idle;
-                //KDebug_Halt();
+                //HALT();
                 break;
             }
         }
@@ -1070,8 +1070,8 @@ void UpdatePlayer(){
     grounded = PointInWalkableTile(plxint, plyint+PlayerHeight+1) || PointInWalkableTile(plxint+10, plyint+PlayerHeight+1);
     if(!grounded && prevgrounded){
         if(animState == as_run || animState == as_startRun ||animState == as_stopRun){
-            //print("falling");
-            print("falling");
+            //PRINT("falling");
+            PRINT("falling");
             
             animState = as_horizontalJump;
             SPR_setAnimAndFrame(playerSprite, PlAnim_horjump, 3);
@@ -1104,15 +1104,15 @@ void DamagePlayer(u8 dmg, u16 attacker){
     if(movState == ms_parrying){
         if(playerSprite->frameInd == 0 || playerSprite->frameInd == 4){
             //nothing happens maybe play a clang sound
-            print("player parry!");
+            PRINT("player parry!");
             
             return;
         }
         if(playerSprite->frameInd == 1 || playerSprite->frameInd == 3 || playerSprite->frameInd == 2){
             //perfect parry
             //need a ref to the npc attacking to inflict stagger
-            print("player PERFECT parry!");
-            print_number(attacker);
+            PRINT("player PERFECT parry!");
+            PRINT_NUMBER(attacker);
             NPCs[attacker].myAICommands = aic_wait;
             NPCs[attacker].myAnimState = as_stagger;
             SPR_setAnim(NPCs[attacker].sprite, blankganim_pain);
@@ -1124,5 +1124,5 @@ void DamagePlayer(u8 dmg, u16 attacker){
     animState = as_pain;
     
     SPR_setAnim(playerSprite, PlAnim_pain);
-    print("player taking dmg");
+    PRINT("player taking dmg");
 }

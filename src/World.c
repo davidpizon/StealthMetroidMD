@@ -178,7 +178,7 @@ void LoadEntities(){
         switch (ALLENTS[eind])
         {
         case ed_PlayerStart:
-        print_number(eind);
+        PRINT_NUMBER(eind);
             eind++;
             if(playerStarted){
                 //don't know how to handle this shit yet
@@ -191,8 +191,8 @@ void LoadEntities(){
             
             break;
         case ed_BlankGuard:
-            print_number(eind);
-            print("NPC added");
+            PRINT_NUMBER(eind);
+            PRINT("NPC added");
             eind++;
             tempx = intToFix32(ALLENTS[eind++]);
             tempy = intToFix32(ALLENTS[eind++]);
@@ -200,14 +200,14 @@ void LoadEntities(){
             AddNPC(tempx , tempy);
             break;
         case ed_SimpleDoor:
-            print_number(eind);
+            PRINT_NUMBER(eind);
             eind++;
             tempx = intToFix32(ALLENTS[eind++]);
             tempy = intToFix32(ALLENTS[eind++]);
             bool tempb = ALLENTS[eind++];            
             //put door
             AddDoor(tempx, tempy);
-            print("added a door");
+            PRINT("added a door");
             break;
         case ed_Camera:
             eind++;
@@ -220,7 +220,7 @@ void LoadEntities(){
             fix32 targety = intToFix32(ALLENTS[eind++]);
             //put camera
             AddCamera(tempx, tempy, s, lt, rt, targetx, targety);
-            print("added a door");
+            PRINT("added a door");
             break;
         case ed_SpawnPoint:
             eind++;
@@ -228,7 +228,7 @@ void LoadEntities(){
             tempy = intToFix32(ALLENTS[eind++]);
             u8 n = ALLENTS[eind++];
             AddSpawnPoint(tempx, tempy, n);
-            print("added a spawn point");
+            PRINT("added a spawn point");
             break;
         case ed_Stairway:
             eind++;
@@ -238,7 +238,7 @@ void LoadEntities(){
             tempx2 = intToFix32(ALLENTS[eind++]);
             tempy2 = intToFix32(ALLENTS[eind++]);
             AddStairway(tempx, tempy, tempx2, tempy2);
-            print("added a stairway");
+            PRINT("added a stairway");
             break;
         default:
             break;
@@ -247,9 +247,9 @@ void LoadEntities(){
         if(eind >= end) break;
     }
 
-    print("asdasdasd");
+    PRINT("asdasdasd");
     for(int e = 0 ; e<numEnt; e++){
-        print_number(loadedEntities[e].type);
+        PRINT_NUMBER(loadedEntities[e].type);
     }
     
 }
@@ -374,14 +374,14 @@ bool InteractableHere(int x, int y, u16* ent){
     
     for (u8 c = 0; c<numInter; c++){
         u8 ind = loadedInteractables[c];
-        print("searching for interactable");
-        print_number(fix32ToRoundedInt(loadedEntities[ind].x));
-        print_number(x);
+        PRINT("searching for interactable");
+        PRINT_NUMBER(fix32ToRoundedInt(loadedEntities[ind].x));
+        PRINT_NUMBER(x);
         if( x  >= fix32ToRoundedInt(loadedEntities[ind].x) && x<= fix32ToRoundedInt(loadedEntities[ind].x)+ loadedEntities[ind].w ){
-            print("found one in x range");
+            PRINT("found one in x range");
             if( y  >= fix32ToRoundedInt(loadedEntities[ind].y) && y<= fix32ToRoundedInt(loadedEntities[ind].y)+ loadedEntities[ind].h ){
                 *ent = ind;
-                print("in y range too, returning true");
+                PRINT("in y range too, returning true");
                 return TRUE;
             }
         }
@@ -448,15 +448,15 @@ bool MoveX(fix32* x, int y, int w, int h, fix32* dx){
         if(ti==tf){
             //still in the same tile. return
             // char ble[10];
-            // print("things");
+            // PRINT("things");
             // fix32ToStr(*x, ble, 5);
-            // print(ble);
+            // PRINT(ble);
             // fix32ToStr(*dx, ble, 5);
-            // print(ble);
-            // print(itoa2(xi,ble));
-            // print(itoa2(xf,ble));
-            // print(itoa2(ti,ble));
-            // print(itoa2(tf,ble));
+            // PRINT(ble);
+            // PRINT(itoa2(xi,ble));
+            // PRINT(itoa2(xf,ble));
+            // PRINT(itoa2(ti,ble));
+            // PRINT(itoa2(tf,ble));
             return TRUE;
         }
         int ty = y >> 3;

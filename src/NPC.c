@@ -215,7 +215,7 @@ void BasicNPCUpdate(NPC *n){
         if(!CanSeePlayer(n)){
             //go to searching. until i implement that, go to calm patrol
             n->myAIState = Searching;
-            print("searching");
+            PRINT("searching");
             n->timer = 0;
             break;
         }
@@ -240,7 +240,7 @@ void BasicNPCUpdate(NPC *n){
             //     //I need to come up with some math to find good values of probability per second. for now the above is a good
             //     //placeholder
             //     n->myAICommands = aic_wait;
-            //     // print("NOT attacking player");
+            //     // PRINT("NOT attacking player");
             //     break;
             // }
             if(random()%10 > 6){
@@ -299,7 +299,7 @@ void BasicNPCUpdate(NPC *n){
         if(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX) < 15){
             if(n->myAICommands != aic_turn){
                 n->myAICommands = aic_wait;
-                //KDebug_Halt();
+                //HALT();
             } 
             //here we look to the sides
             n->timerWait ++;
@@ -343,7 +343,7 @@ void BasicNPCUpdate(NPC *n){
         // if(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX) < 2){
         //     //means we are near where we last saw player. look around
         //     n->myAICommands = aic_wait;
-        //     print_number(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX));
+        //     PRINT_NUMBER(abs( fix32ToRoundedInt( n->x) - n->lastKnownLocX));
         //     if(n->timerWait == 60){
         //         n->myAICommands = aic_turn;
         //         n->timerWait = 0;
@@ -512,11 +512,11 @@ void BasicNPCUpdate(NPC *n){
         break;
     case as_stepfor:
         n->deltax += abs(n->dx);
-        print_number(n->deltax);
+        PRINT_NUMBER(n->deltax);
         if(n->deltax > FIX32(2)){
 
             SPR_nextFrame(n->sprite);
-            print_number(n->deltax);
+            PRINT_NUMBER(n->deltax);
             n->deltax = 0;
             if(n->sprite->frameInd == 0){
                 //looped back
@@ -529,11 +529,11 @@ void BasicNPCUpdate(NPC *n){
         break;
     case as_stepback:
         n->deltax += abs(n->dx);
-        print_number(n->deltax);
+        PRINT_NUMBER(n->deltax);
         if(n->deltax > FIX32(2)){
 
             SPR_nextFrame(n->sprite);
-            print_number(n->deltax);
+            PRINT_NUMBER(n->deltax);
             n->deltax = 0;
             if(n->sprite->frameInd == 0){
                 //looped back
@@ -589,7 +589,7 @@ void BasicNPCUpdate(NPC *n){
                 //call hit func
                 
                 fix32 disp = n->lookingRight? FIX32( n->w ) : -FIX32(20);
-                print_number(n->myindex);
+                PRINT_NUMBER(n->myindex);
                 NPCDamageBox(n->myindex, n->x+ disp, n->y, 20, n->h, 1);
             }
             SPR_nextFrame(n->sprite);
@@ -770,7 +770,7 @@ void DamageNPC(NPC *n, int dmg){
         //these are the conditions for an attempt to block
         if(random()>16383){ //probability depends on npc
         //if(1){
-            print("blocked!");
+            PRINT("blocked!");
             n->myAnimState = as_defend;
             n->animTimer = 0;
             SPR_setAnim(n->sprite, blankganim_defend);
@@ -779,12 +779,12 @@ void DamageNPC(NPC *n, int dmg){
     }
     
    
-    print("npc took damage");
+    PRINT("npc took damage");
     n->animTimer = 0;
     
     if((n->lookingRight && plLookingRight)||(!n->lookingRight && !plLookingRight)){
         //back stab
-        print("back stab");
+        PRINT("back stab");
         if(n->myAIState == Alerted)
             n->hitPoints -= dmg*2;
         else n->hitPoints -= dmg*3;
@@ -801,7 +801,7 @@ void DamageNPC(NPC *n, int dmg){
        
     }else{
         //front  stab
-        print("front stab");
+        PRINT("front stab");
         if(n->myAIState == Alerted)
             n->hitPoints -= dmg;
         else n->hitPoints -= dmg*2;

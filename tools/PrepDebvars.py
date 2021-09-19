@@ -9,9 +9,9 @@ filename = "C:\\gamedev\\PlatformerMD\\out\\symbol.txt"
 with fileinput.FileInput(filename, inplace = True, backup ='.bak') as f:
     for line in f:
         if("deb" in line):
-            print(line)
+            PRINT(line)
         else:
-            print("") 
+            PRINT("") 
 
 
 # os.startfile("C:\\gamedev\\SGDK\\bin\\nm2wch.exe C:\\gamedev\\PlatformerMD\\out\\symbol.txt C:\\gamedev\\PlatformerMD\\out\\rom.wch")

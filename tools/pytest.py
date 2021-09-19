@@ -13,7 +13,7 @@ numlevels = len(levels)
 #following code finds all indices in the final array and connects them to uid
 idtoindex=[]
 for l in range(numlevels):
-    print(levels[l]['uid']) 
+    PRINT(levels[l]['uid']) 
     idtoindex.append([levels[l]['uid'],l])
     path   = "C:\\gamedev\\PlatformerMD\\res\Levels\\LDtk_project\\world_levels"
     
@@ -39,7 +39,7 @@ for l in range(numlevels):
     outputfile.write(resentry1+"\n")
     outputfile.write(resentry2+"\n")
     outputfile.write(resentry3+"\n")
-print(idtoindex)
+PRINT(idtoindex)
 
 
 
@@ -76,7 +76,7 @@ for lvl in levels:
                 if(f['__value']==True):
                     allents.append(1)
                 else:
-                    print(f['__value'])
+                    PRINT(f['__value'])
                     allents.append(0)
             elif(f['__type']=='Point'):
                 if(f['__value']!=None):                    
@@ -123,13 +123,13 @@ for lvl in levels:
     numents += len(ents)
 outputfile.write("};\n")
 
-print("0---")
-print(*allents, sep=',')
+PRINT("0---")
+PRINT(*allents, sep=',')
 numents = len(allents)
 
 #entities
 outputfile.write('#define SIZEENTARRAY  {}\n'.format(numents))
-print('totalEnts  {}\n'.format(numents))
+PRINT('totalEnts  {}\n'.format(numents))
 outputfile.write('const int ALLENTS[SIZEENTARRAY]={')
 outputfile.write("\n")
 

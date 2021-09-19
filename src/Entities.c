@@ -37,17 +37,17 @@ void DoorInteract(Entity* self, int code){
     if(code != self->SubType.door.code && !self->SubType.door.opened)
         return; //wrong key
     
-    print("interacted with door");
+    PRINT("interacted with door");
     if(self->SubType.door.opened){
         SPR_setAnimAndFrame(self->sprite, 1,0);
-        print("closing");
+        PRINT("closing");
         self->collider = TRUE;
     }else{
         SPR_setAnimAndFrame(self->sprite, 0,0);
         // self->sprite->timer = 10;
         // SPR_setFrameChangeCallback(self->sprite, StopAnimationOnLastFrame);
         self->collider = FALSE;
-        print("opening");
+        PRINT("opening");
         
     }
 
@@ -178,13 +178,13 @@ void AddStairway(fix32 x, fix32 y, fix32 exitx, fix32 exity){
 //interact functions need a pointer for the thing interacting with..
 //for now let's assume only the player interacts with stairways
 void ActivateStairway(Entity* self, int code){
-    print("using stairway!");
-    print_number(fix32ToRoundedInt( ply));
+    PRINT("using stairway!");
+    PRINT_NUMBER(fix32ToRoundedInt( ply));
     plx = self->SubType.stairway.exitPoint[0];
     ply = self->SubType.stairway.exitPoint[1];
-    print_number(fix32ToRoundedInt( ply));
-    print_number(fix32ToRoundedInt(self->SubType.stairway.exitPoint[1]));
-    print("using stairway END");
+    PRINT_NUMBER(fix32ToRoundedInt( ply));
+    PRINT_NUMBER(fix32ToRoundedInt(self->SubType.stairway.exitPoint[1]));
+    PRINT("using stairway END");
     // plx = 0;
     // ply = 0;
     //557056 565248

@@ -9,8 +9,9 @@
 
 //macro for kdebug functions
 #define DEBUGMODE 0
-#define print(a) if(DEBUGMODE) KDebug_Alert(a)
-#define print_number(a) if(DEBUGMODE) KDebug_AlertNumber(a)
+#define PRINT(a) if(DEBUGMODE) KDebug_Alert(a)
+#define PRINT_NUMBER(a) if(DEBUGMODE) KDebug_AlertNumber(a)
+#define HALT() KDebug_Halt()
 
 
 

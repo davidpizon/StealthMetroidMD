@@ -2,7 +2,7 @@ from PIL import Image
 import random
 import copy
 
-print(random.uniform(0.0, 10.0))
+PRINT(random.uniform(0.0, 10.0))
 
 distThresh = 5.0
 # creating a image object 
@@ -25,7 +25,7 @@ def MakeTile(x0, y0):
             curline += [px[x,y]]
         
         returntile.append(curline)
-    # print(returntile)
+    # PRINT(returntile)
     # exit()
     return returntile
 
@@ -67,7 +67,7 @@ def CombineTile1(t1, t2, n1, n2):
                 minn = 1.0
             else:
                 diceroll = random.uniform(0.0,maxn*1.0)*1.0
-                #print("maxn = {}, minn = {}, roll = {}".format(maxn, minn, diceroll))            
+                #PRINT("maxn = {}, minn = {}, roll = {}".format(maxn, minn, diceroll))            
             
             if ( diceroll >= minn *0.5):
                 t = ht
@@ -93,13 +93,13 @@ def FlipX(tile):
 def FlipY(tile):
     returntile = []
     for y in range(7, -1, -1): 
-        #print(tile[y])       
+        #PRINT(tile[y])       
         returntile.append(tile[y])
     return returntile
 
 def PrintTile(tile):    
     for y in range(0,8,1): 
-        print(tile[y])
+        PRINT(tile[y])
 
 
 
@@ -162,7 +162,7 @@ for x in range(0, width-1, 8):
             image.append(imagepart)
             timesTileAppears[existingTile]+=1
 
-print("tile frequency")
+PRINT("tile frequency")
 for x in timesTileAppears:
     print (x)
 
@@ -175,8 +175,8 @@ def MatrixSim1(t1, t2):
     return total
 
 def MatrixSim2(t1, t2):
-    # print("teste")
-    # print(t1)
+    # PRINT("teste")
+    # PRINT(t1)
     total=0
     for y in range(0, 8, 1):
         for x in range(0, 8, 1):
@@ -192,11 +192,11 @@ skipthese =[]
 newimage= copy.deepcopy(image)
 for t0 in range(0, len(uniquetiles), 1):
     
-    #print("starting thing")
+    #PRINT("starting thing")
     nextt0=False
     for s in skipthese:
         if (t0==s):
-            #print("already merged this s0")
+            #PRINT("already merged this s0")
             nextt0 = True
             break
     if(nextt0):
@@ -210,7 +210,7 @@ for t0 in range(0, len(uniquetiles), 1):
         nextt1 = False
         for s in skipthese:
             if (t1==s):
-                #print("already merged this s1")
+                #PRINT("already merged this s1")
                 nextt1 = True
                 break
         if(nextt1):
@@ -299,7 +299,7 @@ for t0 in range(0, len(uniquetiles), 1):
                 newimage[p][1] = image[p][1]
                 newimage[p][2] = image[p][2]
 
-    #print("incrementing nui")
+    #PRINT("incrementing nui")
     nui += 1
 
 
@@ -313,9 +313,9 @@ def WriteTileToImage(x0,y0,tile):
 x=0
 y=0
 for imgelem in range(len(newimage)):
-    # print("current tile {}".format(newimage[imgelem][0]))
+    # PRINT("current tile {}".format(newimage[imgelem][0]))
     # PrintTile(newUniqueTiles[newimage[imgelem][0]])
-    # #print("newUniqueTiles len {}".format(len(newUniqueTiles)))
+    # #PRINT("newUniqueTiles len {}".format(len(newUniqueTiles)))
 
     tile = copy.deepcopy( newUniqueTiles[newimage[imgelem][0]])    
     fx = newimage[imgelem][1]    
@@ -334,16 +334,16 @@ for imgelem in range(len(newimage)):
 
 im.save("tools/tilecompressionoutput/output.png")
 
-print("previous unique tiles: {}".format(len(uniquetiles)))
-print("unique tiles now: {}".format(len(newUniqueTiles)))
+PRINT("previous unique tiles: {}".format(len(uniquetiles)))
+PRINT("unique tiles now: {}".format(len(newUniqueTiles)))
 
-print("saving original copy to test stuff")
+PRINT("saving original copy to test stuff")
 x=0
 y=0
 for imgelem in range(len(newimage)):
-    # print("current tile {}".format(newimage[imgelem][0]))
+    # PRINT("current tile {}".format(newimage[imgelem][0]))
     # PrintTile(newUniqueTiles[newimage[imgelem][0]])
-    # #print("newUniqueTiles len {}".format(len(newUniqueTiles)))
+    # #PRINT("newUniqueTiles len {}".format(len(newUniqueTiles)))
 
     tile = copy.deepcopy( uniquetiles[image[imgelem][0]])    
     fx = image[imgelem][1]    
@@ -362,7 +362,7 @@ for imgelem in range(len(newimage)):
 
 im.save("tools/tilecompressionoutput/outputoriginal.png")
 
-print("saving all tiles")
+PRINT("saving all tiles")
 #clear image
 for x in range(width):
     for y in range(height):
