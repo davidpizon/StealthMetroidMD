@@ -7,6 +7,7 @@ HIGH PRIORITY TO-DO:
 - one action that changes the nature of another region
 
 smaller tasks:
+- change combat mode style to attack to enter... but how to exit?
 - two more tilesets:
 -- cave
 -- slums? I don't know

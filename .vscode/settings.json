@@ -12,5 +12,8 @@
         "mycustomstate.h": "c",
         "kdebug.h": "c"
     },
-    "python.pythonPath": "C:\\Users\\owner\\Anaconda2\\envs\\pymidigen\\python.exe"
+    "python.pythonPath": "C:\\Users\\owner\\Anaconda2\\envs\\pymidigen\\python.exe",
+    "vscode_custom_css.imports": [
+        "file:///C:/Users/owner/.vscode/extensions/webrender.synthwave-x-fluoromachine-0.0.12/synthwave-x-fluoromachine.css"
+        ]
 }

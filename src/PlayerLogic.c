@@ -19,7 +19,7 @@ typedef enum{
     ms_normal,
     ms_crouch,
     ms_hanging,
-    ms_wallRunning,
+    ms_wallRunning,    
     ms_attacking,
     ms_parrying,
     ms_counter,
@@ -31,6 +31,7 @@ typedef enum{
     ms_rolling
 } MovementState;
 
+
 MovementState movState = ms_normal;
 
 
@@ -40,6 +41,7 @@ int grabbingBlockY;
 int grabbingBlockType;
 bool wallRunningRight;
 bool canparry = FALSE;
+//I chose to keep combat mode a bool and its substates as movement states, like side step, attack etc
 bool combatMode = FALSE;
 
 
@@ -219,10 +221,23 @@ void UpdatePlayer(){
                 }
             }
 
+            
             if(btndown_A){
                 //enter and leave combat mode
                 //eventually I will want to have a movement state dedicated
                 combatMode = !combatMode;
+                //change anim state to as_unsheathe
+                if(combatMode){
+                    animState = as_unsheathe;
+                    SPR_setAnim(playerSprite, PlAnim_combatmode_start);
+                }else{
+                    animState = as_sheathe; 
+                    SPR_setAnim(playerSprite, PlAnim_combatmode_end); 
+                }
+                
+                //EXPERIMENTAL: FREEZE PLAYER WHILE (UN)SHEATHING
+                movState = ms_frozen;
+                break;
             }
 
             //attack
@@ -659,6 +674,31 @@ void UpdatePlayer(){
             break;
         }
         break;   
+    case as_unsheathe:
+        passingAnimTimer++;
+        if(passingAnimTimer > 3){
+            passingAnimTimer = 0;
+            //since this one stops at the ending...            
+            if(playerSprite->frameInd == playerSprite->animation->numFrame-1){
+                //animstate can stay here and do nothing
+                movState = ms_normal; //unfreeze
+            }else{
+                SPR_nextFrame(playerSprite);
+            }
+        }
+        break;
+    case as_sheathe:
+        passingAnimTimer++;
+        if(passingAnimTimer > 3){
+            passingAnimTimer = 0;    
+            SPR_nextFrame(playerSprite);       
+            if(playerSprite->frameInd == 0){ //looped
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_idle);
+                movState = ms_normal; //unfreeze
+            }
+        }
+        break;
     case as_parrying:
          passingAnimTimer ++;
         if(passingAnimTimer > 2){ //speed of parry influences combat a lot
@@ -673,10 +713,9 @@ void UpdatePlayer(){
                 
             }
             if(playerSprite->frameInd == 0){//looped
-                //go to jumpup ms and as states, also give y vel
                 movState = ms_normal;
                 animState = as_idle;
-                SPR_setAnim(playerSprite, PlAnim_idle);                
+                SPR_setAnim(playerSprite, PlAnim_combatmode);                
                 break;
             }
         }
@@ -691,7 +730,7 @@ void UpdatePlayer(){
                 movState = ms_normal;
                 animState = as_idle;
                 plSpX = 0;
-                SPR_setAnim(playerSprite, PlAnim_idle);                
+                SPR_setAnim(playerSprite, PlAnim_combatmode);                
                 break;
             }
         }
@@ -718,7 +757,7 @@ void UpdatePlayer(){
             if(playerSprite->frameInd == 0){ //looped back
                 movState = ms_normal;
                 animState = as_idle;
-                SPR_setAnim(playerSprite, PlAnim_idle);
+                SPR_setAnim(playerSprite, PlAnim_combatmode);
                 plSpX = 0 ;
                 break;
             }
@@ -732,7 +771,7 @@ void UpdatePlayer(){
             if(playerSprite->frameInd == 0){ //looped back
                 movState = ms_normal;
                 animState = as_idle;
-                SPR_setAnim(playerSprite, PlAnim_idle);
+                SPR_setAnim(playerSprite, PlAnim_combatmode);
                 plSpX = 0 ;
                 break;
             }
@@ -1054,7 +1093,7 @@ void UpdatePlayer(){
                 PlayerDamageBox(plx+disp, ply+ FIX32(5), 20, 5, 1);
             } else if(playerSprite->frameInd == 0){
                 animState = as_idle;
-                SPR_setAnim(playerSprite, PlAnim_idle);
+                SPR_setAnim(playerSprite, PlAnim_combatmode);
             }
                   
         }
