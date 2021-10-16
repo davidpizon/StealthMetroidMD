@@ -28,6 +28,10 @@ extern bool btnup_Left;
 extern bool btnup_Right;
 extern bool btnup_Start;
 
+//this is to be used sparingly so I don't have to create a check for every case, but I don't
+//want conflicts, so it's not super reliable if every state uses this!
+extern bool generalbtn_released;
+
 void InputHandler( u16 joy, u16 changed, u16 state);
 void ResetInputFlags();
 

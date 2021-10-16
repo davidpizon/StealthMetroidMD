@@ -29,6 +29,7 @@ bool btnup_Left;
 bool btnup_Right;
 bool btnup_Start;
 
+bool generalbtn_released;
 
 
 void InputHandler( u16 joy, u16 changed, u16 state)

@@ -263,12 +263,14 @@ void UpdatePlayer(){
                 if((btn_Right&&plLookingRight) ||(btn_Left&&!plLookingRight)){
                     //step forward
                     // canparry = FALSE;
+                    generalbtn_released = FALSE;
                     movState = ms_stepfor;
                     animState = as_stepfor;
                     SPR_setAnim(playerSprite, PlAnim_stepforward);
                 }else if((btn_Right&&!plLookingRight) ||(btn_Left&&plLookingRight)){
                     //step backward
                     // canparry = FALSE;
+                    generalbtn_released = FALSE;
                     movState = ms_stepback;
                     animState = as_stepback;
                     SPR_setAnim(playerSprite, PlAnim_stepback);
@@ -682,6 +684,7 @@ void UpdatePlayer(){
             if(playerSprite->frameInd == playerSprite->animation->numFrame-1){
                 //animstate can stay here and do nothing
                 movState = ms_normal; //unfreeze
+                animState = as_idle;
             }else{
                 SPR_nextFrame(playerSprite);
             }
@@ -750,6 +753,17 @@ void UpdatePlayer(){
         }
         break;
     case as_stepback:
+        //at any point of stepping back, after the first frame, if direction is pressed again (samedirection)
+        //we switch to turning
+        if((btnup_Left && plLookingRight)||(btnup_Right&&!plLookingRight)){
+            generalbtn_released = TRUE;
+        }
+        if(generalbtn_released && ((btndown_Left && plLookingRight)||(btndown_Right&&!plLookingRight))){
+            animState = as_turningSword;
+            SPR_setAnim(playerSprite, PlAnim_combatmode_turn);
+            movState = ms_frozen;
+            break;
+        }
         deltax += abs(plSpX);
         if(deltax > FIX32(5.0)){
             deltax = 0;
@@ -759,6 +773,23 @@ void UpdatePlayer(){
                 animState = as_idle;
                 SPR_setAnim(playerSprite, PlAnim_combatmode);
                 plSpX = 0 ;
+                break;
+            }
+        }
+        break;
+    case as_turningSword:
+        passingAnimTimer ++;
+        if(passingAnimTimer > 5){
+            passingAnimTimer = 0;
+            SPR_nextFrame(playerSprite);
+            if(playerSprite->frameInd == 0){
+                SPR_setHFlip(playerSprite,plLookingRight);
+                plLookingRight = !plLookingRight;
+                movState = ms_normal;
+                animState = as_idle;
+                SPR_setAnim(playerSprite, PlAnim_combatmode);
+                plSpX = 0 ;
+                
                 break;
             }
         }
@@ -776,7 +807,7 @@ void UpdatePlayer(){
                 break;
             }
         }
-        break;
+        break;    
     case as_jumpwindup:
         passingAnimTimer ++;
         if(passingAnimTimer > 5){
@@ -1080,7 +1111,7 @@ void UpdatePlayer(){
         break;
     case as_attackhit:
         VDP_drawText("attack              ", 0, DEBUGLINE);        
-        passingAnimTimer ++; //better way?
+        passingAnimTimer ++; 
         if(passingAnimTimer > 5){
             passingAnimTimer = 0;
 
